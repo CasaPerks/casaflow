@@ -1,18 +1,6 @@
-```
-         ┌──────────────────────────────────┐
-         │    ◎          ◎          ◎       │
-         └───────────────┬──────────────────┘
-                         │
-                    ┌────┴────┐
-                    │  ◎   ◎  │
-                    │         │
-                    │  ◎   ◎  │
-                    │         │
-                    │  ◎   ◎  │
-                    └────┬────┘
-                         │
-                         ▼
-```
+<p align="center">
+  <img src="assets/logo.png" alt="Jig" width="400">
+</p>
 
 # Jig
 
@@ -87,7 +75,7 @@ Jig ships as a plugin with 15 core skills, 3 agents, and 5 review specialists. Y
 | `/jig-brainstorm` | Design exploration | One question at a time, 2-3 approaches with trade-offs, design approval gate. Surfaces your team's concerns checklist from `jig.config.md`. |
 | `/jig-prd` | Requirements capture | Structured PRD with enforceable acceptance checklists. Two tiers: Full (12 sections) for features, Light (5 sections) for bugs. Layer-tagged items (`[API]`, `[DATA]`, `[LOGIC]`, `[UI]`) feed directly into spec reviewers. |
 | `/jig-plan` | Implementation planning | Turns approved designs into bite-sized TDD tasks with exact file paths, code snippets, and verification steps. Output is executable by `/jig-team-dev` or `/jig-sdd`. |
-| `/jig-team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. The killer feature. |
+| `/jig-team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. The killer feature that makes it all worth it! |
 | `/jig-sdd` | Serial execution | Fresh subagent per task with two-stage review (spec compliance then code quality). For tightly coupled tasks or when agent teams aren't available. |
 | `/jig-review` | Code review swarm | Dispatches parallel specialist reviewers (security, dead code, error handling, async safety, performance + your team's specialists). Filters by glob match, scores mechanically, produces unified report. |
 | `/jig-pr-create` | PR creation | Runs the review swarm first, then analyzes all commits, groups by theme, writes a clear description with test plan. No corporate speak. |
@@ -203,7 +191,7 @@ Teams using GitLab or Bitbucket are supported via the [git host adapter](framewo
 
 ## Origin
 
-Jig was extracted from [Duro's](https://www.durolabs.co) Phoenix project, where 31 battle-tested skills, 6 agents, and 10 specialist reviewers evolved into a comprehensive AI-assisted development system. Born from a hardware startup that knows what jigs do.
+Jig was extracted from [Duro's](https://www.durolabs.co) new platform, where 31 battle-tested skills, 6 agents, and 10 specialist reviewers evolved into a comprehensive AI-assisted development system. Born from a hardware startup that knows what jigs do.
 
 ## License
 
