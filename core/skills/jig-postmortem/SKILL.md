@@ -25,7 +25,7 @@ alwaysApply: false
 - `/jig-postmortem` invoked directly
 
 **Do NOT use when:**
-- The PR has not been merged yet (use `jig-pr respond` instead)
+- The PR has not been merged yet (use `jig-pr-respond` instead)
 - The PR received no review comments (nothing to learn from)
 
 ---
@@ -320,7 +320,8 @@ When deciding where a pattern belongs, use the narrowest applicable scope:
 
 **Related skills:**
 - `jig-review` -- the review swarm whose specialists this skill improves
-- `jig-pr` -- the PR whose comments this skill analyzes
+- `jig-pr-create` -- the PR whose comments this skill analyzes
+- `jig-pr-respond` -- for addressing feedback before the postmortem
 - `jig-extend` -- if the postmortem reveals the need for an entirely new skill or specialist
 
 ---

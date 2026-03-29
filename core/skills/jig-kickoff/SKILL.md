@@ -27,7 +27,7 @@ Invoke this skill when:
 - Beginning a new session with a development task
 - You want the full pipeline, not just one stage
 
-**Do NOT use when** you only need a single stage (e.g., just creating a PR → use `jig-pr` directly).
+**Do NOT use when** you only need a single stage (e.g., just creating a PR → use `jig-pr-create` directly).
 
 ---
 
@@ -296,9 +296,9 @@ Before proceeding, confirm:
 graph LR
   self["Self-audit<br/>jig-review"] --> agent["Automated analysis<br/>jig-code-review agent"]
   agent --> fix["Fix Critical<br/>& Major issues"]
-  fix --> pr["Create PR<br/>jig-pr"]
+  fix --> pr["Create PR<br/>jig-pr-create"]
   pr --> inline["Inline comments<br/>jig-pr-review agent"]
-  inline --> respond["Address feedback<br/>jig-pr"]
+  inline --> respond["Address feedback<br/>jig-pr-respond"]
 ```
 
 ### Self-Audit First
@@ -331,8 +331,8 @@ Before proceeding, confirm:
 **Gate**: PR created and merged.
 
 1. **Commit**: use the `jig-commit` agent
-2. **Create PR**: `/jig-pr` — analyzes branch, writes description, creates PR
-3. **Address feedback**: `/jig-pr` for any reviewer comments
+2. **Create PR**: `/jig-pr-create` — analyzes branch, writes description, creates PR
+3. **Address feedback**: `/jig-pr-respond` for any reviewer comments
 4. **Merge**: After approval
 
 ### Gate Check
@@ -414,5 +414,5 @@ When looping back, update the plan document to reflect changes.
 | Plan | `jig-plan` | `docs/plans/*.md` |
 | Execute | `jig-team-dev` or `jig-sdd` | Implemented + tested code |
 | Review | `jig-review` → `jig-code-review` agent | Audited code |
-| Ship | `jig-commit` → `jig-pr` | Merged PR |
+| Ship | `jig-commit` → `jig-pr-create` | Merged PR |
 | Learn | `jig-postmortem` | Updated skills |

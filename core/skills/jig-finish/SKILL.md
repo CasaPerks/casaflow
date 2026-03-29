@@ -143,7 +143,7 @@ EOF
 )"
 ```
 
-If the project has a `jig-pr` skill, defer to it for PR creation.
+If the project has the `jig-pr-create` skill, defer to it for PR creation.
 
 Then: Cleanup worktree (Step 5)
 
@@ -253,7 +253,7 @@ If the project uses a worktree management command (check `jig.config.md` or proj
 
 **Related skills:**
 - `jig-verify` -- used in Step 1 to verify tests pass
-- `jig-pr` -- can be used in Option 2 for more structured PR creation
+- `jig-pr-create` -- can be used in Option 2 for more structured PR creation
 - `jig-review` -- should have been completed before reaching this skill
 
 ---

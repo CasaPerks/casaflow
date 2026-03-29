@@ -288,8 +288,8 @@ As a best practice, you should always...
 |------|---------|---------|
 | `@agent-code-review` | Analyzes code, produces review report | Findings flow INTO this agent |
 | `jig-review` | Swarm-based code review with parallel specialists | Findings flow INTO this agent |
-| `jig-pr` (respond mode) | Responds to EXISTING comments on a PR | Different direction -- reacting, not initiating |
-| `jig-pr` (create mode) | Creates the PR itself | Runs before this agent |
+| `jig-pr-respond` | Responds to EXISTING comments on a PR | Different direction -- reacting, not initiating |
+| `jig-pr-create` | Creates the PR itself | Runs before this agent |
 
 Typical flow: `@agent-code-review` then `@agent-pr-reviewer`
 

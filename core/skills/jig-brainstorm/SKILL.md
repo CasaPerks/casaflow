@@ -29,7 +29,7 @@ Invoke this skill when:
 **Do NOT use when:**
 - Fixing a bug with an obvious root cause (use `jig-debug`)
 - Running a chore or config change (skip to `jig-plan`)
-- You only need to create a PR (use `jig-pr` directly)
+- You only need to create a PR (use `jig-pr-create` directly)
 
 ---
 
