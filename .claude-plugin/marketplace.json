@@ -3,14 +3,39 @@
   "description": "Jig — The AI engineering workflow framework for teams",
   "owner": {
     "name": "Duro Labs",
-    "url": "https://github.com/duronext"
+    "email": "engineering@durolabs.co"
   },
   "plugins": [
     {
       "name": "jig",
-      "source": ".",
-      "version": "1.0.0",
-      "description": "Full lifecycle pipeline: discover, brainstorm, plan, execute, review, ship, learn"
+      "description": "Full lifecycle pipeline: discover, brainstorm, plan, execute, review, ship, learn",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./core/skills/jig-kickoff",
+        "./core/skills/jig-brainstorm",
+        "./core/skills/jig-prd",
+        "./core/skills/jig-plan",
+        "./core/skills/jig-team-dev",
+        "./core/skills/jig-sdd",
+        "./core/skills/jig-review",
+        "./core/skills/jig-pr-create",
+        "./core/skills/jig-pr-respond",
+        "./core/skills/jig-postmortem",
+        "./core/skills/jig-debug",
+        "./core/skills/jig-verify",
+        "./core/skills/jig-tdd",
+        "./core/skills/jig-finish",
+        "./core/skills/jig-extend",
+        "./packs/engineering/skills/eng-copywriting",
+        "./packs/engineering/skills/eng-logging",
+        "./packs/engineering/skills/eng-testing"
+      ],
+      "agents": [
+        "./core/agents/commit.md",
+        "./core/agents/code-reviewer.md",
+        "./core/agents/pr-reviewer.md"
+      ]
     }
   ]
 }
