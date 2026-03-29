@@ -1,8 +1,8 @@
 ---
 name: jig-pr-create
 description: >
-  Use when creating a GitHub pull request. Analyzes branch changes, writes a
-  clear PR description with friendly tone, and generates a structured test plan.
+  Use when creating a pull request. Analyzes branch changes, writes a clear
+  PR description with friendly tone, and generates a structured test plan.
   Triggered by "create a PR", "open a pull request", or /jig-pr-create.
 tier: workflow
 alwaysApply: false
@@ -12,7 +12,9 @@ alwaysApply: false
 
 **PURPOSE**: Create pull requests with clear, well-written descriptions that tell reviewers exactly what changed and how to verify it.
 
-**CONFIGURATION**: Reads `jig.config.md` for `ticket-system`, `ticket-prefix`, `branching.format`, `require-ticket-reference`, and `main-branch`.
+**CONFIGURATION**: Reads `jig.config.md` for `git-host`, `ticket-system`, `ticket-prefix`, `branching.format`, `require-ticket-reference`, and `main-branch`.
+
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
 ---
 

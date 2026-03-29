@@ -2,9 +2,8 @@
 name: jig-pr-respond
 description: >
   Use when reviewing PR comments, responding to code review feedback, or
-  addressing reviewer suggestions on the current branch via GitHub CLI.
-  Triggered by "respond to PR comments", "address review feedback",
-  or /jig-pr-respond.
+  addressing reviewer suggestions on the current branch. Triggered by
+  "respond to PR comments", "address review feedback", or /jig-pr-respond.
 tier: workflow
 alwaysApply: false
 ---
@@ -12,6 +11,8 @@ alwaysApply: false
 # PR Comment Responder
 
 **PURPOSE**: Process reviewer feedback into fixes, replies, and resolved threads. Every unresolved PR comment thread should end this session resolved.
+
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
 ---
 

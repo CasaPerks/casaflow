@@ -5,6 +5,7 @@
 ```yaml
 name: my-team
 platform: claude
+git-host: github          # github | gitlab | bitbucket
 ticket-system: github
 # ticket-prefix: ENG
 ```

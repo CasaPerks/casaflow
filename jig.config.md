@@ -5,6 +5,7 @@
 ```yaml
 name: jig
 platform: claude
+git-host: github
 ticket-system: github
 # ticket-prefix: JIG
 ```

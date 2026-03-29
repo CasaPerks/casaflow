@@ -1,0 +1,133 @@
+# Git Host Adapters
+
+Skills that interact with pull requests, code review comments, or repository APIs must use the commands for the team's configured `git-host` in `jig.config.md`.
+
+**Read `git-host` from `jig.config.md` before using any PR or review API.** Default is `github`.
+
+---
+
+## How Skills Use This
+
+When a skill needs to perform a git host operation (create PR, fetch comments, post review), it should:
+
+1. Read `git-host` from `jig.config.md`
+2. Look up the operation in the adapter table below
+3. Use the platform-specific command
+
+Skills should never hardcode `gh` commands without checking the git host first.
+
+---
+
+## Operations
+
+### Identify the current PR
+
+| Host | Command |
+|------|---------|
+| github | `gh pr view --json number,url,title,body,headRefOid` |
+| gitlab | `glab mr view --output json` |
+| bitbucket | `git log --format=%s -1` and parse PR number from branch |
+
+### Create a pull/merge request
+
+| Host | Command |
+|------|---------|
+| github | `gh pr create --title "title" --body "body"` |
+| gitlab | `glab mr create --title "title" --description "body"` |
+| bitbucket | `bb pr create --title "title" --body "body"` (or use Bitbucket REST API) |
+
+### Push with upstream tracking
+
+| Host | Command |
+|------|---------|
+| all | `git push -u origin HEAD` |
+
+### Fetch PR/MR comments
+
+| Host | Command |
+|------|---------|
+| github | `gh api repos/{owner}/{repo}/pulls/{number}/comments` |
+| gitlab | `glab api projects/{id}/merge_requests/{iid}/notes` |
+| bitbucket | Bitbucket REST: `GET /2.0/repositories/{workspace}/{repo}/pullrequests/{id}/comments` |
+
+### Reply to a comment
+
+| Host | Command |
+|------|---------|
+| github | `gh api repos/{owner}/{repo}/pulls/{number}/comments/{id}/replies -X POST -f body='message'` |
+| gitlab | `glab api projects/{id}/merge_requests/{iid}/notes -X POST -f body='message'` (replies are top-level notes referencing the parent) |
+| bitbucket | Bitbucket REST: `POST /2.0/repositories/{workspace}/{repo}/pullrequests/{id}/comments` with `parent.id` |
+
+### Resolve a review thread
+
+| Host | Command |
+|------|---------|
+| github | `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "ID"}) { thread { isResolved } } }'` |
+| gitlab | `glab api projects/{id}/merge_requests/{iid}/discussions/{discussion_id}/resolve -X PUT -f resolved=true` |
+| bitbucket | Not natively supported — mark as resolved via comment convention |
+
+### Post inline review comments
+
+| Host | Command |
+|------|---------|
+| github | `gh api repos/{owner}/{repo}/pulls/{number}/reviews --method POST --input payload.json` |
+| gitlab | `glab api projects/{id}/merge_requests/{iid}/notes -X POST` with `position` object for inline placement |
+| bitbucket | Bitbucket REST: `POST /2.0/repositories/{workspace}/{repo}/pullrequests/{id}/comments` with `inline.path` and `inline.to` |
+
+### Fetch commit SHA for a PR/MR
+
+| Host | Command |
+|------|---------|
+| github | `gh api repos/{owner}/{repo}/pulls/{number} --jq '.head.sha'` |
+| gitlab | `glab mr view --output json \| jq -r '.sha'` |
+| bitbucket | Bitbucket REST: `GET /2.0/repositories/{workspace}/{repo}/pullrequests/{id}` and extract `source.commit.hash` |
+
+### Fetch diff file list
+
+| Host | Command |
+|------|---------|
+| github | `gh api repos/{owner}/{repo}/pulls/{number}/files --paginate --jq '.[].filename'` |
+| gitlab | `glab api projects/{id}/merge_requests/{iid}/changes --jq '.changes[].new_path'` |
+| bitbucket | Bitbucket REST: `GET /2.0/repositories/{workspace}/{repo}/pullrequests/{id}/diffstat` |
+
+### Post top-level PR/MR comment
+
+| Host | Command |
+|------|---------|
+| github | `gh pr comment {number} --body "message"` |
+| gitlab | `glab mr note {iid} --message "message"` |
+| bitbucket | Bitbucket REST: `POST /2.0/repositories/{workspace}/{repo}/pullrequests/{id}/comments` with no `inline` object |
+
+---
+
+## Extracting owner/repo/project identifiers
+
+Each platform identifies repositories differently:
+
+| Host | Identifier | How to extract |
+|------|-----------|---------------|
+| github | `{owner}/{repo}` | Parse from `git remote get-url origin` |
+| gitlab | `{project_id}` (numeric) | `glab api projects --jq '.[0].id'` or parse from remote URL |
+| bitbucket | `{workspace}/{repo}` | Parse from `git remote get-url origin` |
+
+---
+
+## CLI Prerequisites
+
+| Host | CLI tool | Install | Auth |
+|------|----------|---------|------|
+| github | `gh` | `brew install gh` | `gh auth login` |
+| gitlab | `glab` | `brew install glab` | `glab auth login` |
+| bitbucket | `bb` (or REST API) | Varies | Token-based |
+
+---
+
+## Adding a New Host
+
+To add support for a new git host (e.g., Azure DevOps, Gitea):
+
+1. Add a row to each operation table above
+2. Add the CLI tool to prerequisites
+3. Add identifier extraction method
+4. Test the commands against a real repository
+5. Update the `git-host` enum comment in `scaffold/jig.config.md`

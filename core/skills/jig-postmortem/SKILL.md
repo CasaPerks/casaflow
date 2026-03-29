@@ -13,6 +13,8 @@ alwaysApply: false
 
 **PURPOSE**: After a PR merges, analyze what reviewers caught to find gaps in skills, specialists, and review checklists -- then fix those gaps. Every merged PR becomes training data for making the system better next time.
 
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+
 **CONFIGURATION**: Reads `jig.config.md` for `ticket-system` (to offer ticket creation for improvements) and `main-branch`.
 
 ---

@@ -101,7 +101,7 @@ ln -s ../../core/skills/jig-new-skill .claude/skills/jig-new-skill
 
 ```
 jig/
-├── framework/           How Jig works (pipeline, schema, tiers, discovery, checklist)
+├── framework/           How Jig works (pipeline, schema, tiers, discovery, checklist, git host adapters)
 ├── core/
 │   ├── skills/          15 pipeline skills
 │   ├── agents/          3 agents (commit, code-review, pr-review)
@@ -167,6 +167,7 @@ jig/
 3. `jig-review` discovers it automatically — no config needed
 
 ### Key documents to read first
+- `framework/GIT_HOST.md` — git host adapter (GitHub/GitLab/Bitbucket command mapping)
 - `framework/PIPELINE.md` — the 7-stage development pipeline
 - `framework/DISCOVERY.md` — how Jig finds and loads skills
 - `framework/SKILL_SCHEMA.md` — frontmatter spec for all skills

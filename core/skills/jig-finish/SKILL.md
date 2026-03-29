@@ -13,6 +13,8 @@ alwaysApply: false
 
 **PURPOSE**: Guide the completion of development work through a structured decision flow: verify tests pass, present clear integration options, execute the chosen option, and clean up.
 
+**GIT HOST**: PR creation in Option 2 uses GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+
 **Core principle:** Verify tests -> Present options -> Execute choice -> Clean up.
 
 **Announce at start:** "I'm using the jig-finish skill to complete this work."
