@@ -55,26 +55,18 @@ Thinking "skip TDD just this once"? Stop. That is rationalization.
 
 ## Red-Green-Refactor
 
-```dot
-digraph tdd_cycle {
-    rankdir=LR;
-    red [label="RED\nWrite failing test", shape=box, style=filled, fillcolor="#ffcccc"];
-    verify_red [label="Verify fails\ncorrectly", shape=diamond];
-    green [label="GREEN\nMinimal code", shape=box, style=filled, fillcolor="#ccffcc"];
-    verify_green [label="Verify passes\nAll green", shape=diamond];
-    refactor [label="REFACTOR\nClean up", shape=box, style=filled, fillcolor="#ccccff"];
-    next [label="Next", shape=ellipse];
-
-    red -> verify_red;
-    verify_red -> green [label="yes"];
-    verify_red -> red [label="wrong\nfailure"];
-    green -> verify_green;
-    verify_green -> refactor [label="yes"];
-    verify_green -> green [label="no"];
-    refactor -> verify_green [label="stay\ngreen"];
-    verify_green -> next;
-    next -> red;
-}
+```mermaid
+flowchart LR
+    RED["🔴 RED<br/>Write failing test"] --> VR{Verify fails<br/>correctly}
+    VR -->|yes| GREEN["🟢 GREEN<br/>Minimal code"]
+    VR -->|wrong failure| RED
+    GREEN --> VG{Verify passes<br/>All green}
+    VG -->|yes| REFACTOR["🔵 REFACTOR<br/>Clean up"]
+    VG -->|no| GREEN
+    REFACTOR --> VG2{Still green?}
+    VG2 -->|yes| NEXT([Next])
+    VG2 -->|no| GREEN
+    NEXT --> RED
 ```
 
 ### RED -- Write Failing Test

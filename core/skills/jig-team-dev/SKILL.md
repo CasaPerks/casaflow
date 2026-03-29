@@ -16,33 +16,17 @@ Execute implementation plans by spawning implementer teammates that work in para
 
 ## When to Use
 
-```dot
-digraph decision_tree {
-  rankdir=TB;
-  node [shape=diamond, fontname="Helvetica"];
-
-  plan [label="Have implementation\nplan?"];
-  independent [label="3+ independent\ntasks?"];
-  diff_files [label="Tasks touch mostly\ndifferent files?"];
-  teams_enabled [label="Agent teams\nenabled?"];
-
-  node [shape=box, style="rounded", fontname="Helvetica"];
-
-  no_plan [label="Use jig-brainstorm +\njig-plan first"];
-  use_sdd [label="Use jig-sdd\n(sequential)"];
-  use_sdd2 [label="Use jig-sdd\n(sequential)"];
-  enable_teams [label="Enable agent teams\nor use jig-sdd"];
-  use_tdd [label="jig-team-dev"];
-
-  plan -> no_plan [label="No"];
-  plan -> independent [label="Yes"];
-  independent -> use_sdd [label="No"];
-  independent -> diff_files [label="Yes"];
-  diff_files -> use_sdd2 [label="No"];
-  diff_files -> teams_enabled [label="Yes"];
-  teams_enabled -> enable_teams [label="No"];
-  teams_enabled -> use_tdd [label="Yes"];
-}
+```mermaid
+flowchart TD
+    A{Have implementation<br/>plan?} -->|No| B[Use jig-brainstorm +<br/>jig-plan first]
+    A -->|Yes| C{3+ independent<br/>tasks?}
+    C -->|No| D[Use jig-sdd<br/>sequential]
+    C -->|Yes| E{Tasks touch mostly<br/>different files?}
+    E -->|No| F[Use jig-sdd<br/>sequential]
+    E -->|Yes| G{Agent teams<br/>enabled?}
+    G -->|No| H[Enable agent teams<br/>or use jig-sdd]
+    G -->|Yes| I[jig-team-dev]
+    style I fill:#e8f5e9
 ```
 
 ### Comparison
@@ -95,57 +79,29 @@ Then run `claude` from inside the tmux session. Teammates appear as split panes 
 
 ## The Process
 
-```dot
-digraph process {
-  rankdir=TB;
-  node [shape=box, style="rounded,filled", fillcolor="#f5f5f5", fontname="Helvetica"];
-  edge [fontname="Helvetica", fontsize=10];
-
-  read_plan [label="1. Read plan\nAnalyze task dependencies\nand file overlap"];
-  determine_count [label="2. Determine implementer count\nBias toward 3"];
-  create_team [label="3. TeamCreate\nTaskCreate for each task\nSet blockedBy relationships"];
-  spawn [label="4. Spawn implementer teammates\nOne per initial parallel task"];
-
-  impl_work [label="Implementer works\nImplement, test, self-review"];
-  impl_done [label="Implementer reports done"];
-  spec_review [label="Lead dispatches\nspec reviewer subagent"];
-  spec_pass [label="Spec passes?", shape=diamond, fillcolor="#fff3e0"];
-  spec_feedback [label="Send feedback\nImplementer fixes"];
-  quality_review [label="Lead dispatches\nswarm review (fast-pass)"];
-  quality_pass [label="Quality passes?", shape=diamond, fillcolor="#fff3e0"];
-  quality_feedback [label="Send feedback\nImplementer fixes"];
-  task_complete [label="Task complete"];
-
-  more_tasks [label="More unblocked tasks?", shape=diamond, fillcolor="#e3f2fd"];
-  related [label="Related to\nimplementer's work?", shape=diamond, fillcolor="#e3f2fd"];
-  reuse [label="Reuse implementer\nSend next task via message"];
-  fresh [label="Shut down implementer\nSpawn fresh"];
-  shutdown [label="Shut down implementer"];
-
-  all_done [label="All tasks complete"];
-  integration [label="Final integration review"];
-  cleanup [label="Shutdown teammates\nTeamDelete"];
-  finish [label="jig-finish"];
-
-  read_plan -> determine_count -> create_team -> spawn -> impl_work;
-  impl_work -> impl_done -> spec_review -> spec_pass;
-  spec_pass -> quality_review [label="Yes"];
-  spec_pass -> spec_feedback [label="No"];
-  spec_feedback -> spec_review [style=dashed];
-  quality_review -> quality_pass;
-  quality_pass -> task_complete [label="Yes"];
-  quality_pass -> quality_feedback [label="No"];
-  quality_feedback -> quality_review [style=dashed];
-  task_complete -> more_tasks;
-  more_tasks -> related [label="Yes"];
-  more_tasks -> shutdown [label="No"];
-  related -> reuse [label="Yes"];
-  related -> fresh [label="No"];
-  reuse -> impl_work;
-  fresh -> impl_work;
-  shutdown -> all_done [style=dotted, label="when all done"];
-  all_done -> integration -> cleanup -> finish;
-}
+```mermaid
+flowchart TD
+    read[1. Read plan<br/>Analyze dependencies + file overlap] --> count[2. Determine implementer count<br/>Bias toward 3]
+    count --> create[3. TeamCreate + TaskCreate<br/>Set blockedBy relationships]
+    create --> spawn[4. Spawn implementer teammates<br/>One per initial parallel task]
+    spawn --> work[Implementer works<br/>Implement, test, self-review]
+    work --> done[Implementer reports done]
+    done --> spec[Lead dispatches<br/>spec reviewer subagent]
+    spec --> spec_pass{Spec passes?}
+    spec_pass -->|No| spec_fix[Send feedback<br/>Implementer fixes] -.-> spec
+    spec_pass -->|Yes| quality[Lead dispatches<br/>swarm review - fast-pass]
+    quality --> qual_pass{Quality passes?}
+    qual_pass -->|No| qual_fix[Send feedback<br/>Implementer fixes] -.-> quality
+    qual_pass -->|Yes| complete[Task complete]
+    complete --> more{More unblocked tasks?}
+    more -->|Yes| related{Related to<br/>implementer's work?}
+    more -->|No| shutdown[Shut down implementer]
+    related -->|Yes| reuse[Reuse implementer<br/>Send next task] --> work
+    related -->|No| fresh[Shut down + spawn fresh] --> work
+    shutdown -.->|when all done| all_done[All tasks complete]
+    all_done --> integration[Final integration review]
+    integration --> cleanup[Shutdown teammates<br/>TeamDelete]
+    cleanup --> finish[jig-finish]
 ```
 
 ## Prompt Templates

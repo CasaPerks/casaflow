@@ -65,36 +65,22 @@ Complete these steps in order:
 
 ## Process Flow
 
-```dot
-digraph brainstorming {
-    "Explore project context" [shape=box];
-    "Visual questions ahead?" [shape=diamond];
-    "Offer Visual Companion\n(own message, no other content)" [shape=box];
-    "Ask clarifying questions\n(one at a time)" [shape=box];
-    "Propose 2-3 approaches\nwith trade-offs" [shape=box];
-    "Present design sections\n(get approval per section)" [shape=box];
-    "Concerns Checklist\n(from jig.config.md)" [shape=box];
-    "User approves design?" [shape=diamond];
-    "Write design doc\ndocs/plans/YYYY-MM-DD-*-design.md" [shape=box];
-    "Spec self-review\n(fix inline)" [shape=box];
-    "User reviews spec?" [shape=diamond];
-    "Invoke jig-plan" [shape=doublecircle];
-
-    "Explore project context" -> "Visual questions ahead?";
-    "Visual questions ahead?" -> "Offer Visual Companion\n(own message, no other content)" [label="yes"];
-    "Visual questions ahead?" -> "Ask clarifying questions\n(one at a time)" [label="no"];
-    "Offer Visual Companion\n(own message, no other content)" -> "Ask clarifying questions\n(one at a time)";
-    "Ask clarifying questions\n(one at a time)" -> "Propose 2-3 approaches\nwith trade-offs";
-    "Propose 2-3 approaches\nwith trade-offs" -> "Present design sections\n(get approval per section)";
-    "Present design sections\n(get approval per section)" -> "Concerns Checklist\n(from jig.config.md)";
-    "Concerns Checklist\n(from jig.config.md)" -> "User approves design?";
-    "User approves design?" -> "Present design sections\n(get approval per section)" [label="no, revise"];
-    "User approves design?" -> "Write design doc\ndocs/plans/YYYY-MM-DD-*-design.md" [label="yes"];
-    "Write design doc\ndocs/plans/YYYY-MM-DD-*-design.md" -> "Spec self-review\n(fix inline)";
-    "Spec self-review\n(fix inline)" -> "User reviews spec?";
-    "User reviews spec?" -> "Write design doc\ndocs/plans/YYYY-MM-DD-*-design.md" [label="changes requested"];
-    "User reviews spec?" -> "Invoke jig-plan" [label="approved"];
-}
+```mermaid
+flowchart TD
+    A[Explore project context] --> B{Visual questions ahead?}
+    B -->|yes| C[Offer Visual Companion<br/>own message, no other content]
+    B -->|no| D[Ask clarifying questions<br/>one at a time]
+    C --> D
+    D --> E[Propose 2-3 approaches<br/>with trade-offs]
+    E --> F[Present design sections<br/>get approval per section]
+    F --> G[Concerns Checklist<br/>from jig.config.md]
+    G --> H{User approves design?}
+    H -->|no, revise| F
+    H -->|yes| I[Write design doc<br/>docs/plans/YYYY-MM-DD-*-design.md]
+    I --> J[Spec self-review<br/>fix inline]
+    J --> K{User reviews spec?}
+    K -->|changes requested| I
+    K -->|approved| L((Invoke jig-plan))
 ```
 
 **The terminal state is invoking `jig-plan`.** Do NOT invoke any other implementation skill. The ONLY skill invoked after brainstorming is `jig-plan`.

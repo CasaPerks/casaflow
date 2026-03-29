@@ -21,26 +21,17 @@ alwaysApply: false
 
 ## When to Use
 
-```dot
-digraph when_to_use {
-    "Have implementation plan?" [shape=diamond];
-    "Tasks mostly independent?" [shape=diamond];
-    "3+ tasks touching different files?" [shape=diamond];
-    "Agent teams enabled?" [shape=diamond];
-
-    "jig-sdd" [shape=box, style=filled, fillcolor="#e8f5e9"];
-    "jig-team-dev" [shape=box];
-    "jig-plan first" [shape=box];
-
-    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
-    "Have implementation plan?" -> "jig-plan first" [label="no"];
-    "Tasks mostly independent?" -> "3+ tasks touching different files?" [label="yes"];
-    "Tasks mostly independent?" -> "jig-sdd" [label="no - tightly coupled"];
-    "3+ tasks touching different files?" -> "Agent teams enabled?" [label="yes"];
-    "3+ tasks touching different files?" -> "jig-sdd" [label="no"];
-    "Agent teams enabled?" -> "jig-team-dev" [label="yes"];
-    "Agent teams enabled?" -> "jig-sdd" [label="no"];
-}
+```mermaid
+flowchart TD
+    A{Have implementation plan?} -->|yes| B{Tasks mostly independent?}
+    A -->|no| C[jig-plan first]
+    B -->|yes| D{3+ tasks touching<br/>different files?}
+    B -->|no, tightly coupled| E[jig-sdd]
+    D -->|yes| F{Agent teams enabled?}
+    D -->|no| E
+    F -->|yes| G[jig-team-dev]
+    F -->|no| E
+    style E fill:#e8f5e9
 ```
 
 **Use `jig-sdd` when:**
@@ -58,52 +49,28 @@ digraph when_to_use {
 
 ## The Process
 
-```dot
-digraph process {
-    rankdir=TB;
+```mermaid
+flowchart TD
+    read_plan[1. Read plan<br/>Extract all tasks] --> dispatch
 
-    subgraph cluster_per_task {
-        label="Per Task (repeat for each)";
-        style=dashed;
+    subgraph per_task [Per Task - repeat for each]
+        dispatch[Dispatch implementer<br/>subagent with full task] --> questions{Implementer asks<br/>questions?}
+        questions -->|yes| answer[Answer questions<br/>provide context] --> dispatch
+        questions -->|no| implement[Implementer: implements,<br/>tests, commits, self-reviews]
+        implement --> spec_review[Dispatch spec<br/>reviewer subagent]
+        spec_review --> spec_pass{Spec compliant?}
+        spec_pass -->|no| spec_fix[Implementer<br/>fixes spec gaps] -.->|re-review| spec_review
+        spec_pass -->|yes| quality_review[Dispatch code quality<br/>reviewer - jig-review fast-pass]
+        quality_review --> quality_pass{Quality passes?}
+        quality_pass -->|no| quality_fix[Implementer<br/>fixes quality issues] -.->|re-review| quality_review
+        quality_pass -->|yes| task_done[Mark task complete]
+    end
 
-        dispatch [label="Dispatch implementer\nsubagent with full\ntask text + context"];
-        questions [label="Implementer asks\nquestions?" shape=diamond];
-        answer [label="Answer questions\nprovide context"];
-        implement [label="Implementer:\nimplements, tests,\ncommits, self-reviews"];
-        spec_review [label="Dispatch spec\nreviewer subagent"];
-        spec_pass [label="Spec compliant?" shape=diamond];
-        spec_fix [label="Implementer\nfixes spec gaps"];
-        quality_review [label="Dispatch code quality\nreviewer (jig-review\nfast-pass tier)"];
-        quality_pass [label="Quality passes?" shape=diamond];
-        quality_fix [label="Implementer\nfixes quality issues"];
-        task_done [label="Mark task complete"];
-
-        dispatch -> questions;
-        questions -> answer [label="yes"];
-        answer -> dispatch;
-        questions -> implement [label="no"];
-        implement -> spec_review;
-        spec_review -> spec_pass;
-        spec_pass -> spec_fix [label="no"];
-        spec_fix -> spec_review [style=dashed label="re-review"];
-        spec_pass -> quality_review [label="yes"];
-        quality_review -> quality_pass;
-        quality_pass -> quality_fix [label="no"];
-        quality_fix -> quality_review [style=dashed label="re-review"];
-        quality_pass -> task_done [label="yes"];
-    }
-
-    read_plan [label="1. Read plan\nExtract all tasks\nwith full text"];
-    more [label="More tasks?" shape=diamond];
-    final_review [label="Final review of\nentire implementation"];
-    finish [label="Invoke jig-finish" style=filled fillcolor="#e8f5e9"];
-
-    read_plan -> dispatch;
-    task_done -> more;
-    more -> dispatch [label="yes"];
-    more -> final_review [label="no"];
-    final_review -> finish;
-}
+    task_done --> more{More tasks?}
+    more -->|yes| dispatch
+    more -->|no| final_review[Final review of<br/>entire implementation]
+    final_review --> finish[Invoke jig-finish]
+    style finish fill:#e8f5e9
 ```
 
 ### Step 1: Read and Extract
