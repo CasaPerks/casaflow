@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="assets/logo.png" alt="Jig" width="400">
+<p>
+  <img src="assets/logo.png" alt="Jig" width="300">
 </p>
 
 # Jig
