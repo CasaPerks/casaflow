@@ -1,0 +1,131 @@
+# {{PROJECT_NAME}}
+
+This project uses **Jig** for development workflow management.
+See `jig.config.md` for pipeline configuration.
+
+<!-- ==========================================================================
+     CODEX / AGENTS.MD ADAPTER
+
+     Jig skills are platform-agnostic markdown. This file bridges Jig's skill
+     system to the AGENTS.md format used by OpenAI Codex and compatible tools.
+
+     Jig handles: pipeline orchestration, code review, brainstorming, parallel
+     execution, PR creation, and post-mortems. Document project-specific
+     context below. Pipeline configuration lives in jig.config.md.
+     ========================================================================== -->
+
+## Jig Integration
+
+### How Skills Load
+
+AGENTS.md is loaded as system context at session start. Jig skills are
+markdown files that the agent reads on demand when referenced by path.
+
+**To activate a Jig skill**, read its SKILL.md file and follow the
+instructions within:
+```
+Read the file at <path-to-skill/SKILL.md> and follow its instructions.
+```
+
+**Tier behavior in Codex:**
+
+| Jig Tier | AGENTS.md Equivalent |
+|----------|---------------------|
+| Standards (`alwaysApply: true`) | Inlined in AGENTS.md (always in context) |
+| Domain (globs) | Read on demand when working on matching files |
+| Feature (narrow globs) | Read on demand when working on matching features |
+| Workflow (explicit) | Read on user request (e.g., "run the kickoff workflow") |
+
+### Skill Locations
+
+Jig discovers skills from three directories in priority order:
+
+```
+1. team/skills/         <- Highest priority (team overrides)
+2. packs/*/skills/      <- Pack defaults (e.g., packs/engineering/skills/)
+3. core/skills/         <- Framework defaults
+```
+
+If the same skill name exists in multiple locations, the highest-priority
+version wins. Team skills override pack skills override core skills.
+
+### Tool Name Mapping
+
+Jig skills reference tools by their Claude Code names. When executing in
+Codex, use these equivalents:
+
+| Jig / Claude Code Tool | Codex Equivalent |
+|------------------------|------------------|
+| `Read` | `file_read` |
+| `Edit` | `file_edit` |
+| `Write` | `file_write` |
+| `Grep` | `grep_search` |
+| `Glob` | `file_search` |
+| `Bash` | `shell` |
+| `Task` (subagent) | Sequential execution (no native subagent support) |
+| `Skill` (invoke) | Read the skill file directly |
+
+**Note:** Jig skills that use `Task` for parallel subagent execution
+(e.g., `jig-team-dev`) require sequential fallback in Codex. Execute
+tasks one at a time rather than spawning parallel agents.
+
+### Configuration
+
+`jig.config.md` in the project root configures the pipeline, review swarm,
+branching, and commit conventions. Skills read it directly as markdown
+context. No adapter translation is needed for configuration.
+
+### Starting Work
+
+To begin the Jig pipeline in Codex:
+
+1. Read `jig.config.md` for pipeline configuration
+2. Read `core/skills/jig-kickoff/SKILL.md` and follow its instructions
+3. Follow the pipeline stages as directed by the skill
+
+### Agent Mapping
+
+Jig's core agents map to Codex as instruction files to be read and followed:
+
+| Jig Agent | Path | Purpose |
+|-----------|------|---------|
+| `jig-commit` | `core/agents/commit.md` | Conventional commit workflow |
+| `jig-code-review` | `core/agents/code-reviewer.md` | Review swarm dispatch |
+| `jig-pr-review` | `core/agents/pr-reviewer.md` | Inline PR comment generation |
+
+When a skill references an agent, read the agent's markdown file and execute
+its instructions sequentially.
+
+---
+
+## Team
+
+name: {{TEAM_NAME}}
+
+## Tech Stack
+
+{{TECH_STACK}}
+
+## Commands
+
+| Task | Command |
+|------|---------|
+| Build | `{{BUILD_COMMAND}}` |
+| Test (all) | `{{TEST_COMMAND}}` |
+| Test (file) | `{{TEST_FILE_COMMAND}}` |
+| Lint | `{{LINT_COMMAND}}` |
+| Format | `{{FORMAT_COMMAND}}` |
+
+## Code Style
+
+- {{STYLE_RULE_1}}
+- {{STYLE_RULE_2}}
+- {{STYLE_RULE_3}}
+
+## Library Gotchas
+
+<!-- Hard-won knowledge about dependencies. Delete if none yet. -->
+
+## Project-Specific Rules
+
+<!-- Rules unique to this project that don't generalize into skills. -->

@@ -1,0 +1,117 @@
+# {{PROJECT_NAME}}
+
+This project uses **Jig** for development workflow management.
+See `jig.config.md` for pipeline configuration.
+
+<!-- ==========================================================================
+     GEMINI CLI ADAPTER
+
+     Jig skills are platform-agnostic markdown. This file bridges Jig's skill
+     system to Gemini CLI's context loading mechanism.
+
+     Jig handles: pipeline orchestration, code review, brainstorming, parallel
+     execution, PR creation, and post-mortems. Document project-specific
+     context below. Pipeline configuration lives in jig.config.md.
+     ========================================================================== -->
+
+## Jig Integration
+
+### How Skills Load
+
+Gemini CLI loads context from GEMINI.md at session start. Jig skills are
+markdown files that Gemini reads on demand when referenced.
+
+**Skill activation:** When a Jig skill is needed, load it with:
+```
+activate_skill <path-to-skill/SKILL.md>
+```
+
+**Tier behavior in Gemini:**
+
+| Jig Tier | Gemini Equivalent |
+|----------|-------------------|
+| Standards (`alwaysApply: true`) | Included in GEMINI.md preamble (always in context) |
+| Domain (globs) | Activated manually when working on matching files |
+| Feature (narrow globs) | Activated manually when working on matching features |
+| Workflow (explicit) | Activated by user request (e.g., "run jig-kickoff") |
+
+### Skill Locations
+
+Jig discovers skills from three directories in priority order:
+
+```
+1. team/skills/         <- Highest priority (team overrides)
+2. packs/*/skills/      <- Pack defaults (e.g., packs/engineering/skills/)
+3. core/skills/         <- Framework defaults
+```
+
+If the same skill name exists in multiple locations, the highest-priority
+version wins. Team skills override pack skills override core skills.
+
+### Tool Name Mapping
+
+Jig skills reference tools by their Claude Code names. When executing in
+Gemini CLI, use these equivalents:
+
+| Jig / Claude Code Tool | Gemini CLI Equivalent |
+|------------------------|----------------------|
+| `Read` | `read_file` |
+| `Edit` | `edit_file` |
+| `Write` | `write_file` |
+| `Grep` | `search_files` |
+| `Glob` | `list_files` |
+| `Bash` | `run_command` |
+| `Task` (subagent) | Sequential execution (Gemini does not support subagents natively) |
+| `Skill` (invoke) | `activate_skill` |
+
+**Note:** Jig skills that reference `Task` for parallel subagent execution
+(e.g., `jig-team-dev`) require sequential fallback in Gemini. Execute tasks
+one at a time instead of spawning parallel agents.
+
+### Configuration
+
+`jig.config.md` in the project root configures the pipeline, review swarm,
+branching, and commit conventions. Skills read it directly as markdown
+context. No adapter translation is needed for configuration.
+
+### Starting Work
+
+To begin the Jig pipeline in Gemini CLI:
+
+1. Read `jig.config.md` for pipeline configuration
+2. Activate the kickoff skill: `activate_skill core/skills/jig-kickoff/SKILL.md`
+3. Follow the pipeline stages as directed by the skill
+
+---
+
+## Team
+
+name: {{TEAM_NAME}}
+
+## Tech Stack
+
+{{TECH_STACK}}
+
+## Commands
+
+| Task | Command |
+|------|---------|
+| Build | `{{BUILD_COMMAND}}` |
+| Test (all) | `{{TEST_COMMAND}}` |
+| Test (file) | `{{TEST_FILE_COMMAND}}` |
+| Lint | `{{LINT_COMMAND}}` |
+| Format | `{{FORMAT_COMMAND}}` |
+
+## Code Style
+
+- {{STYLE_RULE_1}}
+- {{STYLE_RULE_2}}
+- {{STYLE_RULE_3}}
+
+## Library Gotchas
+
+<!-- Hard-won knowledge about dependencies. Delete if none yet. -->
+
+## Project-Specific Rules
+
+<!-- Rules unique to this project that don't generalize into skills. -->

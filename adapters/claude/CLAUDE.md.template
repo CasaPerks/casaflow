@@ -1,0 +1,86 @@
+# {{PROJECT_NAME}}
+
+This project uses **Jig** for development workflow management.
+See `jig.config.md` for pipeline configuration.
+
+<!-- ==========================================================================
+     Jig handles: pipeline orchestration, code review, brainstorming, parallel
+     execution, PR creation, and post-mortems. You do NOT need to document
+     those workflows here. They live in jig.config.md and the Jig skill set.
+
+     This file is for PROJECT-SPECIFIC context that Jig cannot know:
+     your team, your stack, your commands, your conventions, your gotchas.
+     ========================================================================== -->
+
+## Team
+
+<!-- Who works here. Helps the AI calibrate tone and assumptions. -->
+
+name: {{TEAM_NAME}}
+
+## Tech Stack
+
+<!-- Languages, frameworks, databases, infrastructure. Be specific. -->
+<!-- Example: Node.js, TypeScript, NestJS, GraphQL, PostgreSQL, NATS, Docker -->
+
+{{TECH_STACK}}
+
+## Commands
+
+<!-- The commands engineers actually run. Jig reads these for context. -->
+
+| Task | Command |
+|------|---------|
+| Build | `{{BUILD_COMMAND}}` |
+| Test (all) | `{{TEST_COMMAND}}` |
+| Test (file) | `{{TEST_FILE_COMMAND}}` |
+| Lint | `{{LINT_COMMAND}}` |
+| Format | `{{FORMAT_COMMAND}}` |
+<!-- Add more rows as needed: migrations, codegen, deploy, etc. -->
+
+## Code Style
+
+<!-- Formatting, naming, and structural conventions. -->
+<!-- Jig enforces workflow; this section enforces code aesthetics. -->
+
+- {{STYLE_RULE_1}}
+- {{STYLE_RULE_2}}
+- {{STYLE_RULE_3}}
+<!-- Examples:
+- TypeScript with strict type checking
+- Prettier: singleQuote, 2 spaces, 80 char width
+- NestJS patterns for backend, React functional components for frontend
+- Specific exception classes for domain errors
+-->
+
+## Library Gotchas
+
+<!-- Hard-won knowledge about dependencies. The kind of thing that wastes
+     hours when you don't know it. Delete this section if you have none yet. -->
+
+<!-- Example:
+### PapaParse (CSV parsing)
+- `preview` option counts the header row when `header: true`
+- `preview: 0` parses zero rows, not all rows — omit the option for all rows
+-->
+
+## Project-Specific Rules
+
+<!-- Rules that are unique to this project and don't generalize into skills.
+     If a rule applies broadly, consider creating a team skill instead
+     (see team/skills/ and the jig-extend skill). -->
+
+<!-- Example:
+- Never commit without explicit user approval
+- All API errors use GraphQLError with ErrorDefinition
+- Each module has its own error manager
+-->
+
+## Additional Documentation
+
+<!-- Links to docs that provide deeper context. -->
+
+<!-- Example:
+- [Architecture](docs/ARCHITECTURE.md)
+- [API Reference](docs/API.md)
+-->
