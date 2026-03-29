@@ -33,9 +33,9 @@ Jig fixes this the way Rails fixed web development: with strong opinions, sensib
 DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
 ```
 
-**Parallel Execution** — `jig-team-dev` spawns parallel agent teammates with staggered quality gates. Your implementation plan runs in parallel, with spec compliance and code review at every step.
+**Parallel Execution** — `/jig-team-dev` spawns parallel agent teammates with staggered quality gates. Your implementation plan runs in parallel, with spec compliance and code review at every step.
 
-**Review Swarm** — `jig-review` dispatches specialist reviewers in parallel (security, dead code, error handling, async safety, performance). Teams add their own domain-specific specialists.
+**Review Swarm** — `/jig-review` dispatches specialist reviewers in parallel (security, dead code, error handling, async safety, performance). Teams add their own domain-specific specialists.
 
 **Configurable, Not Rigid** — `jig.config.md` lets you tune the pipeline per work type, define your concerns checklist, choose your ticket system, and set review policies. Override only what you need.
 
@@ -43,33 +43,27 @@ DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
 
 ## Quick Start
 
-### Claude Code (recommended)
-
-Add the Jig marketplace, then install the plugin:
+### Install (Claude Code)
 
 ```bash
 # Add the Jig marketplace
 /plugin marketplace add duronext/jig
 
-# Install the Jig plugin
-/plugin install jig@duronext-jig
+# Install for your whole team (writes to .claude/settings.json)
+/plugin install jig@duronext-jig --scope project
 ```
 
-Or install directly from the repo in your project's `.claude/settings.json`:
+That's it. Your team gets 15 pipeline skills, 3 agents, 5 review specialists, and an engineering starter pack. Type `/jig-` to see all available commands.
 
-```json
-{
-  "plugins": ["duronext/jig"]
-}
-```
-
-After installing, initialize your project:
+### First Use
 
 ```bash
-/jig-kickoff    # Start your first task
+/jig-kickoff    # Start working on a task — guides you through the full pipeline
+/jig-brainstorm # Design a feature before building it
+/jig-extend     # Add your first team skill
 ```
 
-The `jig init` interactive setup will walk you through configuration — team name, ticket system, engineering concerns — and generate your `jig.config.md`. See [docs/init-experience.md](docs/init-experience.md) for the full onboarding flow.
+See [docs/init-experience.md](docs/init-experience.md) for the interactive setup flow that generates your `jig.config.md`.
 
 ### Other Platforms (Gemini, Codex)
 
@@ -83,31 +77,40 @@ See [adapters/](adapters/) for platform-specific integration guides.
 
 ## How It Works
 
-Jig has three layers:
+Jig skills come from two sources:
 
 ```
-core/           Framework pipeline, agents, and generic specialists
-packs/          Starter packs (engineering, typescript, python, etc.)
-team/           YOUR domain skills, specialists, and agents
+Plugin (Jig core)        Your project (.claude/skills/)
+├── kickoff              ├── be-database/
+├── brainstorm           ├── fe-react/
+├── plan                 ├── ops-feature-flags/
+├── team-dev             └── ... your domain skills
+├── review
+└── ... 15 total         Discovered automatically by
+                         tier, globs, and frontmatter
 ```
 
-Skills are discovered automatically. Drop a skill in `team/skills/` with valid frontmatter, and the framework finds it, triggers it by glob, surfaces it in brainstorming, and dispatches it during review.
+Core skills come from the Jig plugin (auto-updated). Team skills live in your repo's `.claude/skills/` directory — they follow Jig's schema and wire into the framework's discovery, brainstorming, and review systems.
 
 ### Configuration
 
-`jig.config.md` in your project root:
+`jig.config.md` in your project root controls the pipeline:
 
-```markdown
+```yaml
 ## Team
 name: Acme
 platform: claude
-ticket-system: github
+git-host: github
+ticket-system: linear
+ticket-prefix: ENG
 
 ## Concerns Checklist
-- i18n: team/skills/fe-i18n
+- i18n: .claude/skills/fe-i18n
 - security: core/specialists/security
 - test-strategy: manual
 ```
+
+The concerns checklist surfaces during brainstorming — mapping your team's engineering concerns to specific skills. See [framework/CONCERNS_CHECKLIST.md](framework/CONCERNS_CHECKLIST.md).
 
 ### Tier System
 
@@ -118,6 +121,15 @@ ticket-system: github
 | Feature | Narrow globs | Feature-specific knowledge |
 | Workflow | Explicit invocation | Pipeline skills (`/jig-kickoff`, `/jig-review`) |
 
+## Updating
+
+Jig is distributed as a Claude Code plugin. To get the latest version:
+
+```bash
+/plugin marketplace update duronext-jig
+/plugin install jig@duronext-jig --scope project
+```
+
 ## Platform Support
 
 Jig skills are platform-agnostic markdown. Adapters handle loading for:
@@ -125,14 +137,20 @@ Jig skills are platform-agnostic markdown. Adapters handle loading for:
 - **Gemini CLI** — GEMINI.md context loading
 - **Codex** — AGENTS.md integration
 
-## Documentation
+Teams using GitLab or Bitbucket are supported via the [git host adapter](framework/GIT_HOST.md).
 
-- [Getting Started](docs/getting-started.md)
-- [Configuration](docs/configuration.md)
-- [Writing Skills](docs/writing-skills.md)
-- [Writing Specialists](docs/writing-specialists.md)
-- [Creating Packs](docs/creating-packs.md)
-- [Platform Adapters](docs/platform-adapters.md)
+## Framework Reference
+
+| Document | What It Covers |
+|----------|---------------|
+| [PIPELINE.md](framework/PIPELINE.md) | The 7-stage development pipeline |
+| [DISCOVERY.md](framework/DISCOVERY.md) | How Jig finds and loads skills |
+| [SKILL_SCHEMA.md](framework/SKILL_SCHEMA.md) | Frontmatter spec for all skills |
+| [TIER_SYSTEM.md](framework/TIER_SYSTEM.md) | How tiers control activation |
+| [CONCERNS_CHECKLIST.md](framework/CONCERNS_CHECKLIST.md) | Configurable brainstorming checklist |
+| [GIT_HOST.md](framework/GIT_HOST.md) | GitHub/GitLab/Bitbucket command mapping |
+| [Design Spec](docs/specs/2026-03-28-jig-framework-design.md) | Original design document |
+| [Init Experience](docs/init-experience.md) | Interactive setup flow |
 
 ## Origin
 
