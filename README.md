@@ -85,7 +85,7 @@ See [adapters/](adapters/) for platform-specific integration guides.
 
 ## How It Works
 
-Jig ships as a plugin with 15 core skills, 3 agents, and 5 review specialists. Your team adds domain skills in `.claude/skills/` that wire into the framework automatically.
+Jig ships as a plugin with 16 core skills, 3 agents, and 5 review specialists. Your team adds domain skills in `.claude/skills/` that wire into the framework automatically.
 
 ### Core Skills (the pipeline)
 
@@ -94,9 +94,10 @@ Jig ships as a plugin with 15 core skills, 3 agents, and 5 review specialists. Y
 | `kickoff` | Pipeline orchestrator | Classifies work (bug/feature/improvement/task) and routes through the appropriate pipeline stages. The entry point for all development work. |
 | `brainstorm` | Design exploration | One question at a time, 2-3 approaches with trade-offs, design approval gate. Surfaces your team's concerns checklist from `jig.config.md`. |
 | `prd` | Requirements capture | Structured PRD with enforceable acceptance checklists. Two tiers: Full (12 sections) for features, Light (5 sections) for bugs. Layer-tagged items (`[API]`, `[DATA]`, `[LOGIC]`, `[UI]`) feed directly into spec reviewers. |
-| `plan` | Implementation planning | Turns approved designs into bite-sized TDD tasks with exact file paths, code snippets, and verification steps. Output is executable by `team-dev` or `sdd`. |
-| `team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. The killer feature that makes it all worth it! |
-| `sdd` | Serial execution | Fresh subagent per task with two-stage review (spec compliance then code quality). For tightly coupled tasks or when agent teams aren't available. |
+| `plan` | Implementation planning | Turns approved designs into bite-sized TDD tasks with exact file paths, code snippets, and verification steps. |
+| `build` | Plan execution | **The builder.** Analyzes the plan's task graph and auto-selects parallel or serial execution. You hand it a plan — it builds the thing. |
+| `team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. Called by `build` when conditions are right. |
+| `sdd` | Serial execution | Fresh subagent per task with two-stage review (spec compliance then code quality). Called by `build` for coupled tasks or when agent teams aren't available. |
 | `review` | Code review swarm | Dispatches parallel specialist reviewers (security, dead code, error handling, async safety, performance + your team's specialists). Filters by glob match, scores mechanically, produces unified report. |
 | `pr-create` | PR creation | Runs the review swarm first, then analyzes all commits, groups by theme, writes a clear description with test plan. No corporate speak. |
 | `pr-respond` | PR feedback | Fetches unresolved comments, analyzes each (valid fix vs false positive), implements fixes, commits, pushes, replies, and resolves threads. The full loop. |

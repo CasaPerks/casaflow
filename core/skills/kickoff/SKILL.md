@@ -221,7 +221,7 @@ Save to: `docs/plans/YYYY-MM-DD-<topic>-plan.md`
 The plan header should include:
 
 > **PRD:** docs/plans/YYYY-MM-DD-&lt;topic&gt;-prd.md *(include if a PRD exists)*
-> **For Claude:** Use team-dev (parallel) or sdd (sequential) to implement this plan.
+> **For Claude:** Use `build` to execute this plan (auto-selects parallel or serial).
 
 The `> **PRD:**` line is how downstream spec reviewers find the acceptance checklist. Always include it when a PRD was created in the REQUIREMENTS step.
 
@@ -239,44 +239,13 @@ Before proceeding, confirm:
 
 **Gate**: All tasks implemented, tested, and committed.
 
-### Choosing the Execution Strategy
+Invoke `build` with the plan. It analyzes the task graph and automatically picks the right execution strategy:
 
-Read `jig.config.md` for `parallel-threshold` and `default-strategy`.
+- **Parallel** (`team-dev`) — when 3+ independent tasks touch different files and agent teams are available
+- **Serial** (`sdd`) — when tasks are coupled, share files, or agent teams aren't available
+- **Direct** — for 1-2 simple tasks, no orchestrator needed
 
-```mermaid
-graph TD
-  tasks{"Tasks >= parallel<br/>threshold?"}
-  files{"Tasks touch<br/>different files?"}
-  teams{"Agent teams<br/>enabled?"}
-
-  direct["Direct execution<br/>(no orchestrator)"]
-  sdd2["sdd — sequential<br/>(file overlap)"]
-  teamdev["team-dev<br/>(parallel + quality gates)"]
-  enable["Enable agent teams<br/>or fall back to sdd"]
-
-  tasks -->|"No, 1-2 tasks"| direct
-  tasks -->|Yes| files
-  files -->|"No, overlap"| sdd2
-  files -->|Yes| teams
-  teams -->|No| enable
-  teams -->|Yes| teamdev
-```
-
-### For `team-dev` (preferred for features)
-
-Invoke `/team-dev` with the plan. It handles:
-- Spawning implementer teammates in split panes
-- Staggered spec compliance + code quality reviews
-- Task dependency management
-- Integration review when all tasks complete
-
-### For Sequential Execution
-
-Work through the plan task by task:
-1. Implement the task
-2. Run relevant tests
-3. Commit following the project's commit convention
-4. Move to next task
+You don't need to choose. `build` reads `jig.config.md` for `parallel-threshold` and `default-strategy`, inspects the plan, and routes accordingly.
 
 ### Gate Check
 
@@ -412,7 +381,7 @@ When looping back, update the plan document to reflect changes.
 | Requirements | `prd` (optional) | PRD with acceptance checklist |
 | Brainstorm | `brainstorm` + concerns checklist | Approved design |
 | Plan | `plan` | `docs/plans/*.md` |
-| Execute | `team-dev` or `sdd` | Implemented + tested code |
+| Execute | `build` (routes to `team-dev` or `sdd`) | Implemented + tested code |
 | Review | `review` → `code-review` agent | Audited code |
 | Ship | `commit` → `pr-create` | Merged PR |
 | Learn | `postmortem` | Updated skills |

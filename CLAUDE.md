@@ -41,7 +41,7 @@ Work type (bug/feature/improvement/task) determines which stages run and at what
 
 ## Inventory
 
-### Core Skills (15)
+### Core Skills (16)
 
 | Skill | Purpose |
 |-------|---------|
@@ -49,7 +49,8 @@ Work type (bug/feature/improvement/task) determines which stages run and at what
 | `brainstorm` | Collaborative design exploration with configurable concerns checklist |
 | `prd` | PRD creation with enforceable acceptance checklists (feeds into spec reviewer) |
 | `plan` | Spec → implementation plan with bite-sized TDD tasks |
-| `team-dev` | Parallel agent execution with staggered quality gates |
+| `build` | Plan execution — analyzes task graph, auto-selects parallel or serial |
+| `team-dev` | Parallel agent execution with staggered quality gates (called by `build`) |
 | `sdd` | Serial execution with two-stage review per task |
 | `review` | Specialist swarm — dispatches parallel reviewers, scores findings |
 | `pr-create` | PR creation with voice/tone standards and test plan |

@@ -14,6 +14,7 @@
     "./core/skills/brainstorm",
     "./core/skills/prd",
     "./core/skills/plan",
+    "./core/skills/build",
     "./core/skills/team-dev",
     "./core/skills/sdd",
     "./core/skills/review",
