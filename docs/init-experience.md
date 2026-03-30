@@ -79,8 +79,8 @@ $ jig init
     CLAUDE.md                    — added Jig declaration (review the diff)
 
   Next steps:
-    /jig-extend    — add your first team skill
-    /jig-kickoff   — start working on a task
+    /jig:extend    — add your first team skill
+    /jig:kickoff   — start working on a task
 ```
 
 ---

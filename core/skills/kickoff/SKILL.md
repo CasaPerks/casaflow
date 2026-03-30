@@ -4,7 +4,7 @@ description: >
   Use when starting development work on a bug, feature, improvement, or task.
   Guides engineers through the full development pipeline: discover, brainstorm,
   plan, execute, review, ship. Invoked by "let's work on", "I need to build",
-  "fix this bug", "start a new task", or /jig-kickoff.
+  "fix this bug", "start a new task", or /kickoff.
 tier: workflow
 alwaysApply: false
 ---
@@ -27,7 +27,7 @@ Invoke this skill when:
 - Beginning a new session with a development task
 - You want the full pipeline, not just one stage
 
-**Do NOT use when** you only need a single stage (e.g., just creating a PR → use `jig-pr-create` directly).
+**Do NOT use when** you only need a single stage (e.g., just creating a PR → use `pr-create` directly).
 
 ---
 
@@ -35,8 +35,8 @@ Invoke this skill when:
 
 | Term | Meaning |
 |------|---------|
-| **SDD** | Subagent-Driven Development (`jig-sdd`) — sequential execution, one task at a time |
-| **Team-dev** | `jig-team-dev` — parallel execution with agent teams in split panes + two-stage quality gates |
+| **SDD** | Subagent-Driven Development (`sdd`) — sequential execution, one task at a time |
+| **Team-dev** | `team-dev` — parallel execution with agent teams in split panes + two-stage quality gates |
 
 ## The Pipeline
 
@@ -72,7 +72,7 @@ graph TD
   start{"What kind of work?"}
   start -->|broken / incorrect| bug["BUG<br/>Brainstorm: light<br/>Plan: 1-3 tasks<br/>Execute: sequential<br/>Learn: optional"]
   start -->|making existing thing better| improvement["IMPROVEMENT<br/>Brainstorm: medium<br/>Plan: standard<br/>Execute: SDD or team-dev<br/>Learn: optional"]
-  start -->|new capability| feature["FEATURE<br/>Brainstorm: full + checklist<br/>Plan: detailed<br/>Execute: jig-team-dev<br/>Learn: yes"]
+  start -->|new capability| feature["FEATURE<br/>Brainstorm: full + checklist<br/>Plan: detailed<br/>Execute: team-dev<br/>Learn: yes"]
   start -->|config / chore / refactor| task["TASK / CHORE<br/>Brainstorm: skip<br/>Plan: minimal<br/>Execute: direct<br/>Learn: no"]
 ```
 
@@ -117,11 +117,11 @@ Before proceeding, confirm:
 
 **Gate**: PRD exists or user opted to skip.
 
-For **features** and **large improvements**, prompt: "Want to capture requirements first with `/jig-prd`?"
+For **features** and **large improvements**, prompt: "Want to capture requirements first with `/prd`?"
 
-If yes, invoke `jig-prd` to produce a structured PRD with enforceable acceptance checklists. The PRD becomes the input to brainstorming — it defines *what* needs to be built so brainstorming can focus on *how*.
+If yes, invoke `prd` to produce a structured PRD with enforceable acceptance checklists. The PRD becomes the input to brainstorming — it defines *what* needs to be built so brainstorming can focus on *how*.
 
-For **bugs**, **tasks**, and **small improvements**: skip this step. Users can still invoke `/jig-prd` manually if needed.
+For **bugs**, **tasks**, and **small improvements**: skip this step. Users can still invoke `/prd` manually if needed.
 
 ### Gate Check
 
@@ -144,7 +144,7 @@ Focus on:
 
 ### For Improvements (medium)
 
-Run `jig-brainstorm` with these additions:
+Run `brainstorm` with these additions:
 1. **Existing patterns**: How does the current implementation work?
 2. **2-3 approaches**: What are the options with trade-offs?
 3. **Concerns checklist**: Run the configurable checklist (see below).
@@ -167,7 +167,7 @@ graph TD
   approve -->|approved| save --> plan
 ```
 
-Run `jig-brainstorm` with the project's Concerns Checklist:
+Run `brainstorm` with the project's Concerns Checklist:
 
 #### Concerns Checklist (Configurable)
 
@@ -202,7 +202,7 @@ Before proceeding, confirm:
 
 **Gate**: A numbered plan exists with tasks, files, and verification steps.
 
-Invoke `jig-plan` to produce the implementation plan.
+Invoke `plan` to produce the implementation plan.
 
 ### Plan Requirements
 
@@ -221,7 +221,7 @@ Save to: `docs/plans/YYYY-MM-DD-<topic>-plan.md`
 The plan header should include:
 
 > **PRD:** docs/plans/YYYY-MM-DD-&lt;topic&gt;-prd.md *(include if a PRD exists)*
-> **For Claude:** Use jig-team-dev (parallel) or jig-sdd (sequential) to implement this plan.
+> **For Claude:** Use team-dev (parallel) or sdd (sequential) to implement this plan.
 
 The `> **PRD:**` line is how downstream spec reviewers find the acceptance checklist. Always include it when a PRD was created in the REQUIREMENTS step.
 
@@ -250,9 +250,9 @@ graph TD
   teams{"Agent teams<br/>enabled?"}
 
   direct["Direct execution<br/>(no orchestrator)"]
-  sdd2["jig-sdd — sequential<br/>(file overlap)"]
-  teamdev["jig-team-dev<br/>(parallel + quality gates)"]
-  enable["Enable agent teams<br/>or fall back to jig-sdd"]
+  sdd2["sdd — sequential<br/>(file overlap)"]
+  teamdev["team-dev<br/>(parallel + quality gates)"]
+  enable["Enable agent teams<br/>or fall back to sdd"]
 
   tasks -->|"No, 1-2 tasks"| direct
   tasks -->|Yes| files
@@ -262,9 +262,9 @@ graph TD
   teams -->|Yes| teamdev
 ```
 
-### For `jig-team-dev` (preferred for features)
+### For `team-dev` (preferred for features)
 
-Invoke `/jig-team-dev` with the plan. It handles:
+Invoke `/team-dev` with the plan. It handles:
 - Spawning implementer teammates in split panes
 - Staggered spec compliance + code quality reviews
 - Task dependency management
@@ -294,16 +294,16 @@ Before proceeding, confirm:
 
 ```mermaid
 graph LR
-  self["Self-audit<br/>jig-review"] --> agent["Automated analysis<br/>jig-code-review agent"]
+  self["Self-audit<br/>review"] --> agent["Automated analysis<br/>code-review agent"]
   agent --> fix["Fix Critical<br/>& Major issues"]
-  fix --> pr["Create PR<br/>jig-pr-create"]
-  pr --> inline["Inline comments<br/>jig-pr-review agent"]
-  inline --> respond["Address feedback<br/>jig-pr-respond"]
+  fix --> pr["Create PR<br/>pr-create"]
+  pr --> inline["Inline comments<br/>pr-review agent"]
+  inline --> respond["Address feedback<br/>pr-respond"]
 ```
 
 ### Self-Audit First
 
-Run the pre-commit review via `jig-review`. This dispatches the specialist swarm to catch common issues:
+Run the pre-commit review via `review`. This dispatches the specialist swarm to catch common issues:
 - Dead code and unused references
 - Security vulnerabilities
 - Error handling gaps
@@ -313,9 +313,9 @@ Run the pre-commit review via `jig-review`. This dispatches the specialist swarm
 
 ### Automated Review
 
-1. Run `jig-code-review` agent — produces a review report with severity ratings
+1. Run `code-review` agent — produces a review report with severity ratings
 2. Fix any Critical or Major issues identified
-3. After PR creation, run `jig-pr-review` agent for inline comments
+3. After PR creation, run `pr-review` agent for inline comments
 
 ### Gate Check
 
@@ -330,9 +330,9 @@ Before proceeding, confirm:
 
 **Gate**: PR created and merged.
 
-1. **Commit**: use the `jig-commit` agent
-2. **Create PR**: `/jig-pr-create` — analyzes branch, writes description, creates PR
-3. **Address feedback**: `/jig-pr-respond` for any reviewer comments
+1. **Commit**: use the `commit` agent
+2. **Create PR**: `/pr-create` — analyzes branch, writes description, creates PR
+3. **Address feedback**: `/pr-respond` for any reviewer comments
 4. **Merge**: After approval
 
 ### Gate Check
@@ -346,7 +346,7 @@ Before proceeding, confirm:
 
 ## Step 8: LEARN (features only, optional for others)
 
-After merge, invoke `/jig-postmortem` to:
+After merge, invoke `/postmortem` to:
 - Analyze reviewer comments for patterns
 - Identify gaps in existing skills
 - Update skills or review configs based on findings
@@ -393,7 +393,7 @@ When looping back, update the plan document to reflect changes.
 | Mistake | Consequence | Fix |
 |---------|------------|-----|
 | Skipping Discover | No ticket, no branch convention, no tracking | Always start with the ticket |
-| Skipping Requirements for features | Vague scope, acceptance criteria discovered mid-implementation | Run `/jig-prd` before brainstorming |
+| Skipping Requirements for features | Vague scope, acceptance criteria discovered mid-implementation | Run `/prd` before brainstorming |
 | Skipping Brainstorm | Missing cross-cutting concerns | Run the Concerns Checklist |
 | Skipping Plan for "simple" features | Can't parallelize, ad-hoc execution | Even 2-task plans help |
 | Skipping Review | AI-generated bugs ship to production | Self-audit is non-negotiable |
@@ -409,10 +409,10 @@ When looping back, update the plan document to reflect changes.
 |-------|--------|--------|
 | Classify | (automatic in this skill) | Work type determined |
 | Discover | Ticket system integration | Ticket + branch |
-| Requirements | `jig-prd` (optional) | PRD with acceptance checklist |
-| Brainstorm | `jig-brainstorm` + concerns checklist | Approved design |
-| Plan | `jig-plan` | `docs/plans/*.md` |
-| Execute | `jig-team-dev` or `jig-sdd` | Implemented + tested code |
-| Review | `jig-review` → `jig-code-review` agent | Audited code |
-| Ship | `jig-commit` → `jig-pr-create` | Merged PR |
-| Learn | `jig-postmortem` | Updated skills |
+| Requirements | `prd` (optional) | PRD with acceptance checklist |
+| Brainstorm | `brainstorm` + concerns checklist | Approved design |
+| Plan | `plan` | `docs/plans/*.md` |
+| Execute | `team-dev` or `sdd` | Implemented + tested code |
+| Review | `review` → `code-review` agent | Audited code |
+| Ship | `commit` → `pr-create` | Merged PR |
+| Learn | `postmortem` | Updated skills |

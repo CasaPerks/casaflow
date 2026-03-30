@@ -3,7 +3,7 @@
   "description": "Jig — The AI engineering workflow framework for teams",
   "owner": {
     "name": "Duro Labs",
-    "email": "engineering@durolabs.co"
+    "email": "devops@durolabs.co"
   },
   "plugins": [
     {

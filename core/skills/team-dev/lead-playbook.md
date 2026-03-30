@@ -92,7 +92,7 @@ Task tool:
 ### Spec Review Result
 
 **If spec compliant:**
-- Dispatch swarm review (fast-pass) using `jig-review` skill
+- Dispatch swarm review (fast-pass) using `review` skill
 - Wait for quality review result
 
 **If issues found:**
@@ -178,7 +178,7 @@ Wait for shutdown confirmation, then spawn new implementer with the next task.
 
 2. **If integration issues found** — spawn a fix implementer for the specific issues
 
-3. **Run verification** — use `jig-verify`:
+3. **Run verification** — use `verify`:
    - Build passes
    - All tests pass
    - Linting clean
@@ -190,7 +190,7 @@ Wait for shutdown confirmation, then spawn new implementer with the next task.
    TeamDelete
    ```
 
-5. **Hand off** — use `jig-finish`
+5. **Hand off** — use `finish`
 
 ## Decision Quick Reference
 

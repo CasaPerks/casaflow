@@ -3,7 +3,7 @@ name: pr-create
 description: >
   Use when creating a pull request. Analyzes branch changes, writes a clear
   PR description with friendly tone, and generates a structured test plan.
-  Triggered by "create a PR", "open a pull request", or /jig-pr-create.
+  Triggered by "create a PR", "open a pull request", or /pr-create.
 tier: workflow
 alwaysApply: false
 ---
@@ -20,18 +20,18 @@ alwaysApply: false
 
 ## When to Use
 
-- "Create a PR", "open a pull request", "/jig-pr-create"
-- `jig-kickoff` routes here during the SHIP stage
-- `jig-finish` Option 2 (Push and Create PR)
+- "Create a PR", "open a pull request", "/pr-create"
+- `kickoff` routes here during the SHIP stage
+- `finish` Option 2 (Push and Create PR)
 
-**Do NOT use when:** You need to respond to existing PR comments. Use `jig-pr-respond` instead.
+**Do NOT use when:** You need to respond to existing PR comments. Use `pr-respond` instead.
 
 ---
 
 ## Workflow
 
 ```
-Run jig-review (code review swarm)
+Run review (code review swarm)
   |
   +-- blocking/major issues? --> Fix issues first, re-run
   |
@@ -52,7 +52,7 @@ Run jig-review (code review swarm)
 
 ### Step 0: Run the code review swarm
 
-**Before writing the PR, run `jig-review` to catch issues while they are cheap to fix.**
+**Before writing the PR, run `review` to catch issues while they are cheap to fix.**
 
 The swarm dispatches parallel specialist agents and produces a confidence score. If blocking or major issues are found, fix them first -- do not create a PR that reviewers will flag.
 
@@ -60,7 +60,7 @@ The swarm dispatches parallel specialist agents and produces a confidence score.
 - **Score 5-7**: Review the major findings. Fix what is real, acknowledge what is intentional, then proceed.
 - **Score 4 or below**: Blocking issues found. Fix them before creating the PR.
 
-If the swarm was already run earlier in the session (e.g., during `jig-team-dev` quality gates), you can skip re-running it -- just confirm no new changes were made since the last review.
+If the swarm was already run earlier in the session (e.g., during `team-dev` quality gates), you can skip re-running it -- just confirm no new changes were made since the last review.
 
 ### Step 1: Gather context
 
@@ -220,7 +220,7 @@ That tells the reviewer nothing. What actually changed? Which files? Why?
 
 ## Pre-Submit Checklist
 
-- [ ] `jig-review` run -- score 8+ (or blocking/major issues addressed)
+- [ ] `review` run -- score 8+ (or blocking/major issues addressed)
 - [ ] All CI checks pass locally (build, tests)
 - [ ] PR description matches actual implementation
 - [ ] Appropriate test coverage for the change type
@@ -246,10 +246,10 @@ That tells the reviewer nothing. What actually changed? Which files? Why?
 ## Integration
 
 **Called by:**
-- `jig-kickoff` during the SHIP stage
-- `jig-finish` Option 2 (Push and Create PR)
+- `kickoff` during the SHIP stage
+- `finish` Option 2 (Push and Create PR)
 
 **Related skills:**
-- `jig-review` -- run before creating the PR
-- `jig-pr-respond` -- for handling reviewer feedback after PR is created
-- `jig-postmortem` -- uses PR data for retrospectives
+- `review` -- run before creating the PR
+- `pr-respond` -- for handling reviewer feedback after PR is created
+- `postmortem` -- uses PR data for retrospectives

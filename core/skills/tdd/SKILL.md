@@ -343,21 +343,21 @@ Bug found? Write a failing test that reproduces it. Follow the TDD cycle. The te
 
 Never fix bugs without a test.
 
-**REQUIRED**: Use `jig-debug` for systematic root cause investigation before writing the failing test. The test should target the root cause, not the symptom.
+**REQUIRED**: Use `debug` for systematic root cause investigation before writing the failing test. The test should target the root cause, not the symptom.
 
 ---
 
 ## Integration
 
 **Called by:**
-- `jig-plan` -- references TDD for implementers
-- `jig-sdd` -- subagents follow TDD per task
-- `jig-team-dev` -- implementer teammates follow TDD per task
-- `jig-debug` -- Phase 4 uses TDD for the failing test case
+- `plan` -- references TDD for implementers
+- `sdd` -- subagents follow TDD per task
+- `team-dev` -- implementer teammates follow TDD per task
+- `debug` -- Phase 4 uses TDD for the failing test case
 
 **Related skills:**
-- `jig-debug` -- for root cause investigation before writing the regression test
-- `jig-verify` -- for verifying that tests actually pass before claiming completion
+- `debug` -- for root cause investigation before writing the regression test
+- `verify` -- for verifying that tests actually pass before claiming completion
 
 ---
 

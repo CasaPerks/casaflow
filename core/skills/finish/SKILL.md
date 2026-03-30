@@ -17,7 +17,7 @@ alwaysApply: false
 
 **Core principle:** Verify tests -> Present options -> Execute choice -> Clean up.
 
-**Announce at start:** "I'm using the jig-finish skill to complete this work."
+**Announce at start:** "I'm using the finish skill to complete this work."
 
 ---
 
@@ -25,8 +25,8 @@ alwaysApply: false
 
 Invoke this skill when:
 - Implementation is complete and all tasks are done
-- `jig-sdd` or `jig-team-dev` reaches the end of execution
-- The user says "we're done", "let's wrap up", "finish this branch", or "/jig-finish"
+- `sdd` or `team-dev` reaches the end of execution
+- The user says "we're done", "let's wrap up", "finish this branch", or "/finish"
 - All planned tasks are implemented and tested
 
 **Do NOT use when:**
@@ -47,7 +47,7 @@ Run the project's test suite:
 <project-test-command>
 ```
 
-**REQUIRED**: Use `jig-verify` -- run the actual command, read the output, confirm zero failures before proceeding.
+**REQUIRED**: Use `verify` -- run the actual command, read the output, confirm zero failures before proceeding.
 
 **If tests fail:**
 ```
@@ -145,7 +145,7 @@ EOF
 )"
 ```
 
-If the project has the `jig-pr-create` skill, defer to it for PR creation.
+If the project has the `pr-create` skill, defer to it for PR creation.
 
 Then: Cleanup worktree (Step 5)
 
@@ -250,13 +250,13 @@ If the project uses a worktree management command (check `jig.config.md` or proj
 ## Integration
 
 **Called by:**
-- `jig-sdd` (terminal state) -- after all tasks complete and final review passes
-- `jig-team-dev` (terminal state) -- after all tasks complete and integration review passes
+- `sdd` (terminal state) -- after all tasks complete and final review passes
+- `team-dev` (terminal state) -- after all tasks complete and integration review passes
 
 **Related skills:**
-- `jig-verify` -- used in Step 1 to verify tests pass
-- `jig-pr-create` -- can be used in Option 2 for more structured PR creation
-- `jig-review` -- should have been completed before reaching this skill
+- `verify` -- used in Step 1 to verify tests pass
+- `pr-create` -- can be used in Option 2 for more structured PR creation
+- `review` -- should have been completed before reaching this skill
 
 ---
 
@@ -264,6 +264,6 @@ If the project uses a worktree management command (check `jig.config.md` or proj
 
 After the chosen option is executed and cleanup is done, suggest:
 
-> "Work complete. If this was a feature or complex improvement, consider running `/jig-postmortem` to capture lessons learned."
+> "Work complete. If this was a feature or complex improvement, consider running `/postmortem` to capture lessons learned."
 
 Do not auto-invoke the postmortem -- just suggest it.

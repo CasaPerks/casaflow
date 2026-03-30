@@ -202,7 +202,7 @@ You MUST complete each phase before proceeding to the next.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - **REQUIRED**: Use `jig-tdd` skill for writing proper failing tests
+   - **REQUIRED**: Use `tdd` skill for writing proper failing tests
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -214,7 +214,7 @@ You MUST complete each phase before proceeding to the next.
    - Test passes now?
    - No other tests broken?
    - Issue actually resolved?
-   - **REQUIRED**: Use `jig-verify` skill before claiming the fix works
+   - **REQUIRED**: Use `verify` skill before claiming the fix works
 
 4. **If Fix Does Not Work**
    - STOP
@@ -317,11 +317,11 @@ If systematic investigation reveals the issue is truly environmental, timing-dep
 
 **Called by:**
 - Any skill or workflow when a bug is encountered
-- `jig-kickoff` routes bugs through light brainstorm then here
+- `kickoff` routes bugs through light brainstorm then here
 
 **Related skills:**
-- `jig-tdd` -- for creating the failing test case (Phase 4, Step 1)
-- `jig-verify` -- for verifying the fix worked before claiming success
+- `tdd` -- for creating the failing test case (Phase 4, Step 1)
+- `verify` -- for verifying the fix worked before claiming success
 
 ---
 

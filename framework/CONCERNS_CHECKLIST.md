@@ -1,11 +1,11 @@
 # Jig Concerns Checklist
 
-The concerns checklist is a configurable list of engineering considerations that `jig-brainstorm` surfaces during feature design. It ensures teams never forget critical cross-cutting concerns.
+The concerns checklist is a configurable list of engineering considerations that `brainstorm` surfaces during feature design. It ensures teams never forget critical cross-cutting concerns.
 
 ## How It Works
 
 1. Team defines concerns in `jig.config.md`, each pointing to a skill, specialist, or `manual`
-2. During brainstorming (features and improvements), `jig-brainstorm` presents each concern
+2. During brainstorming (features and improvements), `brainstorm` presents each concern
 3. User marks each as Y (yes, applies), N (no, not relevant), or NA (not applicable)
 4. For Y concerns, the referenced skill is loaded for guidance
 5. Decisions are recorded in the design document

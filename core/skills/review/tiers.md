@@ -4,13 +4,13 @@
 
 ### fast-pass
 
-**Runs**: Per-task in `jig-team-dev` AND pre-PR in `jig-code-review` agent
+**Runs**: Per-task in `team-dev` AND pre-PR in `code-review` agent
 **Purpose**: Catch blocking and high-impact issues early while implementers still have context
 **Default specialists**: security, error-handling, dead-code
 
 ### full-only
 
-**Runs**: Pre-PR in `jig-code-review` agent only
+**Runs**: Pre-PR in `code-review` agent only
 **Purpose**: Deep analysis requiring broader context (cross-file data flow, contract alignment)
 **Default specialists**: async-safety, performance
 

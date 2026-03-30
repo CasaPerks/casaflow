@@ -7,7 +7,7 @@ Every skill in the Jig ecosystem — core, pack, or team — uses this schema.
 ```yaml
 ---
 name: string              # Required. Unique identifier. Max 64 chars.
-                          # Core: jig-* prefix (reserved)
+                          # Core: no prefix (plugin namespace handles it)
                           # Pack: {pack-prefix}-* (declared in pack.json)
                           # Team: any convention (recommend domain prefixes)
 

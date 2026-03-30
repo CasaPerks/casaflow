@@ -19,9 +19,9 @@ Jig fixes this the way Rails fixed web development: with strong opinions, sensib
 DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
 ```
 
-**Parallel Execution** — `/jig-team-dev` spawns parallel agent teammates with staggered quality gates. Your implementation plan runs in parallel, with spec compliance and code review at every step.
+**Parallel Execution** — `/jig:team-dev` spawns parallel agent teammates with staggered quality gates. Your implementation plan runs in parallel, with spec compliance and code review at every step.
 
-**Review Swarm** — `/jig-review` dispatches specialist reviewers in parallel (security, dead code, error handling, async safety, performance). Teams add their own domain-specific specialists.
+**Review Swarm** — `/jig:review` dispatches specialist reviewers in parallel (security, dead code, error handling, async safety, performance). Teams add their own domain-specific specialists.
 
 **Configurable, Not Rigid** — `jig.config.md` lets you tune the pipeline per work type, define your concerns checklist, choose your ticket system, and set review policies. Override only what you need.
 
@@ -66,12 +66,12 @@ If you prefer the interactive approach:
 ### First Use
 
 ```bash
-/jig-kickoff    # Start working on a task — guides you through the full pipeline
-/jig-brainstorm # Design a feature before building it
-/jig-extend     # Add your first team skill
+/jig:kickoff    # Start working on a task — guides you through the full pipeline
+/jig:brainstorm # Design a feature before building it
+/jig:extend     # Add your first team skill
 ```
 
-Type `/jig-` to see all available commands. See [docs/init-experience.md](docs/init-experience.md) for the interactive setup flow that generates your `jig.config.md`.
+Type `/jig:` to see all available commands. See [docs/init-experience.md](docs/init-experience.md) for the interactive setup flow that generates your `jig.config.md`.
 
 ### Other Platforms (Gemini, Codex)
 
@@ -145,9 +145,9 @@ Ships with Jig. Three skills + one specialist for universal engineering practice
 Your domain expertise lives in `.claude/skills/` in your project. These follow Jig's schema and wire into the framework:
 
 - **Glob-triggered**: edit a database entity file → `be-database` skill auto-loads
-- **Concerns checklist**: listed in `jig.config.md` → surfaces during `/jig-brainstorm`
-- **Review swarm**: team specialists in `.claude/specialists/` → dispatched by `/jig-review`
-- **Created with**: `/jig-extend` scaffolds new skills with valid frontmatter
+- **Concerns checklist**: listed in `jig.config.md` → surfaces during `/jig:brainstorm`
+- **Review swarm**: team specialists in `.claude/specialists/` → dispatched by `/jig:review`
+- **Created with**: `/jig:extend` scaffolds new skills with valid frontmatter
 
 ### Configuration
 

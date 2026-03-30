@@ -3,14 +3,14 @@ name: prd
 description: >
   Use when capturing product requirements for features, improvements, or bugs
   before brainstorming or implementation. Triggered by "create a PRD", "capture
-  requirements", "document requirements", "write a PRD", or /jig-prd.
+  requirements", "document requirements", "write a PRD", or /prd.
 tier: workflow
 alwaysApply: false
 ---
 
 # PRD Author
 
-**PURPOSE**: Collaboratively author structured Product Requirements Documents that serve as enforceable specs for both human reviewers and downstream AI agents (spec reviewers, jig-team-dev quality gates).
+**PURPOSE**: Collaboratively author structured Product Requirements Documents that serve as enforceable specs for both human reviewers and downstream AI agents (spec reviewers, team-dev quality gates).
 
 **PRINCIPLE**: API-first. The platform contract (data model, API surface, business rules) comes before UI. Sections are ordered by platform priority, not visual priority.
 
@@ -23,7 +23,7 @@ alwaysApply: false
 - Starting a new feature or large improvement -- capture requirements before brainstorming approaches
 - Documenting a bug fix that touches multiple layers
 - Any time you want a structured spec that downstream agents can verify against
-- Invoked manually via `/jig-prd` or prompted by `jig-kickoff` for features
+- Invoked manually via `/prd` or prompted by `kickoff` for features
 
 **Do NOT use when:** The work is a trivial config change, chore, or single-line fix with obvious scope.
 
@@ -342,11 +342,11 @@ When a PRD exists, implementation plans should reference it:
 
 > **PRD:** docs/plans/YYYY-MM-DD-<topic>-prd.md
 
-This pointer tells downstream agents (spec reviewers, jig-team-dev quality gates) where to find the acceptance checklist. They load the PRD, extract the `[ ]` items, and verify each one against the implementation with file:line references.
+This pointer tells downstream agents (spec reviewers, team-dev quality gates) where to find the acceptance checklist. They load the PRD, extract the `[ ]` items, and verify each one against the implementation with file:line references.
 
 ---
 
-## Integration with jig-kickoff
+## Integration with kickoff
 
 This skill sits between **DISCOVER** and **BRAINSTORM** in the kickoff pipeline:
 
@@ -354,7 +354,7 @@ This skill sits between **DISCOVER** and **BRAINSTORM** in the kickoff pipeline:
 CLASSIFY -> DISCOVER -> REQUIREMENTS (this skill) -> BRAINSTORM -> PLAN -> ...
 ```
 
-- **Features**: jig-kickoff prompts "Capture requirements with `/jig-prd`?"
+- **Features**: kickoff prompts "Capture requirements with `/prd`?"
 - **Large improvements**: prompted
 - **Bugs/tasks**: skipped (invoke manually if needed)
 
@@ -382,15 +382,15 @@ The PRD becomes the **input** to brainstorming. Brainstorming decides *how* to s
 ## Integration
 
 **Called by:**
-- `jig-kickoff` during the REQUIREMENTS stage (between DISCOVER and BRAINSTORM)
+- `kickoff` during the REQUIREMENTS stage (between DISCOVER and BRAINSTORM)
 
 **Terminal state:**
-- Return to `jig-kickoff`, which proceeds to BRAINSTORM
+- Return to `kickoff`, which proceeds to BRAINSTORM
 
 **Related skills:**
-- `jig-brainstorm` -- consumes the PRD as input to design exploration
-- `jig-plan` -- references the PRD in the plan header for spec reviewers
-- `jig-kickoff` -- orchestrates the full pipeline including this skill
+- `brainstorm` -- consumes the PRD as input to design exploration
+- `plan` -- references the PRD in the plan header for spec reviewers
+- `kickoff` -- orchestrates the full pipeline including this skill
 
 ---
 

@@ -20,16 +20,16 @@ alwaysApply: false
 ## When to Use
 
 Invoke this skill when:
-- You have an approved design from `jig-brainstorm`
+- You have an approved design from `brainstorm`
 - You have requirements (from a PRD, ticket, or conversation) for a multi-step task
-- `jig-kickoff` routes here during the PLAN stage
-- The user says "write a plan", "create an implementation plan", or "/jig-plan"
+- `kickoff` routes here during the PLAN stage
+- The user says "write a plan", "create an implementation plan", or "/plan"
 
 **Do NOT use when:**
-- You do not have an approved design or clear requirements (use `jig-brainstorm` first)
+- You do not have an approved design or clear requirements (use `brainstorm` first)
 - The task is a single atomic change (just do it)
 
-**Announce at start:** "I'm using the jig-plan skill to create the implementation plan."
+**Announce at start:** "I'm using the plan skill to create the implementation plan."
 
 ---
 
@@ -48,7 +48,7 @@ If the spec covers multiple independent subsystems, it should have been broken i
 
 > **PRD:** docs/plans/YYYY-MM-DD-<topic>-prd.md *(include if a PRD exists)*
 > **Design:** docs/plans/YYYY-MM-DD-<topic>-design.md *(include if a design doc exists)*
-> **For agents:** Use jig-team-dev (parallel) or jig-sdd (sequential) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agents:** Use team-dev (parallel) or sdd (sequential) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -179,7 +179,7 @@ Plans are TDD-oriented by default:
 4. Tests are confirmed passing
 5. Then commit
 
-**REQUIRED**: Reference `jig-tdd` skill for implementers. Subagents and teammates executing this plan should follow the TDD red-green-refactor cycle.
+**REQUIRED**: Reference `tdd` skill for implementers. Subagents and teammates executing this plan should follow the TDD red-green-refactor cycle.
 
 For tasks that are purely structural (creating directories, config files, boilerplate with no logic), TDD steps can be simplified to "create file, verify it exists, commit."
 
@@ -222,11 +222,11 @@ After saving the plan, offer the execution choice:
 > Which approach?"
 
 **If Team-Driven chosen:**
-- **REQUIRED**: Use `jig-team-dev`
+- **REQUIRED**: Use `team-dev`
 - Parallel implementation with spec compliance + code quality review gates
 
 **If Subagent-Driven chosen:**
-- **REQUIRED**: Use `jig-sdd`
+- **REQUIRED**: Use `sdd`
 - Serial execution with two-stage review per task
 
 Read `jig.config.md` for `parallel-threshold` and `default-strategy` to inform the recommendation, but always let the user choose.
@@ -246,18 +246,18 @@ Read `jig.config.md` for `parallel-threshold` and `default-strategy` to inform t
 ## Integration
 
 **Called by:**
-- `jig-brainstorm` (terminal state) -- after design is approved
-- `jig-kickoff` during the PLAN stage
+- `brainstorm` (terminal state) -- after design is approved
+- `kickoff` during the PLAN stage
 
 **Terminal state:**
-- Invoke `jig-team-dev` (parallel) or `jig-sdd` (sequential)
+- Invoke `team-dev` (parallel) or `sdd` (sequential)
 
 **Related skills:**
-- `jig-brainstorm` -- produces the design this skill consumes
-- `jig-prd` -- produces PRD with acceptance checklist referenced in plan header
-- `jig-tdd` -- implementers use TDD during execution
-- `jig-team-dev` -- parallel execution engine
-- `jig-sdd` -- sequential execution engine
+- `brainstorm` -- produces the design this skill consumes
+- `prd` -- produces PRD with acceptance checklist referenced in plan header
+- `tdd` -- implementers use TDD during execution
+- `team-dev` -- parallel execution engine
+- `sdd` -- sequential execution engine
 
 ---
 

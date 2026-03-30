@@ -18,20 +18,20 @@ Execute implementation plans by spawning implementer teammates that work in para
 
 ```mermaid
 flowchart TD
-    A{Have implementation<br/>plan?} -->|No| B[Use jig-brainstorm +<br/>jig-plan first]
+    A{Have implementation<br/>plan?} -->|No| B[Use brainstorm +<br/>plan first]
     A -->|Yes| C{3+ independent<br/>tasks?}
-    C -->|No| D[Use jig-sdd<br/>sequential]
+    C -->|No| D[Use sdd<br/>sequential]
     C -->|Yes| E{Tasks touch mostly<br/>different files?}
-    E -->|No| F[Use jig-sdd<br/>sequential]
+    E -->|No| F[Use sdd<br/>sequential]
     E -->|Yes| G{Agent teams<br/>enabled?}
-    G -->|No| H[Enable agent teams<br/>or use jig-sdd]
-    G -->|Yes| I[jig-team-dev]
+    G -->|No| H[Enable agent teams<br/>or use sdd]
+    G -->|Yes| I[team-dev]
     style I fill:#e8f5e9
 ```
 
 ### Comparison
 
-| | jig-sdd | Parallel Agents | jig-team-dev |
+| | sdd | Parallel Agents | team-dev |
 |---|---|---|---|
 | **Execution** | Sequential, one task at a time | Parallel, fire-and-forget | Parallel, staggered pipeline |
 | **Quality Gates** | Spec + quality review | None | Spec + quality review |
@@ -45,7 +45,7 @@ flowchart TD
 - **Agent teams enabled**: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"` in settings
 - **tmux teammate mode**: `teammateMode: "tmux"` in `~/.claude/settings.json` (recommended for split panes)
 - **Running inside tmux**: Launch via `tmux -CC` in iTerm2 or `tmux new -s claude` then `claude`
-- **Implementation plan**: A numbered plan with tasks (from `jig-plan`)
+- **Implementation plan**: A numbered plan with tasks (from `plan`)
 
 ### Quick Setup
 
@@ -75,7 +75,7 @@ tmux new -s claude
 ```
 Then run `claude` from inside the tmux session. Teammates appear as split panes automatically.
 
-**4. Have an implementation plan** — use `jig-plan` to generate one, or write one manually.
+**4. Have an implementation plan** — use `plan` to generate one, or write one manually.
 
 ## The Process
 
@@ -101,7 +101,7 @@ flowchart TD
     shutdown -.->|when all done| all_done[All tasks complete]
     all_done --> integration[Final integration review]
     integration --> cleanup[Shutdown teammates<br/>TeamDelete]
-    cleanup --> finish[jig-finish]
+    cleanup --> finish[finish]
 ```
 
 ## Prompt Templates
@@ -110,7 +110,7 @@ flowchart TD
 |----------|---------|------------|
 | `./implementer-prompt.md` | Spawn an implementer teammate | Task tool with `team_name` |
 | `./spec-reviewer-prompt.md` | Dispatch spec compliance reviewer | Subagent (not teammate) |
-| `jig-review` skill | Dispatch swarm quality review (fast-pass tier) | Subagent via skill pipeline |
+| `review` skill | Dispatch swarm quality review (fast-pass tier) | Subagent via skill pipeline |
 | `./lead-playbook.md` | Lead's orchestration decision logic | Reference for the lead |
 
 ## Key Design Decisions
@@ -171,33 +171,33 @@ The lead groups tasks by file surface area before spawning. Tasks touching the s
 ## Integration
 
 **Required workflow (in order):**
-1. **jig-brainstorm** — design the feature
-2. **jig-plan** — create the numbered implementation plan
-3. **jig-team-dev** — execute in parallel with quality gates
-4. **jig-finish** — merge/PR when all tasks pass
+1. **brainstorm** — design the feature
+2. **plan** — create the numbered implementation plan
+3. **team-dev** — execute in parallel with quality gates
+4. **finish** — merge/PR when all tasks pass
 
 **Used during orchestration:**
-- **jig-verify** — before marking the effort done
-- **jig-review** — swarm review at fast-pass tier per task
+- **verify** — before marking the effort done
+- **review** — swarm review at fast-pass tier per task
 
 **Implementer teammates use:**
-- **jig-tdd** — TDD for each task
+- **tdd** — TDD for each task
 - Domain skills from the team's extensions
 
 **Alternative workflows:**
 
 | Situation | Use Instead |
 |-----------|-------------|
-| Fewer than 3 independent tasks | **jig-sdd** |
-| Tasks share many files | **jig-sdd** |
-| Agent teams not enabled | **jig-sdd** |
+| Fewer than 3 independent tasks | **sdd** |
+| Tasks share many files | **sdd** |
+| Agent teams not enabled | **sdd** |
 
 ## Limitations
 
 - Requires agent teams enabled (experimental feature)
 - Split panes require tmux or iTerm2
 - Tasks must touch different files to parallelize safely
-- Higher token cost than jig-sdd (multiple persistent sessions)
+- Higher token cost than sdd (multiple persistent sessions)
 - One team per session — clean up before starting another
 - Teammates cannot spawn their own teams
 - Heavily coupled plans may degrade to near-sequential execution

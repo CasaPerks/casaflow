@@ -24,7 +24,7 @@ Jig scans three directories in priority order:
 
 ### Override Semantics
 
-If `team/skills/jig-brainstorm/SKILL.md` exists, it replaces `core/skills/jig-brainstorm/SKILL.md` entirely. The team version is used; the core version is ignored.
+If `team/skills/brainstorm/SKILL.md` exists, it replaces `core/skills/brainstorm/SKILL.md` entirely. The team version is used; the core version is ignored.
 
 This is how teams customize without editing framework files. Like CSS specificity — the most specific origin wins.
 
@@ -49,7 +49,7 @@ Specialists for the review swarm follow the same pattern:
 
 ### Specialist Dispatch
 
-`jig-review` handles dispatch:
+`review` handles dispatch:
 - Reads `swarm-tiers` from `jig.config.md` to determine which tier to run
 - Collects specialists from all three directories
 - Deduplicates (team > pack > core)
@@ -81,7 +81,7 @@ The concerns checklist in `jig.config.md` maps concern names to skill paths:
 - test-strategy: manual
 ```
 
-During brainstorming, `jig-brainstorm` reads this list and:
+During brainstorming, `brainstorm` reads this list and:
 1. Presents each concern as a yes/no/NA decision
 2. For concerns marked yes, loads the referenced skill for guidance
 3. For concerns marked `manual`, flags it for human attention

@@ -196,14 +196,14 @@ The cost of running a verification command is seconds. The cost of a false claim
 ## Integration
 
 **Called by:**
-- `jig-debug` -- before claiming a fix works (Phase 4, Step 3)
-- `jig-sdd` -- before marking a task complete
-- `jig-team-dev` -- before marking a task complete
-- `jig-finish` -- before presenting completion options
+- `debug` -- before claiming a fix works (Phase 4, Step 3)
+- `sdd` -- before marking a task complete
+- `team-dev` -- before marking a task complete
+- `finish` -- before presenting completion options
 
 **Related skills:**
-- `jig-tdd` -- TDD's verify-red and verify-green steps are verification instances
-- `jig-debug` -- Phase 4 requires verification before claiming fix success
+- `tdd` -- TDD's verify-red and verify-green steps are verification instances
+- `debug` -- Phase 4 requires verification before claiming fix success
 
 ---
 

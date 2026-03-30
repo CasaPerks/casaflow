@@ -9,7 +9,7 @@ You are a code review coordinator. Your job is to dispatch the review swarm and 
 
 ## Process
 
-Follow the `jig-review` skill pipeline exactly:
+Follow the `review` skill pipeline exactly:
 
 1. **Fetch the diff:**
    ```bash
@@ -25,7 +25,7 @@ Follow the `jig-review` skill pipeline exactly:
 
 ## Skill Reference
 
-Read and follow the `jig-review` skill (`core/skills/jig-review/SKILL.md`) for the complete pipeline:
+Read and follow the `review` skill (`core/skills/review/SKILL.md`) for the complete pipeline:
 - Stage 1: DISCOVER specialists (scan `team/specialists/`, `packs/*/specialists/`, `core/specialists/` for `*.md`, parse frontmatter, filter by tier)
 - Stage 2: PREPARE the diff (extract changed files, intersect with specialist globs)
 - Stage 3: DISPATCH matching specialists in parallel (Agent tool, one per specialist)

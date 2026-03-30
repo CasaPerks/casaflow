@@ -3,7 +3,7 @@ name: pr-respond
 description: >
   Use when reviewing PR comments, responding to code review feedback, or
   addressing reviewer suggestions on the current branch. Triggered by
-  "respond to PR comments", "address review feedback", or /jig-pr-respond.
+  "respond to PR comments", "address review feedback", or /pr-respond.
 tier: workflow
 alwaysApply: false
 ---
@@ -188,7 +188,7 @@ For each valid fix:
 **Do both. Always.** A local commit without a push means the reply will reference a commit the reviewer cannot see.
 
 ```bash
-# Commit the fixes (use jig-commit agent)
+# Commit the fixes (use commit agent)
 # Then push immediately
 git push
 ```
@@ -309,9 +309,9 @@ gh auth status
 
 **Called by:**
 - Ad-hoc when review comments arrive
-- After `jig-pr-create` when reviewers provide feedback
+- After `pr-create` when reviewers provide feedback
 
 **Related skills:**
-- `jig-pr-create` -- creates the PR that this skill responds to
-- `jig-review` -- the automated review swarm (catches issues before humans do)
-- `jig-postmortem` -- analyzes PR feedback patterns for skill improvement
+- `pr-create` -- creates the PR that this skill responds to
+- `review` -- the automated review swarm (catches issues before humans do)
+- `postmortem` -- analyzes PR feedback patterns for skill improvement

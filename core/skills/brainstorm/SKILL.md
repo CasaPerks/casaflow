@@ -24,12 +24,12 @@ Invoke this skill when:
 - Adding functionality to existing code
 - Modifying behavior that affects users or systems
 - The user says "let's design", "how should we build", "I want to add..."
-- `jig-kickoff` routes here during the BRAINSTORM stage
+- `kickoff` routes here during the BRAINSTORM stage
 
 **Do NOT use when:**
-- Fixing a bug with an obvious root cause (use `jig-debug`)
-- Running a chore or config change (skip to `jig-plan`)
-- You only need to create a PR (use `jig-pr-create` directly)
+- Fixing a bug with an obvious root cause (use `debug`)
+- Running a chore or config change (skip to `plan`)
+- You only need to create a PR (use `pr-create` directly)
 
 ---
 
@@ -59,7 +59,7 @@ Complete these steps in order:
 7. **Write design doc** -- save to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 8. **Spec self-review** -- scan for placeholders, contradictions, ambiguity, scope
 9. **User reviews written spec** -- ask user to review before proceeding
-10. **Transition to implementation** -- invoke `jig-plan` to create implementation plan
+10. **Transition to implementation** -- invoke `plan` to create implementation plan
 
 ---
 
@@ -80,10 +80,10 @@ flowchart TD
     I --> J[Spec self-review<br/>fix inline]
     J --> K{User reviews spec?}
     K -->|changes requested| I
-    K -->|approved| L((Invoke jig-plan))
+    K -->|approved| L((Invoke plan))
 ```
 
-**The terminal state is invoking `jig-plan`.** Do NOT invoke any other implementation skill. The ONLY skill invoked after brainstorming is `jig-plan`.
+**The terminal state is invoking `plan`.** Do NOT invoke any other implementation skill. The ONLY skill invoked after brainstorming is `plan`.
 
 ---
 
@@ -187,8 +187,8 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ### Transition to Implementation
 
-- **REQUIRED**: Invoke `jig-plan` to create a detailed implementation plan
-- Do NOT invoke any other skill. `jig-plan` is the next step.
+- **REQUIRED**: Invoke `plan` to create a detailed implementation plan
+- Do NOT invoke any other skill. `plan` is the next step.
 
 ---
 
@@ -225,14 +225,14 @@ A question about a UI topic is not automatically a visual question. "What does p
 ## Integration
 
 **Called by:**
-- `jig-kickoff` during the BRAINSTORM stage
+- `kickoff` during the BRAINSTORM stage
 
 **Terminal state:**
-- **REQUIRED**: Invoke `jig-plan` to create implementation plan
+- **REQUIRED**: Invoke `plan` to create implementation plan
 
 **Related skills:**
-- `jig-prd` -- for capturing formal product requirements before brainstorming
-- `jig-plan` -- the next step after design approval
+- `prd` -- for capturing formal product requirements before brainstorming
+- `plan` -- the next step after design approval
 
 ---
 

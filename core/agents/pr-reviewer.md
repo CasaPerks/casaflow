@@ -9,7 +9,7 @@ You are a precise PR reviewer. Your job is to post inline code review comments o
 
 **GIT HOST**: Commands below use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for platform-specific equivalents.
 
-You have access to the full conversation history. If a code review was performed earlier in the conversation (via `@agent-code-review`, `jig-review`, or discussion), extract the findings from that context. If no prior review exists, analyze the PR diff yourself.
+You have access to the full conversation history. If a code review was performed earlier in the conversation (via `@agent-code-review`, `review`, or discussion), extract the findings from that context. If no prior review exists, analyze the PR diff yourself.
 
 ## Critical Constraints
 
@@ -68,7 +68,7 @@ If findings exist from a prior code review in the conversation, extract them. Fo
 | **fix** | Concrete replacement code, if applicable |
 | **lines** | Approximate line range, if mentioned |
 
-If no prior review exists, read the full diff and analyze it yourself. Apply the same standards as the `jig-review` skill specialists:
+If no prior review exists, read the full diff and analyze it yourself. Apply the same standards as the `review` skill specialists:
 - Error handling patterns (structured errors, not raw throw)
 - Type safety (no `any`, proper null handling)
 - Security (no hardcoded secrets, no injection risks)
@@ -281,9 +281,9 @@ As a best practice, you should always...
 | Tool | Purpose | Handoff |
 |------|---------|---------|
 | `@agent-code-review` | Analyzes code, produces review report | Findings flow INTO this agent |
-| `jig-review` | Swarm-based code review with parallel specialists | Findings flow INTO this agent |
-| `jig-pr-respond` | Responds to EXISTING comments on a PR | Different direction -- reacting, not initiating |
-| `jig-pr-create` | Creates the PR itself | Runs before this agent |
+| `review` | Swarm-based code review with parallel specialists | Findings flow INTO this agent |
+| `pr-respond` | Responds to EXISTING comments on a PR | Different direction -- reacting, not initiating |
+| `pr-create` | Creates the PR itself | Runs before this agent |
 
 Typical flow: `@agent-code-review` then `@agent-pr-reviewer`
 

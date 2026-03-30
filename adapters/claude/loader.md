@@ -109,9 +109,9 @@ jig eject
 your-project/
 ├── .claude/
 │   ├── skills/
-│   │   ├── jig-kickoff/
+│   │   ├── kickoff/
 │   │   │   └── SKILL.md
-│   │   ├── jig-brainstorm/
+│   │   ├── brainstorm/
 │   │   │   └── SKILL.md
 │   │   ├── ...           # All core + pack skills
 │   │   └── team/         # Team skills alongside
@@ -138,7 +138,7 @@ See `CLAUDE.md.template` for the full template that `jig init` generates.
 
 ## Config Integration
 
-`jig.config.md` requires no adapter translation. Skills read it directly as markdown context. Claude Code loads the file when skills reference it (e.g., `jig-kickoff` reads pipeline stages, `jig-review` reads swarm-tiers).
+`jig.config.md` requires no adapter translation. Skills read it directly as markdown context. Claude Code loads the file when skills reference it (e.g., `kickoff` reads pipeline stages, `review` reads swarm-tiers).
 
 The config file lives in the project root alongside CLAUDE.md. Both are committed to version control.
 
@@ -149,7 +149,7 @@ When Claude Code starts a session in a Jig project:
 1. **CLAUDE.md** is loaded (always). Contains the Jig declaration and project-specific context.
 2. **Standards-tier skills** are loaded (always). Their `alwaysApply: true` frontmatter triggers Claude Code's auto-load.
 3. **Domain/Feature skills** are loaded when the user edits files matching their globs.
-4. **Workflow skills** are loaded when the user types a slash command (e.g., `/jig-kickoff`).
+4. **Workflow skills** are loaded when the user types a slash command (e.g., `/jig:kickoff`).
 5. **Agents** are available for invocation by skills or by the user.
 6. **jig.config.md** is read on-demand by skills that need configuration values.
 

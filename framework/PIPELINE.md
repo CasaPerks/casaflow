@@ -3,7 +3,7 @@
 The guaranteed order of operations for all development work in Jig.
 
 ```
-DISCOVER -> BRAINSTORM -> PLAN -> EXECUTE -> REVIEW -> SHIP -> LEARN
+DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
 ```
 
 ## Stages
@@ -12,7 +12,7 @@ DISCOVER -> BRAINSTORM -> PLAN -> EXECUTE -> REVIEW -> SHIP -> LEARN
 
 Understand the problem. Find or create a ticket. Establish context.
 
-- **Skill:** `jig-kickoff` (orchestrates the full pipeline)
+- **Skill:** `kickoff` (orchestrates the full pipeline)
 - **Output:** Ticket reference, branch, initial context
 - **Configurable:** `ticket-system` in `jig.config.md` (Linear, Jira, GitHub Issues)
 
@@ -20,7 +20,7 @@ Understand the problem. Find or create a ticket. Establish context.
 
 Explore the solution space. Ask questions. Propose approaches. Get design approval.
 
-- **Skill:** `jig-brainstorm`
+- **Skill:** `brainstorm`
 - **Output:** Approved design document
 - **Configurable:** Concerns checklist in `jig.config.md` — maps team skills into the brainstorming process
 - **Work type overrides:** Bugs get light brainstorm (root cause + fix). Tasks skip entirely.
@@ -29,7 +29,7 @@ Explore the solution space. Ask questions. Propose approaches. Get design approv
 
 Turn the approved design into an implementation plan with bite-sized tasks.
 
-- **Skill:** `jig-plan`
+- **Skill:** `plan`
 - **Output:** Implementation plan with ordered tasks, file targets, and test expectations
 - **Configurable:** TDD emphasis, task granularity
 
@@ -37,7 +37,7 @@ Turn the approved design into an implementation plan with bite-sized tasks.
 
 Build the thing. Either in parallel or serial.
 
-- **Skills:** `jig-team-dev` (parallel, 3+ independent tasks) or `jig-sdd` (serial, coupled tasks)
+- **Skills:** `team-dev` (parallel, 3+ independent tasks) or `sdd` (serial, coupled tasks)
 - **Output:** Implemented, tested, committed code
 - **Configurable:** `parallel-threshold`, `default-strategy`, `teammate-mode` in `jig.config.md`
 - **Quality gates:** Each task passes spec compliance review + code quality review before completion
@@ -46,7 +46,7 @@ Build the thing. Either in parallel or serial.
 
 Comprehensive code review via specialist swarm.
 
-- **Skill:** `jig-review`
+- **Skill:** `review`
 - **Output:** Confidence-scored review report with findings by severity
 - **Configurable:** `swarm-tiers` (which specialists block vs advise), `deep-review-model`, `specialist-model-default`
 - **Discovery:** Specialists are collected from `core/`, `packs/`, and `team/` directories
@@ -55,7 +55,7 @@ Comprehensive code review via specialist swarm.
 
 Create the PR, push, get it merged.
 
-- **Skill:** `jig-pr`
+- **Skill:** `pr-create`
 - **Output:** PR with structured description, test plan, ticket reference
 - **Configurable:** `branching` format, `ticket-system`, `require-ticket-reference`
 
@@ -63,13 +63,13 @@ Create the PR, push, get it merged.
 
 Post-merge retrospective. What went well? What should improve?
 
-- **Skill:** `jig-postmortem`
+- **Skill:** `postmortem`
 - **Output:** Lessons learned, skill improvement suggestions, process refinements
 - **Work type overrides:** Features always learn. Bugs and improvements optionally. Tasks skip.
 
 ## Work Type Routing
 
-`jig-kickoff` classifies work into four types, each with different pipeline depth:
+`kickoff` classifies work into four types, each with different pipeline depth:
 
 | Stage | Bug | Feature | Improvement | Task |
 |-------|-----|---------|-------------|------|

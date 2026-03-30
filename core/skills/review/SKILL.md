@@ -3,7 +3,7 @@ name: review
 description: >
   Use when reviewing code before PRs or as quality gate during parallel execution.
   Dispatches parallel specialist review agents via the swarm architecture. Invoked
-  by jig-code-review agent, jig-team-dev quality gate, or /jig-review.
+  by code-review agent, team-dev quality gate, or /review.
 tier: workflow
 alwaysApply: false
 ---
@@ -18,9 +18,9 @@ alwaysApply: false
 
 ## When to Use
 
-- `jig-code-review` agent invokes this with `tier: all` (pre-PR, full swarm)
-- `jig-team-dev` quality gate invokes this with `tier: fast-pass` (per-task, blocking checks only)
-- Direct invocation via `/jig-review` for manual reviews
+- `code-review` agent invokes this with `tier: all` (pre-PR, full swarm)
+- `team-dev` quality gate invokes this with `tier: fast-pass` (per-task, blocking checks only)
+- Direct invocation via `/review` for manual reviews
 
 **Logic reviewer** (pre-PR only): When invoked with `tier: all`, the orchestrator also dispatches a logic reviewer after the swarm specialists complete. The logic reviewer is skipped for `tier: fast-pass` invocations.
 
@@ -46,7 +46,7 @@ Check `jig.config.md` for `swarm-tiers` to confirm which specialists are assigne
 
 Obtain the diff based on the caller:
 
-**From `jig-code-review` agent (pre-PR):**
+**From `code-review` agent (pre-PR):**
 ```bash
 git fetch origin
 git diff origin/{main-branch}...HEAD
@@ -54,7 +54,7 @@ git diff origin/{main-branch}...HEAD --name-only
 ```
 Read `main-branch` from `jig.config.md` (default: `main`).
 
-**From `jig-team-dev` quality gate (per-task):**
+**From `team-dev` quality gate (per-task):**
 ```bash
 git diff <BASE_SHA>..<HEAD_SHA>
 git diff <BASE_SHA>..<HEAD_SHA> --name-only
@@ -203,11 +203,11 @@ When a specialist's prompt grows too large:
 
 ## Integration Notes
 
-### With `jig-code-review` agent
+### With `code-review` agent
 The agent fetches `git diff origin/{main-branch}...HEAD`, then follows this skill's pipeline with `tier: all`.
 
-### With `jig-team-dev`
+### With `team-dev`
 The lead dispatches this skill as a subagent after spec compliance passes. Diff is scoped to the task's commits (BASE_SHA..HEAD_SHA). Uses `tier: fast-pass`.
 
-### With `jig-postmortem`
+### With `postmortem`
 When a finding is missed, the postmortem uses the Specialist Summary table to diagnose which specialist should have caught it.

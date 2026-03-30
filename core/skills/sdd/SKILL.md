@@ -24,23 +24,23 @@ alwaysApply: false
 ```mermaid
 flowchart TD
     A{Have implementation plan?} -->|yes| B{Tasks mostly independent?}
-    A -->|no| C[jig-plan first]
+    A -->|no| C[plan first]
     B -->|yes| D{3+ tasks touching<br/>different files?}
-    B -->|no, tightly coupled| E[jig-sdd]
+    B -->|no, tightly coupled| E[sdd]
     D -->|yes| F{Agent teams enabled?}
     D -->|no| E
-    F -->|yes| G[jig-team-dev]
+    F -->|yes| G[team-dev]
     F -->|no| E
     style E fill:#e8f5e9
 ```
 
-**Use `jig-sdd` when:**
+**Use `sdd` when:**
 - Tasks are tightly coupled (share files, must execute in order)
 - Fewer than 3 independent tasks
 - Agent teams are not available
 - You prefer serial execution with review gates
 
-**Use `jig-team-dev` instead when:**
+**Use `team-dev` instead when:**
 - 3+ independent tasks touching different files
 - Agent teams are enabled
 - Parallel execution would significantly reduce total time
@@ -60,7 +60,7 @@ flowchart TD
         implement --> spec_review[Dispatch spec<br/>reviewer subagent]
         spec_review --> spec_pass{Spec compliant?}
         spec_pass -->|no| spec_fix[Implementer<br/>fixes spec gaps] -.->|re-review| spec_review
-        spec_pass -->|yes| quality_review[Dispatch code quality<br/>reviewer - jig-review fast-pass]
+        spec_pass -->|yes| quality_review[Dispatch code quality<br/>reviewer - review fast-pass]
         quality_review --> quality_pass{Quality passes?}
         quality_pass -->|no| quality_fix[Implementer<br/>fixes quality issues] -.->|re-review| quality_review
         quality_pass -->|yes| task_done[Mark task complete]
@@ -69,7 +69,7 @@ flowchart TD
     task_done --> more{More tasks?}
     more -->|yes| dispatch
     more -->|no| final_review[Final review of<br/>entire implementation]
-    final_review --> finish[Invoke jig-finish]
+    final_review --> finish[Invoke finish]
     style finish fill:#e8f5e9
 ```
 
@@ -90,7 +90,7 @@ For each task in order:
 Spawn a fresh subagent with:
 - The complete task text (do NOT make the subagent read the plan file)
 - Relevant project context (architecture, conventions, related files)
-- Reference to `jig-tdd` for TDD discipline
+- Reference to `tdd` for TDD discipline
 - Clear instructions to implement, test, and commit
 
 **Model selection guidance:**
@@ -139,7 +139,7 @@ After the implementer reports DONE, dispatch a spec reviewer subagent:
 #### 2d. Code Quality Review
 
 After spec compliance passes, dispatch the code quality review:
-- **REQUIRED**: Use `jig-review` skill at `fast-pass` tier
+- **REQUIRED**: Use `review` skill at `fast-pass` tier
 - Provide the git diff (base SHA to HEAD SHA) for this task's commits
 - The review swarm checks security, dead code, error handling, and other fast-pass specialists
 
@@ -159,11 +159,11 @@ After all tasks are complete, dispatch a final review of the entire implementati
 - Full diff from the branch point to HEAD
 - Check cross-task integration: do the pieces work together?
 - Check for consistency: naming, patterns, error handling across all tasks
-- This can use `jig-review` at `all` tier for the full specialist swarm
+- This can use `review` at `all` tier for the full specialist swarm
 
 ### Step 4: Finish
 
-After the final review passes, invoke `jig-finish` to present completion options (merge, PR, keep, discard).
+After the final review passes, invoke `finish` to present completion options (merge, PR, keep, discard).
 
 ---
 
@@ -208,7 +208,7 @@ You are the controller. Your job is:
 4. Route review findings back to implementers
 5. Track progress
 6. Handle escalations
-7. Invoke `jig-finish` when all tasks pass
+7. Invoke `finish` when all tasks pass
 
 You do NOT implement tasks yourself. You coordinate.
 
@@ -221,7 +221,7 @@ You do NOT implement tasks yourself. You coordinate.
 - Skip reviews (spec compliance OR code quality) for any task
 - Start code quality review before spec compliance passes
 - Proceed with unfixed review issues
-- Dispatch multiple implementation subagents in parallel (that is `jig-team-dev`)
+- Dispatch multiple implementation subagents in parallel (that is `team-dev`)
 - Make the subagent read the plan file (provide the full text instead)
 - Skip scene-setting context (subagent needs to understand where the task fits)
 - Ignore subagent questions (answer before letting them proceed)
@@ -273,7 +273,7 @@ Implementer:
 [Dispatch spec reviewer]
 Spec reviewer: PASS -- all requirements met, nothing extra
 
-[Dispatch quality review via jig-review fast-pass]
+[Dispatch quality review via review fast-pass]
 Quality reviewer: PASS -- clean, well-structured
 
 [Mark Task 1 complete]
@@ -316,7 +316,7 @@ Quality reviewer: PASS
 [Dispatch final review of full implementation]
 Final reviewer: All requirements met, cross-task integration clean.
 
-[Invoke jig-finish]
+[Invoke finish]
 ```
 
 ---
@@ -324,26 +324,26 @@ Final reviewer: All requirements met, cross-task integration clean.
 ## Integration
 
 **Called by:**
-- `jig-plan` (execution handoff) -- when user chooses sequential execution
-- `jig-kickoff` during the EXECUTE stage
+- `plan` (execution handoff) -- when user chooses sequential execution
+- `kickoff` during the EXECUTE stage
 
 **Terminal state:**
-- **REQUIRED**: Invoke `jig-finish` after all tasks pass final review
+- **REQUIRED**: Invoke `finish` after all tasks pass final review
 
 **Implementer subagents use:**
-- `jig-tdd` -- TDD discipline for each task
+- `tdd` -- TDD discipline for each task
 
 **Review uses:**
-- `jig-review` -- swarm review at fast-pass tier per task, all tier for final review
+- `review` -- swarm review at fast-pass tier per task, all tier for final review
 
 **Related skills:**
-- `jig-plan` -- creates the plan this skill executes
-- `jig-team-dev` -- parallel alternative for 3+ independent tasks
-- `jig-verify` -- verification discipline before claiming task completion
-- `jig-finish` -- handles branch completion after all tasks pass
+- `plan` -- creates the plan this skill executes
+- `team-dev` -- parallel alternative for 3+ independent tasks
+- `verify` -- verification discipline before claiming task completion
+- `finish` -- handles branch completion after all tasks pass
 
 **Alternative:**
-- `jig-team-dev` -- use for parallel execution when tasks are independent and agent teams are enabled
+- `team-dev` -- use for parallel execution when tasks are independent and agent teams are enabled
 
 ---
 

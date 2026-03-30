@@ -25,7 +25,7 @@ If a team skill has the same name as a core skill, the team version wins. This i
 
 ### The Pipeline
 
-Every development task flows through stages. `jig-kickoff` orchestrates the full pipeline:
+Every development task flows through stages. `kickoff` orchestrates the full pipeline:
 
 ```
 DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
@@ -35,9 +35,9 @@ Work type (bug/feature/improvement/task) determines which stages run and at what
 
 ### How Skills Compose
 
-- **Direct invocation** — workflow skills invoke each other by name (`jig-kickoff` → `jig-brainstorm` → `jig-plan`)
-- **Concerns checklist** — `jig.config.md` maps engineering concerns to skills. `jig-brainstorm` reads the config and loads relevant skills during design.
-- **Specialist dispatch** — `jig-review` discovers specialist `.md` files from all three directories, filters by glob match, and dispatches as parallel subagents.
+- **Direct invocation** — workflow skills invoke each other by name (`kickoff` → `brainstorm` → `plan`)
+- **Concerns checklist** — `jig.config.md` maps engineering concerns to skills. `brainstorm` reads the config and loads relevant skills during design.
+- **Specialist dispatch** — `review` discovers specialist `.md` files from all three directories, filters by glob match, and dispatches as parallel subagents.
 
 ## Inventory
 
@@ -45,33 +45,33 @@ Work type (bug/feature/improvement/task) determines which stages run and at what
 
 | Skill | Purpose |
 |-------|---------|
-| `jig-kickoff` | Pipeline orchestrator — classifies work, routes through stages |
-| `jig-brainstorm` | Collaborative design exploration with configurable concerns checklist |
-| `jig-prd` | PRD creation with enforceable acceptance checklists (feeds into spec reviewer) |
-| `jig-plan` | Spec → implementation plan with bite-sized TDD tasks |
-| `jig-team-dev` | Parallel agent execution with staggered quality gates |
-| `jig-sdd` | Serial execution with two-stage review per task |
-| `jig-review` | Specialist swarm — dispatches parallel reviewers, scores findings |
-| `jig-pr-create` | PR creation with voice/tone standards and test plan |
-| `jig-pr-respond` | PR comment response — analyze, fix, commit, push, reply, resolve |
-| `jig-postmortem` | Post-merge retrospective with specialist/logic reviewer diagnosis |
-| `jig-debug` | Systematic debugging — root cause before fixes, always |
-| `jig-verify` | Evidence before assertions — run it before claiming it works |
-| `jig-tdd` | Red-green-refactor discipline |
-| `jig-finish` | Branch completion — merge, PR, keep, or discard |
-| `jig-extend` | Framework extension assistant — scaffolds new skills, specialists, packs |
+| `kickoff` | Pipeline orchestrator — classifies work, routes through stages |
+| `brainstorm` | Collaborative design exploration with configurable concerns checklist |
+| `prd` | PRD creation with enforceable acceptance checklists (feeds into spec reviewer) |
+| `plan` | Spec → implementation plan with bite-sized TDD tasks |
+| `team-dev` | Parallel agent execution with staggered quality gates |
+| `sdd` | Serial execution with two-stage review per task |
+| `review` | Specialist swarm — dispatches parallel reviewers, scores findings |
+| `pr-create` | PR creation with voice/tone standards and test plan |
+| `pr-respond` | PR comment response — analyze, fix, commit, push, reply, resolve |
+| `postmortem` | Post-merge retrospective with specialist/logic reviewer diagnosis |
+| `debug` | Systematic debugging — root cause before fixes, always |
+| `verify` | Evidence before assertions — run it before claiming it works |
+| `tdd` | Red-green-refactor discipline |
+| `finish` | Branch completion — merge, PR, keep, or discard |
+| `extend` | Framework extension assistant — scaffolds new skills, specialists, packs |
 
 ### Core Agents (3)
 
 | Agent | Purpose |
 |-------|---------|
-| `jig-commit` | Conventional commits with hook awareness |
-| `jig-code-review` | Dispatches review swarm, delivers scored report |
-| `jig-pr-review` | Posts inline PR comments with suggestion blocks |
+| `commit` | Conventional commits with hook awareness |
+| `code-review` | Dispatches review swarm, delivers scored report |
+| `pr-review` | Posts inline PR comments with suggestion blocks |
 
 ### Core Specialists (5)
 
-`security`, `dead-code`, `error-handling`, `async-safety`, `performance` — language-agnostic code review specialists dispatched by `jig-review`.
+`security`, `dead-code`, `error-handling`, `async-safety`, `performance` — language-agnostic code review specialists dispatched by `review`.
 
 ### Engineering Pack
 
@@ -124,7 +124,7 @@ jig/
 
 - Markdown: 80 char line width where practical
 - YAML frontmatter: 2 space indent
-- Skill names: lowercase with hyphens, prefixed by origin (`jig-` for core, `eng-` for engineering pack)
+- Skill names: lowercase with hyphens (`eng-` prefix for engineering pack, no prefix for core)
 - Descriptions: MUST start with "Use when..."
 - SKILL.md: under 500 lines. Heavy content goes in `reference/` subdirectory.
 - No language-specific references in core skills (TypeScript, Python, etc.) — core is stack-agnostic
@@ -148,7 +148,7 @@ jig/
 ### Adding a new core skill
 1. Read `framework/SKILL_SCHEMA.md` for the frontmatter spec
 2. Read `framework/TIER_SYSTEM.md` to choose the right tier
-3. Create `core/skills/{name}/SKILL.md` (no `jig-` prefix on directory — the plugin namespace handles it)
+3. Create `core/skills/{name}/SKILL.md`
 4. Create symlink: `ln -s ../../core/skills/{name} .claude/skills/{name}`
 5. Add to the `skills` array in `.claude-plugin/plugin.json`
 6. If the skill should surface during brainstorming, add it to the concerns checklist in `jig.config.md`
@@ -170,7 +170,7 @@ This gives every teammate on the project the full Jig framework on clone — no 
 ### Adding a specialist
 1. Create `core/specialists/{name}.md` with frontmatter: `name`, `description`, `model`, `tier`, `globs`, `severity`
 2. The body below the frontmatter IS the specialist's prompt
-3. `jig-review` discovers it automatically — no config needed
+3. `review` discovers it automatically — no config needed
 
 ### Key documents to read first
 - `framework/GIT_HOST.md` — git host adapter (GitHub/GitLab/Bitbucket command mapping)

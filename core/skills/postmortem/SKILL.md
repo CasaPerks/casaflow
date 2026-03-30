@@ -4,7 +4,7 @@ description: >
   Use when a PR has been merged after receiving review feedback and you want to
   extract lessons learned. Analyzes reviewer comments, identifies gaps in skills
   and specialists, and applies fixes. Triggered by "run a postmortem", "PR retro",
-  "lessons learned from this PR", or /jig-postmortem.
+  "lessons learned from this PR", or /postmortem.
 tier: workflow
 alwaysApply: false
 ---
@@ -23,11 +23,11 @@ alwaysApply: false
 
 - A PR has been merged after receiving review feedback
 - "Run a postmortem", "PR retro", "lessons learned from this PR"
-- `jig-kickoff` suggests this after the LEARN stage for features
-- `/jig-postmortem` invoked directly
+- `kickoff` suggests this after the LEARN stage for features
+- `/postmortem` invoked directly
 
 **Do NOT use when:**
-- The PR has not been merged yet (use `jig-pr-respond` instead)
+- The PR has not been merged yet (use `pr-respond` instead)
 - The PR received no review comments (nothing to learn from)
 
 ---
@@ -154,7 +154,7 @@ Before diving into diagnosis, determine which part of the review system should h
 
 ## Swarm Specialist Diagnosis
 
-When a missed finding should have been caught by the review swarm (`jig-review`), walk through these failure modes in order to identify the root cause:
+When a missed finding should have been caught by the review swarm (`review`), walk through these failure modes in order to identify the root cause:
 
 | # | Failure Mode | How to Diagnose | Fix |
 |---|---|---|---|
@@ -192,7 +192,7 @@ When a missed finding is a correctness bug that the logic reviewer should have c
 **How to add examples from postmortem findings:**
 
 1. Identify which reasoning pattern should have caught it
-2. Open the logic reviewer file (e.g., `core/skills/jig-review/logic-reviewer.md`)
+2. Open the logic reviewer file (e.g., `core/skills/review/logic-reviewer.md`)
 3. Under that pattern's "What breaks" section, add a one-line example:
    - `{description of what went wrong} ({PR number or brief context})`
 4. Keep examples concrete and specific -- not abstract rules
@@ -242,8 +242,8 @@ Edit skill and specialist files directly. Follow the existing style of each file
 - `core/skills/` -- framework skills if no team skill covers the domain
 - `team/specialists/` -- team-specific review specialists
 - `core/specialists/` -- framework review specialists
-- `core/skills/jig-review/logic-reviewer.md` -- for "What breaks" examples
-- `core/skills/jig-review/tiers.md` -- should a specialist's tier or severity change?
+- `core/skills/review/logic-reviewer.md` -- for "What breaks" examples
+- `core/skills/review/tiers.md` -- should a specialist's tier or severity change?
 - Project-level config (CLAUDE.md or equivalent) -- for project-wide rules
 
 **Keeping reviewers in sync:** When adding a pattern to a skill, check whether it should also appear in any automated reviewer configurations the project uses. The skill is the authoritative source -- reviewer configs are concise summaries optimized for automated review context. Not every skill detail belongs in reviewer configs, but review-checkable rules (flag X, never do Y) should be represented.
@@ -318,13 +318,13 @@ When deciding where a pattern belongs, use the narrowest applicable scope:
 ## Integration
 
 **Called by:**
-- `jig-kickoff` during the LEARN stage (post-merge)
+- `kickoff` during the LEARN stage (post-merge)
 
 **Related skills:**
-- `jig-review` -- the review swarm whose specialists this skill improves
-- `jig-pr-create` -- the PR whose comments this skill analyzes
-- `jig-pr-respond` -- for addressing feedback before the postmortem
-- `jig-extend` -- if the postmortem reveals the need for an entirely new skill or specialist
+- `review` -- the review swarm whose specialists this skill improves
+- `pr-create` -- the PR whose comments this skill analyzes
+- `pr-respond` -- for addressing feedback before the postmortem
+- `extend` -- if the postmortem reveals the need for an entirely new skill or specialist
 
 ---
 

@@ -5,7 +5,7 @@ description: >
   framework. Guides the user through an interview to determine what to build,
   scaffolds the artifact with valid frontmatter, checks for overlap with
   existing artifacts, and verifies it loads correctly. Triggered by "create a
-  skill", "add a specialist", "extend the framework", or /jig-extend.
+  skill", "add a specialist", "extend the framework", or /extend.
 tier: workflow
 alwaysApply: false
 ---
@@ -25,8 +25,8 @@ alwaysApply: false
 - "How do I add a review check for Y?"
 - "Let's capture our team's conventions"
 - "I want to automate Z in the pipeline"
-- `/jig-extend` invoked directly
-- `jig-postmortem` identifies the need for an entirely new artifact
+- `/extend` invoked directly
+- `postmortem` identifies the need for an entirely new artifact
 
 **Do NOT use when:**
 - Modifying an existing skill (edit it directly)
@@ -90,7 +90,7 @@ Based on the interview, route to the correct artifact type:
 | Feature patterns | Feature-tier skill | `team/skills/{name}/SKILL.md` | `framework/SKILL_SCHEMA.md` |
 | Pipeline step | Workflow-tier skill | `team/skills/{name}/SKILL.md` | `framework/SKILL_SCHEMA.md` |
 | Review check (pattern) | Specialist | `team/specialists/{name}.md` | `framework/SKILL_SCHEMA.md` (Specialist Schema section) |
-| Review check (reasoning) | Logic reviewer pattern | `core/skills/jig-review/logic-reviewer.md` | Edit existing file |
+| Review check (reasoning) | Logic reviewer pattern | `core/skills/review/logic-reviewer.md` | Edit existing file |
 | Automation | Agent | `team/agents/{name}.md` | Agent conventions |
 | Pipeline config | Config change | `jig.config.md` | Edit existing file |
 | Brainstorm concern | Concerns checklist entry | `jig.config.md` | `framework/CONCERNS_CHECKLIST.md` |
@@ -254,7 +254,7 @@ If nothing found, respond with exactly: `N/A`
 
 | Tier | When | Runs during |
 |------|------|-------------|
-| fast-pass | Critical checks that should block every task | Per-task review (jig-team-dev) + pre-PR |
+| fast-pass | Critical checks that should block every task | Per-task review (team-dev) + pre-PR |
 | full-only | Thorough checks that only need to run once | Pre-PR review only |
 
 **Severity selection:**
@@ -387,13 +387,13 @@ These framework documents define the schemas and systems this skill works with:
 ## Integration
 
 **Called by:**
-- `jig-postmortem` when a new artifact is needed (not just an edit to an existing one)
-- Direct invocation via `/jig-extend`
+- `postmortem` when a new artifact is needed (not just an edit to an existing one)
+- Direct invocation via `/extend`
 
 **Related skills:**
-- `jig-review` -- specialists created here are discovered by the review swarm
-- `jig-brainstorm` -- concerns added to the checklist are surfaced during brainstorming
-- `jig-postmortem` -- identifies gaps that lead to new artifacts
+- `review` -- specialists created here are discovered by the review swarm
+- `brainstorm` -- concerns added to the checklist are surfaced during brainstorming
+- `postmortem` -- identifies gaps that lead to new artifacts
 
 ---
 
