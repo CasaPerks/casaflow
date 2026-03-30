@@ -1,8 +1,6 @@
 <p>
-  <img src="assets/logo.png" alt="Jig" width="300">
+  <img src="assets/jig.png" alt="Jig" width="100">
 </p>
-
-# Jig
 
 **The AI engineering workflow framework for teams.**
 
@@ -71,33 +69,33 @@ Jig ships as a plugin with 15 core skills, 3 agents, and 5 review specialists. Y
 
 | Command | Skill | What It Does |
 |---------|-------|-------------|
-| `/jig-kickoff` | Pipeline orchestrator | Classifies work (bug/feature/improvement/task) and routes through the appropriate pipeline stages. The entry point for all development work. |
-| `/jig-brainstorm` | Design exploration | One question at a time, 2-3 approaches with trade-offs, design approval gate. Surfaces your team's concerns checklist from `jig.config.md`. |
-| `/jig-prd` | Requirements capture | Structured PRD with enforceable acceptance checklists. Two tiers: Full (12 sections) for features, Light (5 sections) for bugs. Layer-tagged items (`[API]`, `[DATA]`, `[LOGIC]`, `[UI]`) feed directly into spec reviewers. |
-| `/jig-plan` | Implementation planning | Turns approved designs into bite-sized TDD tasks with exact file paths, code snippets, and verification steps. Output is executable by `/jig-team-dev` or `/jig-sdd`. |
-| `/jig-team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. The killer feature that makes it all worth it! |
-| `/jig-sdd` | Serial execution | Fresh subagent per task with two-stage review (spec compliance then code quality). For tightly coupled tasks or when agent teams aren't available. |
-| `/jig-review` | Code review swarm | Dispatches parallel specialist reviewers (security, dead code, error handling, async safety, performance + your team's specialists). Filters by glob match, scores mechanically, produces unified report. |
-| `/jig-pr-create` | PR creation | Runs the review swarm first, then analyzes all commits, groups by theme, writes a clear description with test plan. No corporate speak. |
-| `/jig-pr-respond` | PR feedback | Fetches unresolved comments, analyzes each (valid fix vs false positive), implements fixes, commits, pushes, replies, and resolves threads. The full loop. |
-| `/jig-postmortem` | Retrospective | After merge, analyzes what reviewers caught to find gaps in skills and specialists. Diagnoses whether the swarm or logic reviewer should have caught it, then fixes the gap. |
-| `/jig-debug` | Systematic debugging | Iron law: no fixes without root cause investigation. Four phases — investigate, analyze patterns, test hypothesis, implement. Escalates to "question the architecture" after 3 failed fixes. |
-| `/jig-verify` | Verification gate | Evidence before assertions. Run the command, read the output, THEN claim it works. Prevents "should pass now" claims without proof. |
-| `/jig-tdd` | Test-driven development | Red-green-refactor. No production code without a failing test first. Wrote code before the test? Delete it. Start over. |
-| `/jig-finish` | Branch completion | Verifies tests pass, then presents 4 options: merge locally, create PR, keep branch as-is, or discard. Handles worktree cleanup. |
-| `/jig-extend` | Framework extension | The meta-skill. Interviews you about what you need, determines the right artifact (skill, specialist, agent, pack, or config change), scaffolds it with valid frontmatter, and wires it into discovery. |
+| `kickoff` | Pipeline orchestrator | Classifies work (bug/feature/improvement/task) and routes through the appropriate pipeline stages. The entry point for all development work. |
+| `brainstorm` | Design exploration | One question at a time, 2-3 approaches with trade-offs, design approval gate. Surfaces your team's concerns checklist from `jig.config.md`. |
+| `prd` | Requirements capture | Structured PRD with enforceable acceptance checklists. Two tiers: Full (12 sections) for features, Light (5 sections) for bugs. Layer-tagged items (`[API]`, `[DATA]`, `[LOGIC]`, `[UI]`) feed directly into spec reviewers. |
+| `plan` | Implementation planning | Turns approved designs into bite-sized TDD tasks with exact file paths, code snippets, and verification steps. Output is executable by `team-dev` or `sdd`. |
+| `team-dev` | Parallel execution | Spawns agent teammates in split panes. Each implementer works independently; the lead orchestrates staggered spec compliance + code quality reviews as they finish. The killer feature that makes it all worth it! |
+| `sdd` | Serial execution | Fresh subagent per task with two-stage review (spec compliance then code quality). For tightly coupled tasks or when agent teams aren't available. |
+| `review` | Code review swarm | Dispatches parallel specialist reviewers (security, dead code, error handling, async safety, performance + your team's specialists). Filters by glob match, scores mechanically, produces unified report. |
+| `pr-create` | PR creation | Runs the review swarm first, then analyzes all commits, groups by theme, writes a clear description with test plan. No corporate speak. |
+| `pr-respond` | PR feedback | Fetches unresolved comments, analyzes each (valid fix vs false positive), implements fixes, commits, pushes, replies, and resolves threads. The full loop. |
+| `postmortem` | Retrospective | After merge, analyzes what reviewers caught to find gaps in skills and specialists. Diagnoses whether the swarm or logic reviewer should have caught it, then fixes the gap. |
+| `debug` | Systematic debugging | Iron law: no fixes without root cause investigation. Four phases — investigate, analyze patterns, test hypothesis, implement. Escalates to "question the architecture" after 3 failed fixes. |
+| `verify` | Verification gate | Evidence before assertions. Run the command, read the output, THEN claim it works. Prevents "should pass now" claims without proof. |
+| `tdd` | Test-driven development | Red-green-refactor. No production code without a failing test first. Wrote code before the test? Delete it. Start over. |
+| `finish` | Branch completion | Verifies tests pass, then presents 4 options: merge locally, create PR, keep branch as-is, or discard. Handles worktree cleanup. |
+| `extend` | Framework extension | The meta-skill. Interviews you about what you need, determines the right artifact (skill, specialist, agent, pack, or config change), scaffolds it with valid frontmatter, and wires it into discovery. |
 
 ### Core Agents
 
 | Agent | Trigger | What It Does |
 |-------|---------|-------------|
-| `jig-commit` | "commit the work" | Conventional commits with hook awareness. Reads commitlint config, respects existing hooks, stages specific files. |
-| `jig-code-review` | "review my code" | Dispatches the full review swarm (`tier: all`) and delivers the confidence-scored report. |
-| `jig-pr-review` | "post review comments" | Posts inline PR comments with suggestion blocks. Validates every path and line number against the diff before posting. |
+| `commit` | "commit the work" | Conventional commits with hook awareness. Reads commitlint config, respects existing hooks, stages specific files. |
+| `code-review` | "review my code" | Dispatches the full review swarm (`tier: all`) and delivers the confidence-scored report. |
+| `pr-review` | "post review comments" | Posts inline PR comments with suggestion blocks. Validates every path and line number against the diff before posting. |
 
 ### Core Specialists
 
-Dispatched by `/jig-review` as parallel subagents. Language-agnostic:
+Dispatched by `/review` as parallel subagents. Language-agnostic:
 
 | Specialist | Severity | What It Catches |
 |-----------|----------|----------------|
@@ -156,7 +154,7 @@ The concerns checklist surfaces during brainstorming — mapping your team's eng
 | Standards | Always loaded | Universal rules (copywriting, commit format) |
 | Domain | Glob-triggered | Stack expertise (database, frontend, testing) |
 | Feature | Narrow globs | Feature-specific knowledge |
-| Workflow | Explicit invocation | Pipeline skills (`/jig-kickoff`, `/jig-review`) |
+| Workflow | Explicit invocation | Pipeline skills (`kickoff`, `review`) |
 
 ## Updating
 
@@ -186,7 +184,6 @@ Teams using GitLab or Bitbucket are supported via the [git host adapter](framewo
 | [TIER_SYSTEM.md](framework/TIER_SYSTEM.md) | How tiers control activation |
 | [CONCERNS_CHECKLIST.md](framework/CONCERNS_CHECKLIST.md) | Configurable brainstorming checklist |
 | [GIT_HOST.md](framework/GIT_HOST.md) | GitHub/GitLab/Bitbucket command mapping |
-| [Design Spec](docs/specs/2026-03-28-jig-framework-design.md) | Original design document |
 | [Init Experience](docs/init-experience.md) | Interactive setup flow |
 
 ## Origin
