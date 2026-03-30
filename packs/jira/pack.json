@@ -1,7 +1,7 @@
 {
   "name": "jira",
   "prefix": "jira",
-  "description": "Jira integration — ticket creation via Jira MCP or REST API",
+  "description": "Jira integration — ticket creation, issue types, sprint assignment, and branch naming via Jira MCP tools",
   "skills": [],
   "specialists": []
 }
