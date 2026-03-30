@@ -80,4 +80,5 @@ convention: conventional
 format: "type(scope): message"
 require-ticket-reference: true
 co-author: true
+# co-author-domain: yourcompany.com    # "commit with alex" → alex@yourcompany.com
 ```

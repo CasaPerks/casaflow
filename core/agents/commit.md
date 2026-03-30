@@ -109,9 +109,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
    - Use the project's preferred keywords (Fixes, Closes, Part of, Refs)
 
 4. **Co-author:**
-   - If `co-author: true` in config, add co-author trailer
-   - Default: `Co-Authored-By: Claude <noreply@anthropic.com>`
-   - If user specifies a co-author, add them instead/additionally
+   - If `co-author: true` in config, always add Claude: `Co-Authored-By: Claude <noreply@anthropic.com>`
+   - If user specifies a co-author ("commit with yuri", "commit the work with d.diaz and frank"):
+     - Read `co-author-domain` from `jig.config.md`
+     - For each name mentioned: capitalize for display, lowercase for email, append domain
+     - "with yuri" → `Co-Authored-By: Yuri <yuri@{domain}>`
+     - "with d.diaz" → `Co-Authored-By: D.Diaz <d.diaz@{domain}>`
+     - "with frank and mo" → both added as separate trailers
+     - Claude is always added as co-author IN ADDITION to any human co-authors
 
 ### Commit Message via HEREDOC
 
@@ -164,5 +169,6 @@ All commit behavior is configurable in `jig.config.md`:
 | `format` | `type(scope): message` | Message structure |
 | `require-ticket-reference` | `true` | Enforce ticket refs in commits |
 | `co-author` | `true` | Add AI co-author trailer |
+| `co-author-domain` | (none) | Email domain for human co-authors (e.g., `durolabs.co`) |
 | `scopes` | (from hooks or empty) | Allowed commit scopes |
 | `types` | (from hooks or conventional defaults) | Allowed commit types |
