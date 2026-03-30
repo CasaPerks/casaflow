@@ -1,5 +1,5 @@
 ---
-name: jig-pr-create
+name: pr-create
 description: >
   Use when creating a pull request. Analyzes branch changes, writes a clear
   PR description with friendly tone, and generates a structured test plan.

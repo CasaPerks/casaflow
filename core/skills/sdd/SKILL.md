@@ -1,5 +1,5 @@
 ---
-name: jig-sdd
+name: sdd
 description: >
   Use when executing implementation plans with independent tasks in the current
   session. Dispatches a fresh subagent per task with two-stage review (spec

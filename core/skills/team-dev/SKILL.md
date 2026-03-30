@@ -1,5 +1,5 @@
 ---
-name: jig-team-dev
+name: team-dev
 description: >
   Execute implementation plans in parallel using agent teams with quality gates.
   Spawns implementer teammates in split panes, orchestrated by a team lead who

@@ -1,5 +1,5 @@
 ---
-name: jig-review
+name: review
 description: >
   Use when reviewing code before PRs or as quality gate during parallel execution.
   Dispatches parallel specialist review agents via the swarm architecture. Invoked

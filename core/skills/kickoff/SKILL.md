@@ -1,5 +1,5 @@
 ---
-name: jig-kickoff
+name: kickoff
 description: >
   Use when starting development work on a bug, feature, improvement, or task.
   Guides engineers through the full development pipeline: discover, brainstorm,

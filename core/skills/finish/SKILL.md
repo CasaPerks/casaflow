@@ -1,5 +1,5 @@
 ---
-name: jig-finish
+name: finish
 description: >
   Use when implementation is complete, all tests pass, and you need to decide
   how to integrate the work. Guides completion of development work by verifying

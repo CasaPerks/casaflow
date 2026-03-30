@@ -1,5 +1,5 @@
 ---
-name: jig-pr-respond
+name: pr-respond
 description: >
   Use when reviewing PR comments, responding to code review feedback, or
   addressing reviewer suggestions on the current branch. Triggered by

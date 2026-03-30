@@ -1,5 +1,5 @@
 ---
-name: jig-tdd
+name: tdd
 description: >
   Use when implementing any feature or bugfix, before writing implementation
   code. Enforces red-green-refactor cycle where every piece of production code

@@ -1,5 +1,5 @@
 ---
-name: jig-plan
+name: plan
 description: >
   Use when you have an approved design or requirements for a multi-step task,
   before touching code. Turns designs into implementation plans with bite-sized

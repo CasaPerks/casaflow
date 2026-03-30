@@ -1,5 +1,5 @@
 ---
-name: jig-brainstorm
+name: brainstorm
 description: >
   Use when starting creative work — designing features, adding functionality,
   modifying behavior, or exploring approaches. Guides collaborative design

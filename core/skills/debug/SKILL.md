@@ -1,5 +1,5 @@
 ---
-name: jig-debug
+name: debug
 description: >
   Use when encountering any bug, test failure, or unexpected behavior, before
   proposing fixes. Enforces root cause investigation through four phases:

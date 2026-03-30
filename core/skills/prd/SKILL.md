@@ -1,5 +1,5 @@
 ---
-name: jig-prd
+name: prd
 description: >
   Use when capturing product requirements for features, improvements, or bugs
   before brainstorming or implementation. Triggered by "create a PRD", "capture

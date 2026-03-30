@@ -1,5 +1,5 @@
 ---
-name: jig-extend
+name: extend
 description: >
   Use when creating new skills, specialists, agents, or packs for the Jig
   framework. Guides the user through an interview to determine what to build,

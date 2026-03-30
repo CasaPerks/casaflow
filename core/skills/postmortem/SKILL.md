@@ -1,5 +1,5 @@
 ---
-name: jig-postmortem
+name: postmortem
 description: >
   Use when a PR has been merged after receiving review feedback and you want to
   extract lessons learned. Analyzes reviewer comments, identifies gaps in skills
