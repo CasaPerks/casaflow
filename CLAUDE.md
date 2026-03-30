@@ -79,23 +79,14 @@ Work type (bug/feature/improvement/task) determines which stages run and at what
 
 ## Self-Hosting Model
 
-Jig eats its own dogfood. Core skills live in `core/`. The `.claude/` directory contains symlinks pointing back to `core/`:
+Jig eats its own dogfood. This repo installs itself as a plugin via `.claude/settings.json` — the same way any consumer project would. Skills, agents, and commands all come from the plugin. No symlinks, no special treatment.
 
-```
-.claude/agents/commit.md     → ../../core/agents/commit.md
-.claude/skills/jig-kickoff   → ../../core/skills/jig-kickoff/
-.claude/skills/jig-review    → ../../core/skills/jig-review/
-...
-```
+When developing Jig, edit the source in `core/`. After pushing to GitHub, run `/plugin marketplace update duronext-jig` and `/reload-plugins` to see changes locally.
 
-Claude Code discovers skills from `.claude/`. The symlinks bridge source → discovery. Edit `core/`, Claude sees it immediately. No sync step.
-
-**When adding a new core skill**, create both the source directory and the symlink:
-```bash
-mkdir core/skills/jig-new-skill
-# write core/skills/jig-new-skill/SKILL.md
-ln -s ../../core/skills/jig-new-skill .claude/skills/jig-new-skill
-```
+**When adding a new core skill:**
+1. Create `core/skills/{name}/SKILL.md`
+2. Add to the `skills` array in `.claude-plugin/plugin.json`
+3. Add a command file in `commands/{name}.md` for `/jig:` namespace browsing
 
 ## Project Structure
 
@@ -112,7 +103,7 @@ jig/
 ├── scaffold/            jig init templates (config, team dir, skill template)
 ├── docs/                Specs and documentation
 ├── team/                Jig's own extensions (for developing Jig itself)
-├── .claude/             Symlinks to core/ for Claude Code discovery
+├── .claude/             Plugin self-install (settings.json)
 ├── CLAUDE.md            This file
 ├── jig.config.md        Jig's own pipeline configuration
 └── README.md            Public-facing README
@@ -125,7 +116,7 @@ jig/
 | List all skills | `find core/skills -name "SKILL.md" \| sort` |
 | List specialists | `ls core/specialists/` |
 | List agents | `ls core/agents/` |
-| Verify symlinks | `ls -la .claude/agents/ .claude/skills/` |
+| Verify plugin | `cat .claude/settings.json` |
 | Check for stale refs | `grep -rn 'superpowers:' core/` (should return nothing) |
 | Count lines | `find . -not -path './.git/*' -name '*.md' \| xargs wc -l \| tail -1` |
 

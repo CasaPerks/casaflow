@@ -4,7 +4,7 @@
   "description": "The AI engineering workflow framework for teams — full lifecycle from ticket to post-mortem with quality gates at every stage",
   "author": {
     "name": "Duro Labs",
-    "email": "engineering@durolabs.co"
+    "email": "devops@durolabs.co"
   },
   "repository": "https://github.com/duronext/jig",
   "license": "MIT",
