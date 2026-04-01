@@ -1,6 +1,6 @@
 # Jig Skill Template
 
-Use this template when creating new skills. For guided creation, use `/jig:extend` instead.
+Use this template when creating new skills. For guided creation, use `/casaflow:extend` instead.
 
 ## Minimal Skill
 

@@ -23,7 +23,7 @@ Team extensions have the highest priority in Jig's discovery system. If you crea
 
 ## Creating Extensions
 
-Use `/jig:extend` to create new skills, specialists, or agents. It will interview you about what you need and scaffold the right artifact in the right place.
+Use `/casaflow:extend` to create new skills, specialists, or agents. It will interview you about what you need and scaffold the right artifact in the right place.
 
 Or create manually using the skill template in `SKILL_TEMPLATE.md`.
 

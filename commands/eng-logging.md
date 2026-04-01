@@ -2,4 +2,4 @@
 description: "- "**/logger*""
 ---
 
-Use the `jig:eng-logging` skill to handle this request.
+Use the `casaflow:eng-logging` skill to handle this request.

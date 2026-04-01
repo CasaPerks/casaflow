@@ -146,7 +146,7 @@ If the plan references a PRD (`> **PRD:** docs/plans/...`), the spec reviewers i
 
 | Situation | Action |
 |-----------|--------|
-| No plan found | Ask the user. Suggest `/jig:plan` to create one. |
+| No plan found | Ask the user. Suggest `/casaflow:plan` to create one. |
 | Plan has no tasks | The plan is incomplete. Ask the user to review it. |
 | Agent teams not available for parallel | Fall back to serial. Note: "Agent teams aren't enabled. Using serial execution. To enable: add `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"` to settings." |
 | Task fails review repeatedly | The strategy handles this (team-dev sends feedback, sdd re-reviews). If 3+ review cycles fail, escalate to the user. |
@@ -159,7 +159,7 @@ If the plan references a PRD (`> **PRD:** docs/plans/...`), the spec reviewers i
 
 **Called by:**
 - `kickoff` during the EXECUTE stage
-- Users directly via `/jig:build`
+- Users directly via `/casaflow:build`
 
 **Invokes:**
 - `team-dev` — for parallel execution
@@ -177,7 +177,7 @@ If the plan references a PRD (`> **PRD:** docs/plans/...`), the spec reviewers i
 ## Quick Reference
 
 ```
-/jig:build              "Here's a plan, build it"
+/casaflow:build              "Here's a plan, build it"
                               │
                     ┌─────────┴──────────┐
                     │  Analyze task graph │

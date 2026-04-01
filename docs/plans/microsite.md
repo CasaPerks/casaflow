@@ -182,7 +182,7 @@ and attractive. Responsive on narrow viewports.
   2. **Configure** — `jig.config.md` tunes the pipeline. Concerns checklist
      maps your team's engineering concerns to skills.
   3. **Extend** — Add domain skills, custom specialists, team agents. They
-     wire into discovery automatically. `/jig:extend` scaffolds them.
+     wire into discovery automatically. `/casaflow:extend` scaffolds them.
 - Keep this section short. The detail is in the skills section above.
 
 **CSS additions:**
@@ -228,24 +228,24 @@ present but not self-congratulatory.
 - Section label: "SEE IT IN ACTION"
 - A styled terminal mockup showing a condensed workflow:
   ```
-  $ /jig:kickoff
+  $ /casaflow:kickoff
   ▸ Work type: feature
   ▸ Summary: Add user notification preferences
   ▸ Pipeline: discover → brainstorm → prd → build → review → ship
 
-  $ /jig:brainstorm
+  $ /casaflow:brainstorm
   ▸ What problem does this solve for users?
   ▸ Approach A: Per-channel toggles with defaults
   ▸ Approach B: Smart digest with frequency control
   ▸ Design approved ✓
 
-  $ /jig:prd
+  $ /casaflow:prd
   ▸ PRD: User Notification Preferences
   ▸ 12 acceptance criteria defined
   ▸ Layer tags: [API] [DATA] [UI]
   ▸ Approved ✓
 
-  $ /jig:build
+  $ /casaflow:build
   ▸ Strategy: parallel (4 tasks, 3 agents)
   ▸ Agent 1: Data model + migrations ████████ done
   ▸ Agent 2: API endpoints          ████████ done
@@ -253,7 +253,7 @@ present but not self-congratulatory.
   ▸ Spec compliance: passed ✓
   ▸ Code quality: passed ✓
 
-  $ /jig:review
+  $ /casaflow:review
   ▸ Dispatching 7 specialists...
   ▸ security: passed
   ▸ async-safety: passed
@@ -286,7 +286,7 @@ is clear in under 30 seconds of reading.
   1. **Project settings (recommended):** the JSON snippet (reuse from hero,
      or link back up)
   2. **CLI:** `/plugin marketplace add duronext/jig` + install command
-- "Type `/jig:kickoff` to start your first task."
+- "Type `/casaflow:kickoff` to start your first task."
 - Link to GitHub repo: github.com/duronext/jig
 
 **Footer:**

@@ -149,7 +149,7 @@ When Claude Code starts a session in a Jig project:
 1. **CLAUDE.md** is loaded (always). Contains the Jig declaration and project-specific context.
 2. **Standards-tier skills** are loaded (always). Their `alwaysApply: true` frontmatter triggers Claude Code's auto-load.
 3. **Domain/Feature skills** are loaded when the user edits files matching their globs.
-4. **Workflow skills** are loaded when the user types a slash command (e.g., `/jig:kickoff`).
+4. **Workflow skills** are loaded when the user types a slash command (e.g., `/casaflow:kickoff`).
 5. **Agents** are available for invocation by skills or by the user.
 6. **jig.config.md** is read on-demand by skills that need configuration values.
 

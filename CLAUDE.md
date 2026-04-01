@@ -112,7 +112,7 @@ When developing Jig, edit the source in `core/`. After pushing to GitHub, run `/
 **When adding a new core skill:**
 1. Create `core/skills/{name}/SKILL.md`
 2. Add to the `skills` array in `.claude-plugin/plugin.json`
-3. Add a command file in `commands/{name}.md` for `/jig:` namespace browsing
+3. Add a command file in `commands/{name}.md` for `/casaflow:` namespace browsing
 
 ## Project Structure
 

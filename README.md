@@ -228,6 +228,14 @@ To get the latest version after this repo is updated:
 
 ---
 
+## Guides
+
+| Guide | What It Covers |
+|-------|---------------|
+| [Getting the Most Out of CasaFlow](docs/getting-the-most-out-of-casaflow.md) | Philosophy, full pipeline walkthrough, and how to engage every stage for maximum value |
+
+---
+
 ## Framework Reference
 
 CasaFlow is built on Jig. The underlying framework docs:

@@ -3,7 +3,7 @@ name: ticket
 description: >
   Use when creating a ticket, filing an issue, or opening a task in your team's
   tracker. Triggered by "create a ticket", "file an issue", "new ticket",
-  "open a ticket", or /jig:ticket. Reads ticket-system from jig.config.md
+  "open a ticket", or /casaflow:ticket. Reads ticket-system from jig.config.md
   and routes to the appropriate tracker pack.
 tier: workflow
 alwaysApply: false
@@ -138,7 +138,7 @@ Run the appropriate command automatically — don't just suggest it.
 Report back:
 - Ticket URL and identifier (e.g., `ENG-1234`)
 - Branch name (created or renamed)
-- Offer: "Want to start working on this with `/jig:kickoff`?"
+- Offer: "Want to start working on this with `/casaflow:kickoff`?"
 
 ---
 
@@ -170,7 +170,7 @@ Report back:
 
 **Called by:**
 - `kickoff` during the DISCOVER stage (when no ticket exists)
-- Users directly via `/jig:ticket`
+- Users directly via `/casaflow:ticket`
 
 **Related:**
 - `kickoff` — the full pipeline that may invoke this during discovery

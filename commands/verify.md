@@ -2,4 +2,4 @@
 description: "Use when about to claim work is complete, fixed, or passing, before committing"
 ---
 
-Use the `jig:verify` skill to handle this request.
+Use the `casaflow:verify` skill to handle this request.

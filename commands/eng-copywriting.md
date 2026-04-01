@@ -2,4 +2,4 @@
 description: ""
 ---
 
-Use the `jig:eng-copywriting` skill to handle this request.
+Use the `casaflow:eng-copywriting` skill to handle this request.

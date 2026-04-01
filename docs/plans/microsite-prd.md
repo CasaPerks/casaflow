@@ -95,7 +95,7 @@ work.dustindiaz.com — restrained, typographic, modern.
 
 ### 9. Get Started + Footer
 - [CONTENT] Two install paths: project settings (recommended) + CLI
-- [CONTENT] "Type /jig:kickoff to start your first task"
+- [CONTENT] "Type /casaflow:kickoff to start your first task"
 - [CONTENT] GitHub repo link
 - [UI] Minimal footer: MIT license, GitHub link
 
@@ -185,7 +185,7 @@ work.dustindiaz.com — restrained, typographic, modern.
 ### How It Works
 - [ ] [CONTENT] Three clear steps: Install, Configure, Extend
 - [ ] [CONTENT] Each step has 2-3 sentences of explanation
-- [ ] [CONTENT] jig.config.md and /jig:extend are mentioned
+- [ ] [CONTENT] jig.config.md and /casaflow:extend are mentioned
 
 ### Origin Story
 - [ ] [CONTENT] Duro and Phoenix project are named
@@ -203,7 +203,7 @@ work.dustindiaz.com — restrained, typographic, modern.
 
 ### Get Started + Footer
 - [ ] [CONTENT] Two install paths are shown (settings.json + CLI)
-- [ ] [CONTENT] /jig:kickoff call-to-action is present
+- [ ] [CONTENT] /casaflow:kickoff call-to-action is present
 - [ ] [UI] GitHub repo link is present and functional
 - [ ] [UI] Footer is minimal — MIT license + link
 

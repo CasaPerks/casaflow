@@ -2,4 +2,4 @@
 description: "- "**/*.test.*""
 ---
 
-Use the `jig:eng-testing` skill to handle this request.
+Use the `casaflow:eng-testing` skill to handle this request.
