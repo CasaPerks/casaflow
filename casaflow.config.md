@@ -1,13 +1,13 @@
-# Jig Configuration
+# CasaFlow Configuration
 
 ## Team
 
 ```yaml
-name: jig
+name: casaflow
 platform: claude
 git-host: github
 ticket-system: github
-# ticket-prefix: JIG
+# ticket-prefix: CASAFLOW
 ```
 
 ## Pipeline
@@ -37,7 +37,7 @@ task:
 ## Branching
 
 ```yaml
-format: "{username}/jig-{number}-{kebab-title}"
+format: "{username}/casaflow-{number}-{kebab-title}"
 main-branch: main
 ```
 
