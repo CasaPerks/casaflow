@@ -19,13 +19,13 @@ Add to your project's `.claude/settings.json`:
 ```json
 {
   "enabledPlugins": {
-    "casaflow@zdebrine-casaflow": true
+    "casaflow@casaperks-casaflow": true
   },
   "extraKnownMarketplaces": {
-    "zdebrine-casaflow": {
+    "casaperks-casaflow": {
       "source": {
         "source": "github",
-        "repo": "zdebrine/casaflow"
+        "repo": "CasaPerks/casaflow"
       }
     }
   }
@@ -39,8 +39,8 @@ Commit that file. Every teammate who opens the project in Claude Code gets CasaF
 Run these commands inside Claude Code:
 
 ```
-/plugin marketplace add zdebrine/casaflow
-/plugin install casaflow@zdebrine-casaflow --scope project
+/plugin marketplace add CasaPerks/casaflow
+/plugin install casaflow@casaperks-casaflow --scope project
 ```
 
 ### Configure the pipeline
@@ -222,8 +222,8 @@ format: "{username}/{ticket-id}-{kebab-title}"
 To get the latest version after this repo is updated:
 
 ```
-/plugin marketplace update zdebrine-casaflow
-/plugin install casaflow@zdebrine-casaflow --scope project
+/plugin marketplace update casaperks-casaflow
+/plugin install casaflow@casaperks-casaflow --scope project
 ```
 
 ---

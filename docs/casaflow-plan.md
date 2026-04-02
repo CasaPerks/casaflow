@@ -121,7 +121,7 @@ patterns across runs.
      comprehension-gated, Jira-native."
    - `version`: `1.0.0`
    - `author`: `{ "name": "Zak DeBrine" }`
-   - `repository`: `https://github.com/zdebrine/casaflow` (update after
+   - `repository`: `https://github.com/CasaPerks/casaflow` (update after
      repo rename)
    - Add `team/` skills to the `skills` array (below)
 
@@ -516,7 +516,7 @@ retro-dir=retros/
   "version": "1.0.0",
   "description": "CasaPerks AI engineering workflow — spec-first, comprehension-gated, Jira-native. Combines Jig's pipeline infrastructure with CasaPerks' education philosophy.",
   "author": { "name": "Zak DeBrine" },
-  "repository": "https://github.com/zdebrine/casaflow",
+  "repository": "https://github.com/CasaPerks/casaflow",
   "license": "MIT",
   "commands": "./commands/",
   "skills": [
@@ -672,10 +672,10 @@ Developer starts a feature:
    Add to their `.claude/settings.json`:
    ```json
    {
-     "enabledPlugins": { "casaflow@zdebrine-casaflow": true },
+     "enabledPlugins": { "casaflow@casaperks-casaflow": true },
      "extraKnownMarketplaces": {
-       "zdebrine-casaflow": {
-         "source": { "source": "github", "repo": "zdebrine/casaflow" }
+       "casaperks-casaflow": {
+         "source": { "source": "github", "repo": "CasaPerks/casaflow" }
        }
      }
    }

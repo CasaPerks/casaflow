@@ -1,12 +1,12 @@
 {
   "enabledPlugins": {
-    "casaflow@zdebrine-casaflow": true
+    "casaflow@casaperks-casaflow": true
   },
   "extraKnownMarketplaces": {
-    "zdebrine-casaflow": {
+    "casaperks-casaflow": {
       "source": {
         "source": "github",
-        "repo": "zdebrine/casaflow"
+        "repo": "CasaPerks/casaflow"
       }
     }
   }

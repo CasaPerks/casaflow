@@ -5,7 +5,7 @@
   "author": {
     "name": "Zak DeBrine"
   },
-  "repository": "https://github.com/zdebrine/casaflow",
+  "repository": "https://github.com/CasaPerks/casaflow",
   "license": "MIT",
   "commands": "./commands/",
   "skills": [
