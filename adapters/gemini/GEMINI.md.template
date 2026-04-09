@@ -1,7 +1,7 @@
 # {{PROJECT_NAME}}
 
 This project uses **Jig** for development workflow management.
-See `jig.config.md` for pipeline configuration.
+See `casaflow.config.md` for pipeline configuration.
 
 <!-- ==========================================================================
      GEMINI CLI ADAPTER
@@ -11,7 +11,7 @@ See `jig.config.md` for pipeline configuration.
 
      Jig handles: pipeline orchestration, code review, brainstorming, parallel
      execution, PR creation, and post-mortems. Document project-specific
-     context below. Pipeline configuration lives in jig.config.md.
+     context below. Pipeline configuration lives in casaflow.config.md.
      ========================================================================== -->
 
 ## Jig Integration
@@ -70,7 +70,7 @@ one at a time instead of spawning parallel agents.
 
 ### Configuration
 
-`jig.config.md` in the project root configures the pipeline, review swarm,
+`casaflow.config.md` in the project root configures the pipeline, review swarm,
 branching, and commit conventions. Skills read it directly as markdown
 context. No adapter translation is needed for configuration.
 
@@ -78,7 +78,7 @@ context. No adapter translation is needed for configuration.
 
 To begin the Jig pipeline in Gemini CLI:
 
-1. Read `jig.config.md` for pipeline configuration
+1. Read `casaflow.config.md` for pipeline configuration
 2. Activate the kickoff skill: `activate_skill core/skills/jig-kickoff/SKILL.md`
 3. Follow the pipeline stages as directed by the skill
 

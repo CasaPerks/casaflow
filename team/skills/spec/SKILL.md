@@ -43,7 +43,7 @@ to the correct workflow automatically.
 
 ### 0a. Check configuration
 
-Read `casaflow.config.md` (or `jig.config.md`). Look for the `ticket-system`
+Read `casaflow.config.md`. Look for the `ticket-system`
 value in the `## Team` section.
 
 - If `ticket-system` is **not** `jira` → skip Step 0 entirely. Proceed

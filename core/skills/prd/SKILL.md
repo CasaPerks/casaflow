@@ -14,7 +14,7 @@ alwaysApply: false
 
 **PRINCIPLE**: API-first. The platform contract (data model, API surface, business rules) comes before UI. Sections are ordered by platform priority, not visual priority.
 
-**CONFIGURATION**: Reads `jig.config.md` for `ticket-system` (to determine where to sync the PRD) and pipeline stage overrides by work type.
+**CONFIGURATION**: Reads `casaflow.config.md` for `ticket-system` (to determine where to sync the PRD) and pipeline stage overrides by work type.
 
 ---
 
@@ -54,7 +54,7 @@ Auto-suggest the tier from context. Ask the user to confirm.
 
 Before asking the user anything, do your homework:
 
-1. **Read the ticket** (if one exists) -- extract the problem statement, any existing requirements. Check `jig.config.md` for `ticket-system` to determine where to look.
+1. **Read the ticket** (if one exists) -- extract the problem statement, any existing requirements. Check `casaflow.config.md` for `ticket-system` to determine where to look.
 2. **Explore the codebase** -- look at relevant entities, services, components, APIs. What exists already?
 3. **Check recent plans/PRDs** -- if `vault-path` is configured, scan
    `<vault-path>/<project-name>/` for related prior work. Fallback: scan `docs/plans/`
@@ -98,7 +98,7 @@ Walk through the draft with the user:
    `<vault-path>/<project-name>/<feature-slug>/prd.md`. Fallback:
    `docs/plans/YYYY-MM-DD-<topic>-prd.md`
 2. **Ask**: "Want to sync these requirements to the ticket too?"
-3. If yes -- push the PRD content to the ticket system configured in `jig.config.md`
+3. If yes -- push the PRD content to the ticket system configured in `casaflow.config.md`
 4. Confirm save locations to the user
 
 ---
@@ -376,7 +376,7 @@ The PRD becomes the **input** to brainstorming. Brainstorming decides *how* to s
 | Forgetting open questions | Flag unknowns with TBD -- unresolved questions are better visible than hidden |
 | Overly long PRDs for small work | Use the Light tier. Five focused sections beat twelve half-empty ones |
 | Not exploring the codebase first | The draft quality depends on context. Read the code before writing the spec |
-| Hardcoding ticket system references | Read `ticket-system` from `jig.config.md` -- do not assume any particular tool |
+| Hardcoding ticket system references | Read `ticket-system` from `casaflow.config.md` -- do not assume any particular tool |
 | Acceptance items without layer tags | Every `[ ]` must be prefixed with `[API]`, `[DATA]`, `[LOGIC]`, or `[UI]` |
 | "The bug is fixed" as acceptance item | Be specific: what behavior changed? What inputs produce what outputs? |
 
@@ -407,4 +407,4 @@ The PRD becomes the **input** to brainstorming. Brainstorming decides *how* to s
 | Acceptance items | Atomic, testable, layer-tagged, concrete |
 | Layer tags | `[API]`, `[DATA]`, `[LOGIC]`, `[UI]` |
 | API-first | Platform contract before UI in section order |
-| Ticket sync | Read `ticket-system` from `jig.config.md` |
+| Ticket sync | Read `ticket-system` from `casaflow.config.md` |

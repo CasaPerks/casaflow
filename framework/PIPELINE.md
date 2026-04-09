@@ -14,7 +14,7 @@ Understand the problem. Find or create a ticket. Establish context.
 
 - **Skill:** `kickoff` (orchestrates the full pipeline)
 - **Output:** Ticket reference, branch, initial context
-- **Configurable:** `ticket-system` in `jig.config.md` (Linear, Jira, GitHub Issues)
+- **Configurable:** `ticket-system` in `casaflow.config.md` (Linear, Jira, GitHub Issues)
 
 ### 2. Brainstorm
 
@@ -22,7 +22,7 @@ Explore the solution space. Ask questions. Propose approaches. Get design approv
 
 - **Skill:** `brainstorm`
 - **Output:** Approved design document
-- **Configurable:** Concerns checklist in `jig.config.md` — maps team skills into the brainstorming process
+- **Configurable:** Concerns checklist in `casaflow.config.md` — maps team skills into the brainstorming process
 - **Work type overrides:** Bugs get light brainstorm (root cause + fix). Tasks skip entirely.
 
 ### 3. Plan
@@ -39,7 +39,7 @@ Build the thing. Either in parallel or serial.
 
 - **Skills:** `team-dev` (parallel, 3+ independent tasks) or `sdd` (serial, coupled tasks)
 - **Output:** Implemented, tested, committed code
-- **Configurable:** `parallel-threshold`, `default-strategy`, `teammate-mode` in `jig.config.md`
+- **Configurable:** `parallel-threshold`, `default-strategy`, `teammate-mode` in `casaflow.config.md`
 - **Quality gates:** Each task passes spec compliance review + code quality review before completion
 
 ### 5. Review

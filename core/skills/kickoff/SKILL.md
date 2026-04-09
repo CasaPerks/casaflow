@@ -13,7 +13,7 @@ alwaysApply: false
 
 **PURPOSE**: The pipeline orchestrator. Ensures every task — bug, feature, improvement, or chore — flows through a predictable sequence of stages with quality checks at each transition.
 
-**CONFIGURATION**: Reads `jig.config.md` for pipeline stages, work type overrides, ticket system, branching format, and concerns checklist.
+**CONFIGURATION**: Reads `casaflow.config.md` for pipeline stages, work type overrides, ticket system, branching format, and concerns checklist.
 
 ---
 
@@ -59,7 +59,7 @@ graph LR
 
 Each stage has a **gate**. You don't move forward until the gate is satisfied.
 
-The pipeline stages and work type overrides are configurable in `jig.config.md`. Read the config at the start of each session to determine which stages to run.
+The pipeline stages and work type overrides are configurable in `casaflow.config.md`. Read the config at the start of each session to determine which stages to run.
 
 ---
 
@@ -76,7 +76,7 @@ graph TD
   start -->|config / chore / refactor| task["TASK / CHORE<br/>Brainstorm: skip<br/>Plan: minimal<br/>Execute: direct<br/>Learn: no"]
 ```
 
-Check `jig.config.md` for stage overrides per work type. The config may skip or lighten stages beyond these defaults.
+Check `casaflow.config.md` for stage overrides per work type. The config may skip or lighten stages beyond these defaults.
 
 Ask the user if the type isn't obvious from context.
 
@@ -103,7 +103,7 @@ If no pre-fetched context exists, follow the normal flow:
 1. **Check for existing ticket**:
    - Branch name contains a ticket reference? Look it up.
    - User mentioned a ticket? Fetch it.
-   - No ticket? Create one. Check `jig.config.md` for `ticket-system` (Linear, Jira, GitHub Issues) and use the appropriate tool.
+   - No ticket? Create one. Check `casaflow.config.md` for `ticket-system` (Linear, Jira, GitHub Issues) and use the appropriate tool.
 
 2. **Understand the problem**:
    - Read the ticket description and acceptance criteria.
@@ -111,7 +111,7 @@ If no pre-fetched context exists, follow the normal flow:
    - For features: confirm scope with the user if ambiguous.
 
 3. **Set up the branch**:
-   Read the `## Branching` section from `jig.config.md`. If the config
+   Read the `## Branching` section from `casaflow.config.md`. If the config
    provides type-aware formats (e.g., `feature`, `fix`, `default`), select
    the format matching the work type:
    - `feature` format for features and improvements
@@ -180,7 +180,7 @@ graph TD
   questions["Ask clarifying questions<br/>(one at a time)"]
   approaches["Propose 2-3 approaches<br/>with trade-offs"]
   design["Present design sections<br/>(get approval per section)"]
-  checklist["Concerns Checklist<br/>(from jig.config.md)"]
+  checklist["Concerns Checklist<br/>(from casaflow.config.md)"]
   approve{"User approves?"}
   save["Save design doc<br/>(vault or docs/plans/)"]
   plan["Transition to PLAN stage"]
@@ -194,7 +194,7 @@ Run `brainstorm` with the project's Concerns Checklist:
 
 #### Concerns Checklist (Configurable)
 
-Read the `## Concerns Checklist` section from `jig.config.md`. Walk through each concern defined there. Mark N/A if it doesn't apply — but **explicitly mark it**, don't skip silently.
+Read the `## Concerns Checklist` section from `casaflow.config.md`. Walk through each concern defined there. Mark N/A if it doesn't apply — but **explicitly mark it**, don't skip silently.
 
 For each concern:
 - If marked **Yes** and mapped to a skill → load that skill for guidance
@@ -271,7 +271,7 @@ Invoke `build` with the plan. It analyzes the task graph and automatically picks
 - **Serial** (`sdd`) — when tasks are coupled, share files, or agent teams aren't available
 - **Direct** — for 1-2 simple tasks, no orchestrator needed
 
-You don't need to choose. `build` reads `jig.config.md` for `parallel-threshold` and `default-strategy`, inspects the plan, and routes accordingly.
+You don't need to choose. `build` reads `casaflow.config.md` for `parallel-threshold` and `default-strategy`, inspects the plan, and routes accordingly.
 
 ### Gate Check
 
@@ -333,7 +333,7 @@ Before proceeding, confirm:
 ### Gate Check
 
 - [ ] PR created with clear description
-- [ ] Ticket referenced (per `jig.config.md` settings)
+- [ ] Ticket referenced (per `casaflow.config.md` settings)
 - [ ] CI passes
 - [ ] Reviewer approval received
 

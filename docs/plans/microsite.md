@@ -179,7 +179,7 @@ and attractive. Responsive on narrow viewports.
 - Section label: "HOW IT WORKS"
 - Three steps, each with a short heading and 2-3 sentences:
   1. **Install** — Add to settings.json or CLI install. Whole team gets it.
-  2. **Configure** — `jig.config.md` tunes the pipeline. Concerns checklist
+  2. **Configure** — `casaflow.config.md` tunes the pipeline. Concerns checklist
      maps your team's engineering concerns to skills.
   3. **Extend** — Add domain skills, custom specialists, team agents. They
      wire into discovery automatically. `/casaflow:extend` scaffolds them.

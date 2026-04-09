@@ -72,7 +72,7 @@ work.dustindiaz.com — restrained, typographic, modern.
 ### 6. How It Works
 - [CONTENT] Three steps: Install → Configure → Extend
 - [CONTENT] Install: add to settings.json, whole team gets it
-- [CONTENT] Configure: jig.config.md tunes pipeline, concerns checklist
+- [CONTENT] Configure: casaflow.config.md tunes pipeline, concerns checklist
 - [CONTENT] Extend: domain skills, specialists, agents — auto-discovered
 - [UI] Clear visual hierarchy for the three steps
 
@@ -185,7 +185,7 @@ work.dustindiaz.com — restrained, typographic, modern.
 ### How It Works
 - [ ] [CONTENT] Three clear steps: Install, Configure, Extend
 - [ ] [CONTENT] Each step has 2-3 sentences of explanation
-- [ ] [CONTENT] jig.config.md and /casaflow:extend are mentioned
+- [ ] [CONTENT] casaflow.config.md and /casaflow:extend are mentioned
 
 ### Origin Story
 - [ ] [CONTENT] Duro and Phoenix project are named

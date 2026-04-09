@@ -13,7 +13,7 @@ alwaysApply: false
 
 **PURPOSE**: Turn an approved design into a comprehensive implementation plan that an engineer (or AI agent) with zero codebase context can follow task by task. Every task is bite-sized, TDD-oriented, and self-contained.
 
-**CONFIGURATION**: Reads `jig.config.md` for commit conventions, execution strategy preferences, and parallel threshold.
+**CONFIGURATION**: Reads `casaflow.config.md` for commit conventions, execution strategy preferences, and parallel threshold.
 
 ---
 
@@ -149,7 +149,7 @@ git commit -m "<message following project commit convention>"
 - **Complete code** -- every step that changes code shows the complete code block. No summaries.
 - **Exact commands** -- with expected output. The engineer should know what success looks like.
 - **Dependencies declared** -- if Task N requires Task M, say so with `blockedBy` or `Dependencies`.
-- **Commit messages** -- follow the project's commit convention from `jig.config.md`.
+- **Commit messages** -- follow the project's commit convention from `casaflow.config.md`.
 
 ---
 
@@ -206,7 +206,7 @@ If you find issues, fix them inline. No need to re-review -- just fix and move o
 ## Plan Output
 
 Save to the feature directory in the Obsidian vault. Read `vault-path` and
-`project-name` from `casaflow.config.md` (or `jig.config.md`):
+`project-name` from `casaflow.config.md`:
 
 ```
 ~/Documents/<project-name>/<feature-slug>/plan.md
@@ -240,7 +240,7 @@ After saving the plan, offer the execution choice:
 - **REQUIRED**: Use `sdd`
 - Serial execution with two-stage review per task
 
-Read `jig.config.md` for `parallel-threshold` and `default-strategy` to inform the recommendation, but always let the user choose.
+Read `casaflow.config.md` for `parallel-threshold` and `default-strategy` to inform the recommendation, but always let the user choose.
 
 ---
 

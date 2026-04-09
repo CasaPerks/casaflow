@@ -5,8 +5,8 @@ Integration pack for teams using [Jira](https://www.atlassian.com/software/jira)
 ## Prerequisites
 
 - A Jira MCP server connected (see Setup below)
-- `ticket-system: jira` in `jig.config.md`
-- `## Jira` section in `jig.config.md` with project key
+- `ticket-system: jira` in `casaflow.config.md`
+- `## Jira` section in `casaflow.config.md` with project key
 
 ## Setup
 
@@ -53,7 +53,7 @@ The exact tool name depends on which MCP server is installed. Common patterns:
 **Atlassian Official / sooperset:**
 ```
 mcp__atlassian__create_issue or mcp__jira__create_issue with:
-  project:     {project-key from jig.config.md}
+  project:     {project-key from casaflow.config.md}
   summary:     {title}
   description: {markdown or ADF body}
   issuetype:   {mapped issue type name}
@@ -89,7 +89,7 @@ Jira has built-in issue types. Map Jig types to Jira:
 | Refactor | `Task` | With "refactor" label if team uses labels |
 | Incident | `Bug` | With "incident" priority or label |
 
-Teams can override these mappings in `jig.config.md`:
+Teams can override these mappings in `casaflow.config.md`:
 
 ```yaml
 ## Jira
@@ -111,7 +111,7 @@ Jira supports several estimation fields depending on team configuration:
 | `timetracking.originalEstimate` | Teams estimating in time (e.g., "4h", "2d") |
 | Custom field | Teams with custom estimation fields |
 
-Read `## Estimates` from `jig.config.md` for the team's scale and unit:
+Read `## Estimates` from `casaflow.config.md` for the team's scale and unit:
 
 ```yaml
 ## Estimates
@@ -132,11 +132,11 @@ Jira doesn't provide a branch name in the response. Construct from the issue key
 
 Example: `dustin/PROJ-567-fix-export-crash`
 
-Read `branching.format` from `jig.config.md` if the team has a custom format.
+Read `branching.format` from `casaflow.config.md` if the team has a custom format.
 
 ## Team Configuration
 
-Add to your project's `jig.config.md`:
+Add to your project's `casaflow.config.md`:
 
 ```yaml
 ## Jira

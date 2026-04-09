@@ -14,7 +14,7 @@ alwaysApply: false
 
 **PURPOSE**: The meta-skill. Teaches teams to build on Jig by guiding artifact creation from intent through scaffolding to verification. Every new skill, specialist, agent, pack, or config change goes through this skill to ensure it follows the schema, avoids overlap, and loads correctly.
 
-**CONFIGURATION**: Reads `jig.config.md` for the Concerns Checklist (to wire new artifacts into) and existing artifact inventory.
+**CONFIGURATION**: Reads `casaflow.config.md` for the Concerns Checklist (to wire new artifacts into) and existing artifact inventory.
 
 ---
 
@@ -30,7 +30,7 @@ alwaysApply: false
 
 **Do NOT use when:**
 - Modifying an existing skill (edit it directly)
-- The change is just a config value in `jig.config.md` (edit the config directly)
+- The change is just a config value in `casaflow.config.md` (edit the config directly)
 - You need to run a pipeline step (use the appropriate pipeline skill)
 
 ---
@@ -77,8 +77,8 @@ Based on the interview, route to the correct artifact type:
   +-- Triggered by file edits --> Domain-tier skill
 
 "I just need to change pipeline behavior"
-  +-- Stage overrides, thresholds, models --> jig.config.md change (no new artifact)
-  +-- New concern in brainstorming --> Add to Concerns Checklist in jig.config.md
+  +-- Stage overrides, thresholds, models --> casaflow.config.md change (no new artifact)
+  +-- New concern in brainstorming --> Add to Concerns Checklist in casaflow.config.md
 ```
 
 ### Decision Matrix
@@ -92,8 +92,8 @@ Based on the interview, route to the correct artifact type:
 | Review check (pattern) | Specialist | `team/specialists/{name}.md` | `framework/SKILL_SCHEMA.md` (Specialist Schema section) |
 | Review check (reasoning) | Logic reviewer pattern | `core/skills/review/logic-reviewer.md` | Edit existing file |
 | Automation | Agent | `team/agents/{name}.md` | Agent conventions |
-| Pipeline config | Config change | `jig.config.md` | Edit existing file |
-| Brainstorm concern | Concerns checklist entry | `jig.config.md` | `framework/CONCERNS_CHECKLIST.md` |
+| Pipeline config | Config change | `casaflow.config.md` | Edit existing file |
+| Brainstorm concern | Concerns checklist entry | `casaflow.config.md` | `framework/CONCERNS_CHECKLIST.md` |
 
 ---
 
@@ -142,7 +142,7 @@ alwaysApply: {true | false}     # true only for standards tier
 
 **PURPOSE**: {One sentence describing what this skill does.}
 
-**CONFIGURATION**: {What it reads from jig.config.md, if anything.}
+**CONFIGURATION**: {What it reads from casaflow.config.md, if anything.}
 
 ---
 
@@ -288,7 +288,7 @@ Create `team/agents/{name}.md`:
 
 ### For Config Changes
 
-Edit `jig.config.md` directly. Common changes:
+Edit `casaflow.config.md` directly. Common changes:
 
 - **New concern**: Add to `## Concerns Checklist` with a skill/specialist reference
 - **Stage override**: Add to work type overrides
@@ -301,7 +301,7 @@ Edit `jig.config.md` directly. Common changes:
 
 If the new artifact represents a concern that should be surfaced during brainstorming:
 
-1. Open `jig.config.md`
+1. Open `casaflow.config.md`
 2. Add an entry to `## Concerns Checklist`:
    ```
    - {concern-name}: team/skills/{skill-name}
@@ -372,7 +372,7 @@ These framework documents define the schemas and systems this skill works with:
 | Too-broad globs | `**/*.ts` matches everything. Scope by directory: `**/entities/**/*.ts` |
 | Missing "Use when..." in description | Descriptions MUST start with "Use when..." for searchability and consistent activation |
 | Wrong tier | A skill that only applies when editing database entities is domain, not standards. A skill invoked by command is workflow, not domain. |
-| Creating a skill when a config change suffices | If you just need to change a threshold, model, or stage override, edit `jig.config.md` |
+| Creating a skill when a config change suffices | If you just need to change a threshold, model, or stage override, edit `casaflow.config.md` |
 | Creating a specialist for a one-off issue | One-off issues belong as logic reviewer examples. Only create a specialist for patterns (3+ occurrences). |
 | Duplicating an existing artifact | Always search before creating. Team artifacts override core artifacts with the same name -- make sure that is intentional. |
 | Not wiring into Concerns Checklist | If the artifact represents a cross-cutting design concern, add it to the checklist |
@@ -408,7 +408,7 @@ These framework documents define the schemas and systems this skill works with:
 | Add a review check (pattern) | Specialist | Model + tier + severity + narrow globs |
 | Add a review check (reasoning) | Logic reviewer pattern | Add to existing logic-reviewer.md |
 | Automate a task | Agent | Triggered by command or phrase |
-| Change pipeline behavior | jig.config.md | No new artifact needed |
+| Change pipeline behavior | casaflow.config.md | No new artifact needed |
 | Add brainstorm concern | Concerns checklist | Points to a skill or specialist |
 
 ---
@@ -423,6 +423,6 @@ Before committing the new artifact:
 - [ ] Globs scoped by code location, not broad applicability
 - [ ] SKILL.md under 500 lines (heavy content in `reference/`)
 - [ ] Cross-references explicit: `**REQUIRED**: Use {skill} for {reason}`
-- [ ] Added to Concerns Checklist in `jig.config.md` (if applicable)
+- [ ] Added to Concerns Checklist in `casaflow.config.md` (if applicable)
 - [ ] No duplicate `name` in the discovery chain (or override is intentional)
 - [ ] Verification step passed (frontmatter valid, location correct, globs tested)

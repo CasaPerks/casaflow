@@ -50,33 +50,35 @@ Restart your Claude session (`/exit` then `claude`).
 > **Important:** Use the terminal CLI for `/plugin` commands. VS Code picks
 > up the plugin automatically after install. Always use the full HTTPS URL.
 
-### 2. Connect Jira
+### 2. Connect Jira (optional)
 
-Each developer adds the Atlassian MCP server to their personal Claude
-settings (`~/.claude/settings.json`):
+Each developer connects the official Atlassian integration in Claude:
 
-```json
-{
-  "mcpServers": {
-    "atlassian": {
-      "command": "npx",
-      "args": ["-y", "@atlassian/mcp-atlassian"],
-      "env": {
-        "ATLASSIAN_URL": "https://your-org.atlassian.net",
-        "ATLASSIAN_EMAIL": "you@casaperks.com",
-        "ATLASSIAN_API_TOKEN": "your-api-token"
-      }
-    }
-  }
-}
-```
+1. Open Claude Code settings (or visit claude.ai/settings)
+2. Go to **Integrations**
+3. Connect **Atlassian** and authorize access to your Jira workspace
 
-Get your API token at https://id.atlassian.com/manage-profile/security/api-tokens.
+That's it — no API tokens or manual config needed. CasaFlow detects the
+Atlassian connector automatically and uses it to read tickets, sync specs,
+and update issue status.
 
 Jira is optional — CasaFlow works without it, you'll just enter context
 manually instead.
 
-### 3. Verify
+### 3. Configure (optional)
+
+CasaFlow works out of the box with sensible defaults. To customize settings
+(team name, Jira project key, branching format, etc.), copy the config
+template into your project root:
+
+```bash
+cp .claude-plugin-source/scaffold/casaflow.config.md casaflow.config.md
+```
+
+A project-root config takes priority over the plugin default. See
+[scaffold/casaflow.config.md](scaffold/casaflow.config.md) for all options.
+
+### 4. Verify
 
 Type `/casaflow:` — you should see the full command list autocomplete.
 
@@ -186,16 +188,9 @@ feat(scope): add payment validation endpoint [CASA-123]
 
 ---
 
-## Configuration
+## Configuration Reference
 
-CasaFlow reads `casaflow.config.md` in your project root. Create one from
-the template:
-
-```bash
-cp .claude-plugin-source/scaffold/casaflow.config.md casaflow.config.md
-```
-
-Key settings:
+Key settings in `casaflow.config.md` (see step 3 above):
 
 ```yaml
 ## Team

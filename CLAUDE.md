@@ -37,12 +37,12 @@ Every development task flows through stages. `kickoff` orchestrates the full pip
 DISCOVER → BRAINSTORM → PLAN → EXECUTE → REVIEW → SHIP → LEARN
 ```
 
-Work type (bug/feature/improvement/task) determines which stages run and at what depth. Configured in `casaflow.config.md` (or `jig.config.md`).
+Work type (bug/feature/improvement/task) determines which stages run and at what depth. Configured in `casaflow.config.md`.
 
 ### How Skills Compose
 
 - **Direct invocation** — workflow skills invoke each other by name (`kickoff` → `brainstorm` → `plan`)
-- **Concerns checklist** — `jig.config.md` maps engineering concerns to skills. `brainstorm` reads the config and loads relevant skills during design.
+- **Concerns checklist** — `casaflow.config.md` maps engineering concerns to skills. `brainstorm` reads the config and loads relevant skills during design.
 - **Specialist dispatch** — `review` discovers specialist `.md` files from all three directories, filters by glob match, and dispatches as parallel subagents.
 
 ## Inventory
@@ -131,7 +131,7 @@ jig/
 ├── team/                Jig's own extensions (for developing Jig itself)
 ├── .claude/             Plugin self-install (settings.json)
 ├── CLAUDE.md            This file
-├── jig.config.md        Jig's own pipeline configuration
+├── scaffold/casaflow.config.md  CasaFlow pipeline configuration template
 └── README.md            Public-facing README
 ```
 
@@ -177,7 +177,7 @@ jig/
 3. Create `core/skills/{name}/SKILL.md`
 4. Create symlink: `ln -s ../../core/skills/{name} .claude/skills/{name}`
 5. Add to the `skills` array in `.claude-plugin/plugin.json`
-6. If the skill should surface during brainstorming, add it to the concerns checklist in `jig.config.md`
+6. If the skill should surface during brainstorming, add it to the concerns checklist in `casaflow.config.md`
 
 ### How consumers install Jig
 Teams add this to their project's `.claude/settings.json`:

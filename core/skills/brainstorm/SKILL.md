@@ -13,7 +13,7 @@ alwaysApply: false
 
 **PURPOSE**: Turn ideas into fully formed, approved designs through natural collaborative dialogue. Explore the solution space, surface cross-cutting concerns, and get user sign-off before any code is written.
 
-**CONFIGURATION**: Reads `jig.config.md` for the Concerns Checklist (maps team skills into design review) and pipeline stage overrides by work type.
+**CONFIGURATION**: Reads `casaflow.config.md` for the Concerns Checklist (maps team skills into design review) and pipeline stage overrides by work type.
 
 ---
 
@@ -55,7 +55,7 @@ Complete these steps in order:
 3. **Ask clarifying questions** -- one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** -- with trade-offs and your recommendation
 5. **Present design** -- in sections scaled to complexity, get user approval after each section
-6. **Concerns Checklist** -- walk through configurable concerns from `jig.config.md`
+6. **Concerns Checklist** -- walk through configurable concerns from `casaflow.config.md`
 7. **Write design doc** -- save to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 8. **Spec self-review** -- scan for placeholders, contradictions, ambiguity, scope
 9. **User reviews written spec** -- ask user to review before proceeding
@@ -73,7 +73,7 @@ flowchart TD
     C --> D
     D --> E[Propose 2-3 approaches<br/>with trade-offs]
     E --> F[Present design sections<br/>get approval per section]
-    F --> G[Concerns Checklist<br/>from jig.config.md]
+    F --> G[Concerns Checklist<br/>from casaflow.config.md]
     G --> H{User approves design?}
     H -->|no, revise| F
     H -->|yes| I[Write design doc<br/>docs/plans/YYYY-MM-DD-*-design.md]
@@ -131,7 +131,7 @@ flowchart TD
 
 ## Concerns Checklist (Configurable)
 
-Read the `## Concerns Checklist` section from `jig.config.md`. Walk through each concern defined there. Mark N/A if it does not apply -- but **explicitly mark it**, do not skip silently.
+Read the `## Concerns Checklist` section from `casaflow.config.md`. Walk through each concern defined there. Mark N/A if it does not apply -- but **explicitly mark it**, do not skip silently.
 
 For each concern:
 - If marked **Yes** and mapped to a skill -> load that skill for guidance

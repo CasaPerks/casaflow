@@ -13,9 +13,9 @@ alwaysApply: false
 
 **PURPOSE**: After a PR merges, analyze what reviewers caught to find gaps in skills, specialists, and review checklists -- then fix those gaps. Every merged PR becomes training data for making the system better next time.
 
-**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `casaflow.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
-**CONFIGURATION**: Reads `jig.config.md` for `ticket-system` (to offer ticket creation for improvements) and `main-branch`.
+**CONFIGURATION**: Reads `casaflow.config.md` for `ticket-system` (to offer ticket creation for improvements) and `main-branch`.
 
 ---
 
@@ -221,9 +221,9 @@ git checkout {main-branch} && git pull origin {main-branch}
 git checkout -b {username}/skill-improvements-from-pr-{number}
 ```
 
-Read `main-branch` from `jig.config.md` (default: `main`).
+Read `main-branch` from `casaflow.config.md` (default: `main`).
 
-If a ticket should be created for the improvements, offer to do so using the project's configured `ticket-system` from `jig.config.md`. Use title format: "Skill improvements -- lessons from PR #{number}".
+If a ticket should be created for the improvements, offer to do so using the project's configured `ticket-system` from `casaflow.config.md`. Use title format: "Skill improvements -- lessons from PR #{number}".
 
 ---
 
@@ -309,7 +309,7 @@ When deciding where a pattern belongs, use the narrowest applicable scope:
 | Including dismissed false positives | Only analyze comments that resulted in actual code changes |
 | Adding broad, abstract rules | Keep additions concrete. "Check comparators" is useless. "buildFilterValue produces `greaterThan` but handler only accepts `before`/`after`" is useful |
 | Not verifying the fix would work | After proposing a change, check that the new globs match, the new prompt covers it, or the example is specific enough |
-| Hardcoding ticket system references | Read `ticket-system` from `jig.config.md` -- offer to create tickets using the configured system |
+| Hardcoding ticket system references | Read `ticket-system` from `casaflow.config.md` -- offer to create tickets using the configured system |
 | Forgetting to update automated reviewer configs | When adding a review-checkable rule to a skill, propagate to reviewer configs if applicable |
 | Duplicating patterns across skills and specialists | One primary location per pattern. Other locations reference it, not repeat it |
 

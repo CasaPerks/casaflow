@@ -12,9 +12,9 @@ alwaysApply: false
 
 **PURPOSE**: Create pull requests with clear, well-written descriptions that tell reviewers exactly what changed and how to verify it.
 
-**CONFIGURATION**: Reads `jig.config.md` for `git-host`, `ticket-system`, `ticket-prefix`, `branching.format`, `require-ticket-reference`, and `main-branch`.
+**CONFIGURATION**: Reads `casaflow.config.md` for `git-host`, `ticket-system`, `ticket-prefix`, `branching.format`, `require-ticket-reference`, and `main-branch`.
 
-**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `casaflow.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
 ---
 
@@ -80,11 +80,11 @@ git diff {main-branch}...HEAD --stat
 git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
 ```
 
-Read `main-branch` from `jig.config.md` (default: `main`).
+Read `main-branch` from `casaflow.config.md` (default: `main`).
 
 ### Step 2: Detect ticket reference
 
-Check the branch name for a ticket reference. Read `jig.config.md` for:
+Check the branch name for a ticket reference. Read `casaflow.config.md` for:
 - `ticket-system` -- which system (GitHub Issues, Linear, Jira, etc.)
 - `ticket-prefix` -- the prefix pattern to look for (e.g., `ENG`, `PROJ`, `GH`)
 - `branching.format` -- to understand where the ticket number appears in the branch name
@@ -97,7 +97,7 @@ Check the branch name for a ticket reference. Read `jig.config.md` for:
 | Linear | `user/eng-1234-add-export` | `Fixes ENG-1234` |
 | Jira | `user/proj-567-update-api` | `Fixes PROJ-567` |
 
-If `require-ticket-reference` is `true` in `jig.config.md` and no ticket is detected, warn the user before proceeding.
+If `require-ticket-reference` is `true` in `casaflow.config.md` and no ticket is detected, warn the user before proceeding.
 
 ### Step 3: Analyze changes
 
@@ -131,7 +131,7 @@ Add **context-specific items** when applicable:
 
 ### Step 5: Write the PR
 
-**Title**: Follow the project's commit convention from `jig.config.md` (e.g., `type(scope): description`), under 70 chars.
+**Title**: Follow the project's commit convention from `casaflow.config.md` (e.g., `type(scope): description`), under 70 chars.
 
 **Body**: Use this structure:
 
@@ -225,7 +225,7 @@ That tells the reviewer nothing. What actually changed? Which files? Why?
 - [ ] PR description matches actual implementation
 - [ ] Appropriate test coverage for the change type
 - [ ] No merge conflicts with base branch
-- [ ] Ticket referenced (per `jig.config.md` settings)
+- [ ] Ticket referenced (per `casaflow.config.md` settings)
 
 ---
 
@@ -238,7 +238,7 @@ That tells the reviewer nothing. What actually changed? Which files? Why?
 | Empty test plan | Always include checkboxes -- even "No testing required" is a choice |
 | Title longer than 70 chars | Move details to the body |
 | Corporate tone in summary | Read it out loud. Would you say this to a teammate? |
-| Missing ticket reference | Check branch name for ticket pattern from `jig.config.md` |
+| Missing ticket reference | Check branch name for ticket pattern from `casaflow.config.md` |
 | Hardcoding owner/repo | Extract from git remote -- never assume a specific repository |
 
 ---

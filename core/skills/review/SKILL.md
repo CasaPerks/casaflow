@@ -12,7 +12,7 @@ alwaysApply: false
 
 **PURPOSE**: Dispatch parallel specialist review agents, each focused on one concern, to break the context ceiling that monolithic review prompts hit. The orchestrator coordinates dispatch, collects findings, scores mechanically, and produces a unified report.
 
-**CONFIGURATION**: Reads `jig.config.md` for `swarm-tiers` (which specialists block vs advise), `deep-review-model`, and `specialist-model-default`.
+**CONFIGURATION**: Reads `casaflow.config.md` for `swarm-tiers` (which specialists block vs advise), `deep-review-model`, and `specialist-model-default`.
 
 ---
 
@@ -40,7 +40,7 @@ Collect specialists from all three discovery directories (see `framework/DISCOVE
    - `tier: all` → include all specialists (both `fast-pass` and `full-only`)
    - `tier: fast-pass` → include only specialists where `tier: fast-pass`
 
-Check `jig.config.md` for `swarm-tiers` to confirm which specialists are assigned to which tier.
+Check `casaflow.config.md` for `swarm-tiers` to confirm which specialists are assigned to which tier.
 
 ### Stage 2: PREPARE the Diff
 
@@ -52,7 +52,7 @@ git fetch origin
 git diff origin/{main-branch}...HEAD
 git diff origin/{main-branch}...HEAD --name-only
 ```
-Read `main-branch` from `jig.config.md` (default: `main`).
+Read `main-branch` from `casaflow.config.md` (default: `main`).
 
 **From `team-dev` quality gate (per-task):**
 ```bash
@@ -102,7 +102,7 @@ After collecting swarm findings, dispatch the logic reviewer:
    - The full diff (all changed files — NOT filtered by globs)
    - The swarm findings collected in Stage 4 (so it knows what's already caught)
 3. Dispatch a single Agent with:
-   - `model: opus` (or `deep-review-model` from `jig.config.md`)
+   - `model: opus` (or `deep-review-model` from `casaflow.config.md`)
    - Full tool access: Read, Grep, Glob, Agent (the logic reviewer explores the codebase and can spawn sub-agents)
 4. Wait for the logic reviewer to complete
 5. Parse findings in the same format as swarm specialists

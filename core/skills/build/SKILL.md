@@ -14,7 +14,7 @@ alwaysApply: false
 
 **PURPOSE**: Execute an implementation plan. Analyzes the task graph, picks the right execution strategy (parallel or serial), and runs it with quality gates. You hand it a plan — it builds the thing.
 
-**CONFIGURATION**: Reads `jig.config.md` for `parallel-threshold`, `default-strategy`, and `teammate-mode`.
+**CONFIGURATION**: Reads `casaflow.config.md` for `parallel-threshold`, `default-strategy`, and `teammate-mode`.
 
 ---
 
@@ -54,7 +54,7 @@ Look for the implementation plan in this order:
 
 1. **User provided it** — they said "build this plan" with a file path
 2. **Vault plan** — if `vault-path` and `project-name` are configured in
-   `jig.config.md` (or `casaflow.config.md`), look for
+   `casaflow.config.md`, look for
    `<vault-path>/<project-name>/<feature-slug>/plan.md`
 3. **Legacy location** — scan `docs/plans/` for the newest `*-plan.md` file
 4. **Current conversation** — a plan was created earlier in this session
@@ -72,7 +72,7 @@ Read the plan file. Extract:
 
 ### Step 3: Choose Execution Strategy
 
-Read `jig.config.md` for:
+Read `casaflow.config.md` for:
 - `parallel-threshold` (default: 3) — minimum independent tasks for parallel
 - `default-strategy` (default: team-dev) — preference when conditions are met
 - `teammate-mode` (default: tmux) — how parallel agents appear

@@ -6,7 +6,7 @@ description: "Execute an implementation plan — analyzes task graph and picks p
 
 **PURPOSE**: Execute an implementation plan. Analyzes the task graph, picks the right execution strategy (parallel or serial), and runs it with quality gates. You hand it a plan — it builds the thing.
 
-**CONFIGURATION**: Reads `jig.config.md` for `parallel-threshold`, `default-strategy`, and `teammate-mode`.
+**CONFIGURATION**: Reads `casaflow.config.md` for `parallel-threshold`, `default-strategy`, and `teammate-mode`.
 
 ---
 
@@ -46,7 +46,7 @@ Read the plan file. Extract:
 
 ### Step 3: Choose Execution Strategy
 
-Read `jig.config.md` for:
+Read `casaflow.config.md` for:
 - `parallel-threshold` (default: 3) — minimum independent tasks for parallel
 - `default-strategy` (default: team-dev) — preference when conditions are met
 - `teammate-mode` (default: tmux) — how parallel agents appear

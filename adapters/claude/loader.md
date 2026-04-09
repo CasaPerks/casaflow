@@ -8,7 +8,7 @@ How Jig integrates with Claude Code's native loading mechanism.
 |-------------|----------------------|
 | Skills (`*/skills/*/SKILL.md`) | `.claude/skills/` directory |
 | Agents (`*/agents/*.md`) | `.claude/agents/` directory |
-| `jig.config.md` | Read directly by skills (no translation) |
+| `casaflow.config.md` | Read directly by skills (no translation) |
 | `CLAUDE.md` | Project instructions file |
 
 ## Tier Mapping
@@ -45,7 +45,7 @@ The Marketplace plugin injects core and pack skills into Claude Code's discovery
 **What the consuming project contains:**
 ```
 your-project/
-├── jig.config.md         # Team configuration
+├── casaflow.config.md         # Team configuration
 ├── CLAUDE.md             # Project-specific context (not framework)
 └── team/                 # Team extensions
     ├── skills/
@@ -86,7 +86,7 @@ your-project/
 ├── .claude/
 │   ├── skills/           # Symlinks or references into .jig/
 │   └── agents/           # Symlinks or references into .jig/
-├── jig.config.md
+├── casaflow.config.md
 ├── CLAUDE.md
 └── team/
 ```
@@ -119,7 +119,7 @@ your-project/
 │       ├── commit.md
 │       ├── code-reviewer.md
 │       └── pr-reviewer.md
-├── jig.config.md
+├── casaflow.config.md
 └── CLAUDE.md
 ```
 
@@ -129,7 +129,7 @@ your-project/
 
 ```markdown
 This project uses **Jig** for development workflow management.
-See `jig.config.md` for pipeline configuration.
+See `casaflow.config.md` for pipeline configuration.
 ```
 
 The rest of CLAUDE.md is project-specific context: team name, tech stack, commands, code style, library gotchas. None of that belongs in Jig — it stays in CLAUDE.md where it always lived.
@@ -138,7 +138,7 @@ See `CLAUDE.md.template` for the full template that `jig init` generates.
 
 ## Config Integration
 
-`jig.config.md` requires no adapter translation. Skills read it directly as markdown context. Claude Code loads the file when skills reference it (e.g., `kickoff` reads pipeline stages, `review` reads swarm-tiers).
+`casaflow.config.md` requires no adapter translation. Skills read it directly as markdown context. Claude Code loads the file when skills reference it (e.g., `kickoff` reads pipeline stages, `review` reads swarm-tiers).
 
 The config file lives in the project root alongside CLAUDE.md. Both are committed to version control.
 
@@ -151,8 +151,8 @@ When Claude Code starts a session in a Jig project:
 3. **Domain/Feature skills** are loaded when the user edits files matching their globs.
 4. **Workflow skills** are loaded when the user types a slash command (e.g., `/casaflow:kickoff`).
 5. **Agents** are available for invocation by skills or by the user.
-6. **jig.config.md** is read on-demand by skills that need configuration values.
+6. **casaflow.config.md** is read on-demand by skills that need configuration values.
 
 ## Multi-Platform
 
-A project can target multiple platforms. `jig init --platform claude,gemini` generates both `CLAUDE.md` and `GEMINI.md` from their respective templates. The same `jig.config.md` and `team/` directory serve all platforms.
+A project can target multiple platforms. `jig init --platform claude,gemini` generates both `CLAUDE.md` and `GEMINI.md` from their respective templates. The same `casaflow.config.md` and `team/` directory serve all platforms.

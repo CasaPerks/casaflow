@@ -54,7 +54,7 @@ $ jig init
 
   4. What engineering concerns matter to your team?
      These surface during brainstorming to make sure nothing gets missed.
-     You can always add more later in jig.config.md.
+     You can always add more later in casaflow.config.md.
 
      [x] i18n / translations
      [x] Analytics / event tracking
@@ -73,7 +73,7 @@ $ jig init
      > y
 
   Done! Created:
-    jig.config.md                — pipeline configuration
+    casaflow.config.md                — pipeline configuration
     .claude/skills/team/         — put your domain skills here
     .claude/skills/team/README.md — extension guide
     CLAUDE.md                    — added Jig declaration (review the diff)
@@ -140,13 +140,13 @@ If the team already has skills:
 
 If commitlint/husky detected:
 
-1. Import `type-enum` and `scope-enum` into `jig.config.md`
+1. Import `type-enum` and `scope-enum` into `casaflow.config.md`
 2. Note: "Imported commit types and scopes from your commitlint config. The Jig commit agent will respect these."
 3. Do NOT modify the existing hook configuration
 
 ---
 
-## Generated jig.config.md Example
+## Generated casaflow.config.md Example
 
 For a team that answered: Duro, Linear, ENG, selected i18n + analytics + migrations + caching, yes to engineering pack:
 

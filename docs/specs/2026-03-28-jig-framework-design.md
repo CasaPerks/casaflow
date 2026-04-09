@@ -31,7 +31,7 @@ The pipeline — extracted from Phoenix `wf-*` skills and absorbed superpowers c
 | Skill | Purpose |
 |-------|---------|
 | `jig-kickoff` | Pipeline orchestrator. Classifies work (bug/feature/improvement/task), routes through appropriate stages. The entry point for all development work. |
-| `jig-brainstorm` | Collaborative design exploration. One question at a time, 2-3 approaches, design approval gate. Concerns checklist is configurable via `jig.config.md`. |
+| `jig-brainstorm` | Collaborative design exploration. One question at a time, 2-3 approaches, design approval gate. Concerns checklist is configurable via `casaflow.config.md`. |
 | `jig-prd` | PRD creation with structured interview. Stack-agnostic requirements capture. |
 | `jig-plan` | Spec to implementation plan. Bite-sized tasks with TDD orientation. |
 | `jig-team-dev` | Parallel agent execution with staggered quality gates. Spawns implementer teammates, orchestrates spec compliance and code review as each finishes. The killer feature. |
@@ -174,7 +174,7 @@ jig/
 │       └── AGENTS.md.template
 │
 ├── scaffold/
-│   ├── jig.config.md              # Default config template
+│   ├── casaflow.config.md              # Default config template
 │   ├── team/
 │   │   ├── README.md
 │   │   ├── skills/.gitkeep
@@ -193,7 +193,7 @@ jig/
 
 ## Configuration Model
 
-`jig.config.md` is the bridge between framework and team. Markdown format so AI agents read it natively.
+`casaflow.config.md` is the bridge between framework and team. Markdown format so AI agents read it natively.
 
 ```markdown
 # Jig Configuration
@@ -354,7 +354,7 @@ Jig discovers skills from three locations, in priority order:
 ### Composition Mechanisms
 
 1. **Direct invocation** — Workflow skills invoke other skills by name in their instructions.
-2. **Concerns checklist** — `jig.config.md` maps concerns to skills. `jig-brainstorm` reads config and loads relevant skills during feature exploration.
+2. **Concerns checklist** — `casaflow.config.md` maps concerns to skills. `jig-brainstorm` reads config and loads relevant skills during feature exploration.
 3. **Specialist dispatch** — `jig-review` discovers specialists by scanning directories, reads frontmatter, dispatches matching ones as parallel subagents.
 
 No magic wiring. No registration step. Drop a skill file in the right directory with valid frontmatter, and the framework discovers it.
@@ -388,7 +388,7 @@ Plugin injects core and packs into skill discovery. Auto-updates. Framework file
 Consuming project only contains:
 ```
 your-project/
-├── jig.config.md
+├── casaflow.config.md
 ├── CLAUDE.md
 └── .claude/skills/team/
 ```
@@ -431,7 +431,7 @@ Three layers of customization:
 
 | Layer | Mechanism | Example |
 |-------|-----------|---------|
-| **Configure** | Edit `jig.config.md` | Swap Linear for Jira, skip brainstorm for bugs |
+| **Configure** | Edit `casaflow.config.md` | Swap Linear for Jira, skip brainstorm for bugs |
 | **Extend** | Add skills/specialists to `team/` | `be-database`, a `typeorm.md` specialist |
 | **Override** | Same-name skill in `team/` | Replace `jig-brainstorm` entirely |
 
@@ -445,7 +445,7 @@ Most teams live in Configure and Extend. Override is the escape hatch.
 2. **Identifies framework-owned sections** — workflow pipeline, skills framework, git workflow, parallel development
 3. **Recommends specific removals** — "These sections are now handled by Jig and can be removed"
 4. **Injects Jig declaration** — "This project uses **Jig** for development workflow management"
-5. **Generates `jig.config.md`** pre-populated from detected patterns (found Linear references, conventional commits, etc.)
+5. **Generates `casaflow.config.md`** pre-populated from detected patterns (found Linear references, conventional commits, etc.)
 6. **Scaffolds `team/` directory** with README explaining the extension model
 7. **Suggests skill migration** — identifies existing skills that should move to `team/`
 
@@ -457,7 +457,7 @@ Most teams live in Configure and Extend. Override is the escape hatch.
 2. Generalize: strip TypeScript/NestJS/Phoenix references from all core skills
 3. Absorb superpowers concepts: brainstorming, debugging, TDD, verification, SDD
 4. Build generic engineering pack from generalizable Phoenix skills
-5. Build `jig.config.md` schema, populate Phoenix's configuration
+5. Build `casaflow.config.md` schema, populate Phoenix's configuration
 6. Install Jig plugin in Phoenix
 7. Move `wf-*` skills out of Phoenix, confirm `jig-*` equivalents work
 8. Move Phoenix specialists (typeorm, i18n, graphql-contracts, guard-consistency, ui-patterns) to `team/specialists/`
@@ -470,7 +470,7 @@ Most teams live in Configure and Extend. Override is the escape hatch.
 ```
 phoenix/
 ├── CLAUDE.md                        # Project-specific only
-├── jig.config.md                    # Pipeline config
+├── casaflow.config.md                    # Pipeline config
 └── .claude/
     ├── skills/
     │   ├── jig/                     # Framework-managed (plugin)

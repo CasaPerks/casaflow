@@ -19,7 +19,7 @@ enforces a **spec-first gate** — no brainstorming or planning begins until a
 feature spec exists. This is not optional; it is the primary mechanism by which
 developers stay in comprehension of what they're building.
 
-**CONFIGURATION**: Reads `casaflow.config.md` (or `jig.config.md`) for
+**CONFIGURATION**: Reads `casaflow.config.md` for
 pipeline stages, work type overrides, ticket system, branching format, and
 concerns checklist.
 

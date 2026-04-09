@@ -43,7 +43,7 @@ CasaFlow, they get all of Jig's infrastructure PLUS our team overrides
 automatically.
 
 We rename the plugin from `jig` → `casaflow` in `plugin.json`. Commands
-become `/casaflow:` prefixed. The `jig.config.md` template gets a
+become `/casaflow:` prefixed. The `casaflow.config.md` template gets a
 `casaflow.config.md` variant with CasaPerks-specific defaults.
 
 ---
@@ -159,7 +159,7 @@ patterns across runs.
    > `/casaflow:` commands during transition. Just update `plugin.json`
    > name. All commands are loaded by name so existing muscle memory works.
 
-5. **Rename `jig.config.md` to `casaflow.config.md`** in self-install.
+5. **Rename `casaflow.config.md` to `casaflow.config.md`** in self-install.
    Update `CLAUDE.md` references.
 
 **Deliverables:** Plugin loads as `casaflow`, `team/` directory exists,
@@ -651,7 +651,7 @@ Developer starts a feature:
 |------|-------|--------|
 | `.claude-plugin/plugin.json` | 1 | Rename to casaflow, add team skills |
 | `commands/kickoff.md` | 1 | Add note about spec requirement |
-| `jig.config.md` | 1 | Update to casaflow.config.md format |
+| `casaflow.config.md` | 1 | Update to casaflow.config.md format |
 | `CLAUDE.md` | 1 | Update for CasaFlow identity |
 | `README.md` | 1 | CasaFlow public docs |
 | `packs/jira/pack.json` | 4 | Add jira-sync skill to pack |

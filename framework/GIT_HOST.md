@@ -1,8 +1,8 @@
 # Git Host Adapters
 
-Skills that interact with pull requests, code review comments, or repository APIs must use the commands for the team's configured `git-host` in `jig.config.md`.
+Skills that interact with pull requests, code review comments, or repository APIs must use the commands for the team's configured `git-host` in `casaflow.config.md`.
 
-**Read `git-host` from `jig.config.md` before using any PR or review API.** Default is `github`.
+**Read `git-host` from `casaflow.config.md` before using any PR or review API.** Default is `github`.
 
 ---
 
@@ -10,7 +10,7 @@ Skills that interact with pull requests, code review comments, or repository API
 
 When a skill needs to perform a git host operation (create PR, fetch comments, post review), it should:
 
-1. Read `git-host` from `jig.config.md`
+1. Read `git-host` from `casaflow.config.md`
 2. Look up the operation in the adapter table below
 3. Use the platform-specific command
 
@@ -130,4 +130,4 @@ To add support for a new git host (e.g., Azure DevOps, Gitea):
 2. Add the CLI tool to prerequisites
 3. Add identifier extraction method
 4. Test the commands against a real repository
-5. Update the `git-host` enum comment in `scaffold/jig.config.md`
+5. Update the `git-host` enum comment in `scaffold/casaflow.config.md`

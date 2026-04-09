@@ -44,13 +44,13 @@ Specialists for the review swarm follow the same pattern:
 2. **Parse** specialist frontmatter (name, model, tier, globs, severity)
 3. **Deduplicate** by `name` — highest priority origin wins
 4. **Filter** by glob intersection with changed files (specialists whose globs don't match any changed file are skipped)
-5. **Filter** by swarm tier from `jig.config.md` (fast-pass vs full)
+5. **Filter** by swarm tier from `casaflow.config.md` (fast-pass vs full)
 6. **Dispatch** matching specialists as parallel subagents
 
 ### Specialist Dispatch
 
 `review` handles dispatch:
-- Reads `swarm-tiers` from `jig.config.md` to determine which tier to run
+- Reads `swarm-tiers` from `casaflow.config.md` to determine which tier to run
 - Collects specialists from all three directories
 - Deduplicates (team > pack > core)
 - Filters by glob match against changed files
@@ -71,7 +71,7 @@ Agents are not glob-triggered — they're invoked explicitly by name or trigger 
 
 ## Concerns Checklist Discovery
 
-The concerns checklist in `jig.config.md` maps concern names to skill paths:
+The concerns checklist in `casaflow.config.md` maps concern names to skill paths:
 
 ```markdown
 ## Concerns Checklist
@@ -105,4 +105,4 @@ Pack skills and specialists are included in the normal discovery scan at priorit
 
 ## Config Discovery
 
-`jig.config.md` is discovered by looking for it in the project root. If not found, Jig uses built-in defaults for all configuration values.
+`casaflow.config.md` is discovered by looking for it in the project root. If not found, Jig uses built-in defaults for all configuration values.

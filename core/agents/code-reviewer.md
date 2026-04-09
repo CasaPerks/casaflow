@@ -17,7 +17,7 @@ Follow the `review` skill pipeline exactly:
    git diff origin/{main-branch}...HEAD
    git diff origin/{main-branch}...HEAD --name-only
    ```
-   Read `main-branch` from `jig.config.md` (default: `main`).
+   Read `main-branch` from `casaflow.config.md` (default: `main`).
 
 2. **Invoke the swarm** with `tier: all` (full review -- all specialists eligible)
 

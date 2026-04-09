@@ -13,7 +13,7 @@ alwaysApply: false
 
 **PURPOSE**: Guide the completion of development work through a structured decision flow: verify tests pass, present clear integration options, execute the chosen option, and clean up.
 
-**GIT HOST**: PR creation in Option 2 uses GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+**GIT HOST**: PR creation in Option 2 uses GitHub (`gh`) as the default. If `git-host` in `casaflow.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
 **Core principle:** Verify tests -> Present options -> Execute choice -> Clean up.
 
@@ -64,7 +64,7 @@ Stop. Do not proceed to Step 2. Fix the failures first.
 
 ### Step 2: Determine Base Branch
 
-Read `main-branch` from `jig.config.md` (default: `main`).
+Read `main-branch` from `casaflow.config.md` (default: `main`).
 
 ```bash
 git merge-base HEAD <main-branch>
@@ -128,7 +128,7 @@ Then: Cleanup worktree (Step 5)
 git push -u origin <feature-branch>
 ```
 
-Then create the PR. Read `jig.config.md` for:
+Then create the PR. Read `casaflow.config.md` for:
 - `require-ticket-reference` -- whether to include ticket reference
 - `ticket-system` -- which system to reference
 - `branching.format` -- to extract ticket number from branch name
@@ -198,7 +198,7 @@ cd <main-working-tree-path>
 git worktree remove <worktree-path>
 ```
 
-If the project uses a worktree management command (check `jig.config.md` or project scripts), use that instead.
+If the project uses a worktree management command (check `casaflow.config.md` or project scripts), use that instead.
 
 **For Option 3:** Keep the worktree intact.
 

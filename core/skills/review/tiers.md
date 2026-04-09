@@ -14,7 +14,7 @@
 **Purpose**: Deep analysis requiring broader context (cross-file data flow, contract alignment)
 **Default specialists**: async-safety, performance
 
-Teams configure which specialists belong to which tier in `jig.config.md`:
+Teams configure which specialists belong to which tier in `casaflow.config.md`:
 
 ```markdown
 ## Review
@@ -63,7 +63,7 @@ The logic reviewer is NOT a specialist — it's a reasoning agent that runs afte
 | Aspect | Value |
 |---|---|
 | File | `logic-reviewer.md` (not in `specialists/`) |
-| Model | Opus (configurable via `deep-review-model` in `jig.config.md`) |
+| Model | Opus (configurable via `deep-review-model` in `casaflow.config.md`) |
 | Runs | Pre-PR only (`tier: all`). Skipped for `tier: fast-pass`. |
 | Input | Full diff + swarm findings + tool access (Read, Grep, Glob) |
 | Method | 7 reasoning patterns (Skeptic's Method) + proactive codebase exploration |

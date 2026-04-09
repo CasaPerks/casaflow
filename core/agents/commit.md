@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Use when committing code. Triggered by "commit the work", "commit this", or "commit with {name}". Reads jig.config.md for conventions, respects existing hooks, supports co-author resolution.
+description: Use when committing code. Triggered by "commit the work", "commit this", or "commit with {name}". Reads casaflow.config.md for conventions, respects existing hooks, supports co-author resolution.
 model: sonnet
 tools: Bash, Read, Grep, Glob
 ---
@@ -17,7 +17,7 @@ Jig has opinions about commits — but your team may already have opinions too (
 
 Before doing anything, gather context:
 
-1. **Read `jig.config.md`** for commit conventions:
+1. **Read `casaflow.config.md`** for commit conventions:
    ```
    ## Commit
    convention: conventional
@@ -38,7 +38,7 @@ Before doing anything, gather context:
    - Linear: `ENG-1234`, `TEAM-456`
    - Jira: `PROJ-789`
    - GitHub: `#123`
-   - Custom patterns from `jig.config.md` ticket-prefix
+   - Custom patterns from `casaflow.config.md` ticket-prefix
 
 ### Hook Awareness Rules
 
@@ -47,7 +47,7 @@ Before doing anything, gather context:
   1. You have already run the formatting/linting that the pre-commit hook would run, AND
   2. The commit message is guaranteed to pass commitlint validation
 - **If lint-staged exists:** Run the project's format command BEFORE staging files. This prevents the pre-commit hook from modifying your staged files and potentially causing issues.
-- **If no hooks exist:** Follow `jig.config.md` conventions. The agent IS the enforcement.
+- **If no hooks exist:** Follow `casaflow.config.md` conventions. The agent IS the enforcement.
 
 ## Step 2: Analyze Changes
 
@@ -84,7 +84,7 @@ If the project has a formatter configured:
 
 ### Format
 
-Follow the convention from `jig.config.md` (default: conventional commits):
+Follow the convention from `casaflow.config.md` (default: conventional commits):
 
 ```
 type(scope): concise description of WHY, not WHAT
@@ -118,7 +118,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 4. **Co-author:**
    - If `co-author: true` in config, always add Claude: `Co-Authored-By: Claude <noreply@anthropic.com>`
    - If user specifies a co-author ("commit with yuri", "commit the work with d.diaz and frank"):
-     - Read `co-author-domain` from `jig.config.md`
+     - Read `co-author-domain` from `casaflow.config.md`
      - For each name mentioned: capitalize for display, lowercase for email, append domain
      - "with yuri" → `Co-Authored-By: Yuri <yuri@{domain}>`
      - "with d.diaz" → `Co-Authored-By: D.Diaz <d.diaz@{domain}>`
@@ -168,7 +168,7 @@ If the staged changes span multiple logical units:
 
 ## Configuration Reference
 
-All commit behavior is configurable in `jig.config.md`:
+All commit behavior is configurable in `casaflow.config.md`:
 
 | Setting | Default | Description |
 |---------|---------|-------------|

@@ -12,7 +12,7 @@ alwaysApply: false
 
 **PURPOSE**: Process reviewer feedback into fixes, replies, and resolved threads. Every unresolved PR comment thread should end this session resolved.
 
-**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `jig.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
+**GIT HOST**: Commands in this skill use GitHub (`gh`) as the default. If `git-host` in `casaflow.config.md` is not `github`, read `framework/GIT_HOST.md` for the platform-specific command equivalents.
 
 ---
 

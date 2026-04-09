@@ -4,7 +4,7 @@ The concerns checklist is a configurable list of engineering considerations that
 
 ## How It Works
 
-1. Team defines concerns in `jig.config.md`, each pointing to a skill, specialist, or `manual`
+1. Team defines concerns in `casaflow.config.md`, each pointing to a skill, specialist, or `manual`
 2. During brainstorming (features and improvements), `brainstorm` presents each concern
 3. User marks each as Y (yes, applies), N (no, not relevant), or NA (not applicable)
 4. For Y concerns, the referenced skill is loaded for guidance
@@ -12,7 +12,7 @@ The concerns checklist is a configurable list of engineering considerations that
 
 ## Configuration
 
-In `jig.config.md`:
+In `casaflow.config.md`:
 
 ```markdown
 ## Concerns Checklist

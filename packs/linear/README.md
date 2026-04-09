@@ -5,31 +5,31 @@ Integration pack for teams using [Linear](https://linear.app) as their ticket sy
 ## Prerequisites
 
 - Linear MCP server connected (`mcp__linear-server__*` tools available)
-- `ticket-system: linear` in `jig.config.md`
-- `## Linear` section in `jig.config.md` with team ID and label mappings (optional but recommended)
-- `## Estimates` section in `jig.config.md` with the team's scale (optional)
+- `ticket-system: linear` in `casaflow.config.md`
+- `## Linear` section in `casaflow.config.md` with team ID and label mappings (optional but recommended)
+- `## Estimates` section in `casaflow.config.md` with the team's scale (optional)
 
 ## How It Works
 
 When `ticket` creates an issue and `ticket-system` is `linear`, it reads this pack for:
 
 1. **Tool mapping** — which MCP tool to call and how to structure the payload
-2. **Field mapping** — how Jig issue types map to Linear label IDs (from `jig.config.md`)
+2. **Field mapping** — how Jig issue types map to Linear label IDs (from `casaflow.config.md`)
 3. **Branch naming** — uses Linear's `gitBranchName` response field directly
 
 ## Creating a Ticket
 
-Read the `## Linear` section from `jig.config.md` for `team-id` and `labels`. Read `## Estimates` for the scale.
+Read the `## Linear` section from `casaflow.config.md` for `team-id` and `labels`. Read `## Estimates` for the scale.
 
 Then call:
 
 ```
 mcp__linear-server__save_issue with:
-  teamId:      {team-id from jig.config.md, or look up by team name}
+  teamId:      {team-id from casaflow.config.md, or look up by team name}
   title:       {title}
   description: {markdown body}
   estimate:    {value from the team's estimate scale}
-  labelIds:    [{label ID from jig.config.md labels mapping}]
+  labelIds:    [{label ID from casaflow.config.md labels mapping}]
   assigneeId:  {user ID, or omit if unassigned}
 ```
 
@@ -45,7 +45,7 @@ Use the returned `id` as `assigneeId`.
 
 ## Issue Type → Label Resolution
 
-Read `labels` from the `## Linear` section in `jig.config.md`:
+Read `labels` from the `## Linear` section in `casaflow.config.md`:
 
 ```yaml
 ## Linear
@@ -79,7 +79,7 @@ Match by name (case-insensitive). This is slower but works for teams that haven'
 
 ## Estimate Scale
 
-Read from `## Estimates` in `jig.config.md`:
+Read from `## Estimates` in `casaflow.config.md`:
 
 ```yaml
 ## Estimates
@@ -109,7 +109,7 @@ git branch -m {current-branch} {gitBranchName}
 
 ## Team Configuration
 
-Add to your project's `jig.config.md`:
+Add to your project's `casaflow.config.md`:
 
 ```yaml
 ## Estimates

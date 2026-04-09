@@ -5,7 +5,7 @@ Integration pack for teams using GitHub Issues as their ticket system.
 ## Prerequisites
 
 - `gh` CLI installed and authenticated
-- `ticket-system: github` in `jig.config.md`
+- `ticket-system: github` in `casaflow.config.md`
 
 ## Creating a Ticket
 

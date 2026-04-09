@@ -90,4 +90,4 @@ Before committing a new skill:
 - [ ] Globs scoped by code location, not broad applicability
 - [ ] SKILL.md under 500 lines (heavy content in reference/)
 - [ ] Cross-references explicit: `**REQUIRED**: Use {skill} for {reason}`
-- [ ] Added to Concerns Checklist in jig.config.md (if applicable)
+- [ ] Added to Concerns Checklist in casaflow.config.md (if applicable)
