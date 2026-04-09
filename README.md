@@ -1,6 +1,4 @@
-<p>
-  <img src="assets/jig.png" alt="CasaFlow" width="100">
-</p>
+
 
 **The CasaPerks AI engineering workflow — spec-first, comprehension-gated, Jira-native.**
 
