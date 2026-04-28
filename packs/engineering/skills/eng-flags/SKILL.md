@@ -174,4 +174,33 @@ Before this flow runs, the following are known:
 
 ## Validation
 
-[FILLED IN BY TASK 10]
+eng-flags writes to source-controlled files in multiple repos and submits values to PostHog UI URLs. All free-text inputs are validated before they leave the consent prompt.
+
+### Key validation
+
+The flag key must match the canonical regex: `^[a-z][a-z0-9-]*-(enabled|rollout)$`
+
+If validation fails, surface a specific error referencing the rule that was violated:
+- "Key must be lowercase kebab-case." (uppercase or underscore present)
+- "Key must end with `-enabled` (kill switch) or `-rollout` (adoption gate)." (missing suffix)
+- "Key must start with a letter." (leading digit or hyphen)
+
+Do not silently coerce the input. Reject and re-prompt.
+
+### Free-text sanitization
+
+Three free-text fields enter the flow: `description`, `owner`, `expected_sunset`. Each has bounded validation:
+
+- **`description`** — max 200 characters. Strip control characters (`\x00-\x1f` and `\x7f`). Reject if it contains `<`, `>`, `` ` ``, or `\n` after trimming. Used in registry JSDoc comments and PostHog tags — both are contexts where smuggled markup matters.
+- **`owner`** — max 64 characters. Allowed shapes: `^[a-z0-9-]+$` for team/channel names, or a valid email. Reject anything else.
+- **`expected_sunset`** — must match `^\d{4}-\d{2}-\d{2}$` (ISO date). Reject if the parsed date is more than 12 months out (warn at 6 months).
+
+### Registry-write path containment
+
+Registry writes are only made to paths listed in `casaflow.config.md > Feature Flags > registry-paths`. Before writing, eng-flags resolves the absolute path and confirms it begins with the touched repo's worktree root. Any path-traversal sequence (`..`, symlinks) → refuse to write and surface "registry path escape detected" with the resolved absolute path.
+
+### What this section explicitly does NOT cover
+
+- PostHog MCP authentication. Spec assumption: already configured per developer.
+- Registry file syntactic validity beyond CAS-577 shape. The repo's own pre-commit hooks (TypeScript compile, lint) catch broader issues.
+- Cross-repo permissions. eng-flags writes to whatever the developer's local git config allows it to write; CI's branch protection is the authority on what gets pushed.
