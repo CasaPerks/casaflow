@@ -115,13 +115,15 @@ Date: YYYY-MM-DD
 [developer's answer]
 
 ## Spec lesson
-[developer's answer]
+[developer's answer, plus Claude's observation on what this pattern
+suggests about spec writing in general for this codebase]
 
 ## Codebase discovery
 [developer's answer]
 
 ## AI collaboration lesson
-[developer's answer]
+[developer's answer, plus Claude's observation — be honest if the
+mistake was Claude's output]
 
 ## Rule for next time
 [developer's one rule, verbatim]
