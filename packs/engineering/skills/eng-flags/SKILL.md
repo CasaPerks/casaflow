@@ -97,7 +97,80 @@ When infra is missing for a touched repo, eng-flags does not silently skip it. T
 
 ## Creation Flow
 
-[FILLED IN BY TASK 9]
+This is the heart of eng-flags: an atomic transaction that takes the developer's consent once and either creates the flag everywhere or surfaces partial state for resolution. Never silently rolls back.
+
+### Inputs
+
+Before this flow runs, the following are known:
+- Spec frontmatter: `flag.decision`, `flag.semantics`, `flag.expected_sunset`, `flag.touched_repos`.
+- Config: `Feature Flags > registry-paths`, `posthog-environments`, `posthog-mcp-namespace`.
+- Validated key (see `## Validation`).
+
+### Steps
+
+1. **Confirm touched repos.** Display the list parsed from spec frontmatter and ask the developer to confirm. Allow editing the list inline. Each confirmed repo proceeds to the infra check.
+
+2. **Run repo discovery on each touched repo.** Apply `## Repo Discovery`. Resolve all infra gaps before proceeding.
+
+3. **Draft the flag.** Build the flag spec from inputs:
+   - `key` (validated)
+   - `default` (`true` for `*-enabled`, `false` for `*-rollout`)
+   - `semantics` (kill-switch | adoption)
+   - `expected_sunset`
+   - `owner`
+   - `description` (one-line, sanitized — see `## Validation`)
+
+4. **Bulk consent prompt.** Render the full plan in one message:
+
+   > "Ready to create the flag.
+   >
+   > **Key:** `redemption-flow-rollout`
+   > **Semantics:** adoption gate (default: `false`)
+   > **Owner:** growth-team
+   > **Expected sunset:** 2026-07-01
+   >
+   > **PostHog environments:** dev, production
+   > **Registry writes:** CasaPerks-Web-React/src/services/posthog/feature-flags.ts
+   >
+   > Approve creating the flag in all environments and writing registry entries to all repos? (yes / no)"
+
+   - **no** → exit. No MCP calls, no registry writes.
+   - **yes** → continue.
+
+5. **Create flag in each PostHog environment.** Loop over `posthog-environments`. For each env, invoke the PostHog MCP `create-feature-flag` tool with the drafted flag spec.
+   - **On success** → record env as created, continue to next env.
+   - **On transient failure** (network, rate limit, 5xx) → retry the call once. If retry succeeds, treat as success.
+   - **On persistent failure** (retry also fails, 4xx, auth error) → enter manual fallback for that env (step 6).
+
+6. **Manual fallback (per environment that failed).**
+
+   > "PostHog MCP failed for the **production** environment after retry. To proceed, create the flag manually:
+   >
+   > 1. Open: `https://app.posthog.com/project/<prod-project-id>/feature_flags/new`
+   > 2. Set:
+   >    - **Key:** `redemption-flow-rollout`
+   >    - **Default:** `false`
+   >    - **Description:** Gates the new redemption flow for staged rollout
+   >    - **Tags:** owner=growth-team, sunset=2026-07-01
+   > 3. Save the flag.
+   >
+   > Reply `done` once created, or `abandon` to stop the workflow."
+
+   - **done** → invoke MCP `feature-flag-get` to verify the flag exists. If verification succeeds, mark env as created. If verification also fails (network, auth), accept the developer's confirmation and log a warning into spec frontmatter (`flag.manual_fallback_envs: [production]`) so retro can surface it.
+   - **abandon** → exit. Leave any successfully-created envs in place. Log abandonment in spec frontmatter (`flag.abandoned_envs: [production]`). Block the rest of the build until the developer either re-runs eng-flags or manually completes the env.
+
+7. **Write registry entries.** Only after every PostHog env is in the "created" state (auto or manual). For each touched repo:
+   - Open the configured registry file.
+   - Insert a new entry following the CAS-577 shape (see `## Naming Conventions`). Position alphabetically among existing entries.
+   - Add or update the JSDoc with `@owner` and `@expected_sunset`.
+
+8. **Verify and commit.** Run any repo-local validation (e.g., `tsc --noEmit` if the repo is TypeScript) on each modified file. If validation fails, surface the error and ask whether to revert the registry write for that repo. Do not auto-commit; commit happens as the next plan task.
+
+### Failure semantics
+
+- **No auto-rollback.** If env A succeeds but env B fails persistently and the developer abandons, env A's flag stays in place. The retro will surface this for cleanup decisions. (Spec non-goal #4.)
+- **Half-written registries are blocked.** Registry writes only happen after every env is created. If env creation half-fails, no registry entries are written.
+- **Repo-local validation failure.** Treated as a soft block — surface the error, let the developer decide whether to revert the registry write or fix the issue inline. eng-flags does not silently swallow validation errors.
 
 ## Validation
 
