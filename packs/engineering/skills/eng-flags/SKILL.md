@@ -90,7 +90,7 @@ For each repo in `flag.touched_repos`:
 
 When infra is missing for a touched repo, eng-flags does not silently skip it. Two options are offered to the developer:
 
-- **(A) Port the pattern from CasaPerks-Web-React inline.** eng-flags scaffolds the registry file shape based on the canonical CAS-577 layout, commits it as a separate prep commit, and includes it in this flag's setup. This is appropriate when the repo will host multiple flags going forward.
+- **(A) Port the pattern from CasaPerks-Web-React inline.** eng-flags drafts the minimum registry file (canonical CAS-577 shape: imports, type definition, exported registry object) inline in the conversation, surfaces it for the developer to review, and only writes the file after explicit `yes` to the drafted contents. The dev commits the prep file themselves as a separate commit before continuing the flag setup. Appropriate when the repo will host multiple flags going forward.
 - **(B) File an infrastructure ticket and exclude this repo from the flag's scope.** eng-flags drafts a Jira ticket (against the appropriate project) and updates `flag.touched_repos` in the spec to remove the excluded repo. The flag still gets created in the remaining repos.
 
 `FEATURE_FLAGS.md` is **not** part of the infra check. It is documentation, not a gate. If a repo has a registry but no `FEATURE_FLAGS.md`, eng-flags proceeds normally.
