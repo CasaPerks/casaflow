@@ -74,6 +74,30 @@ If an answer is thin ("it went fine," "nothing surprised me"), push once:
 
 ---
 
+## Flag-specific questions
+
+Before moving to the output, read `spec.md` frontmatter. If `flag.decision: yes`, ask the following three questions in order. If `flag.decision: no` or `already-flagged`, skip this section entirely (do not ask the questions).
+
+If the spec records `flag.abandoned_envs` (set by eng-flags when the dev abandoned manual fallback for an env), surface this fact at the start of the section:
+
+> "Heads up: when this feature was built, the flag was created in [envs] but [abandoned-env] was abandoned during the manual fallback flow. Worth resolving before answering the questions below."
+
+**Question F1 — Did the rollout go as expected?**
+
+> "How did the rollout go? Did anything surprise you about how the flag behaved in production — gradual percentages, cohort filters, kill-switch flips, anything that didn't match the plan?"
+
+**Question F2 — Is the sunset date still accurate?**
+
+> "Your spec set the expected sunset as `<expected_sunset>`. Looking at where this feature is now, is that date still right? Should it be sooner (rolled out faster than expected) or later (more uncertainty than the spec captured)?"
+
+**Question F3 — Should we close out the flag now?**
+
+> "Is this flag ready to retire — meaning the new behavior is now the default and the flag is just dead code — or should it stick around? If retire: are you taking the cleanup PR now, or filing a ticket?"
+
+Persist all three answers in the retro output under a `## Flag retrospective` section, immediately after the existing `## Rule for next time` section.
+
+---
+
 ## Output format
 
 After all five answers, save the retro to `retros/<feature-name>.md`.
@@ -91,21 +115,26 @@ Date: YYYY-MM-DD
 [developer's answer]
 
 ## Spec lesson
-[developer's answer, plus Claude's observation on what this pattern
-suggests about spec writing in general for this codebase]
+[developer's answer]
 
 ## Codebase discovery
 [developer's answer]
 
 ## AI collaboration lesson
-[developer's answer, plus Claude's observation — be honest if the
-mistake was Claude's output]
+[developer's answer]
 
 ## Rule for next time
 [developer's one rule, verbatim]
 
+## Flag retrospective
+*Only include this section if spec.md had `flag.decision: yes`.*
+
+- **Rollout outcome:** [F1 answer]
+- **Sunset accuracy:** [F2 answer]
+- **Close-out decision:** [F3 answer + any associated PR/ticket link]
+
 ## Patterns
-[See below]
+[See pattern detection below]
 ```
 
 ---
