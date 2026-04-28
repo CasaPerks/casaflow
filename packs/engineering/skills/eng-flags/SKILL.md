@@ -157,7 +157,7 @@ Before this flow runs, the following are known:
    > Reply `done` once created, or `abandon` to stop the workflow."
 
    - **done** → invoke MCP `feature-flag-get` to verify the flag exists. If verification succeeds, mark env as created. If verification also fails (network, auth), accept the developer's confirmation and log a warning into spec frontmatter (`flag.manual_fallback_envs: [production]`) so retro can surface it.
-   - **abandon** → exit. Leave any successfully-created envs in place. Log abandonment in spec frontmatter (`flag.abandoned_envs: [production]`). Block the rest of the build until the developer either re-runs eng-flags or manually completes the env.
+   - **abandon** → exit. Leave any successfully-created envs in place. Log abandonment in spec frontmatter (`flag.abandoned_envs: [production]`). The build continues, but `/casaflow:verify` will subsequently block on the three-evidence checklist (the `$feature_flag_called` event from the abandoned env will be absent), so the workflow cannot reach PR-create until the dev resolves the env. The retro will surface the abandonment for explicit cleanup decisions.
 
 7. **Write registry entries.** Only after every PostHog env is in the "created" state (auto or manual). For each touched repo:
    - Open the configured registry file.
