@@ -65,11 +65,35 @@ Each flag is registered in `feature-flags.ts` (or per-repo equivalent) with JSDo
 
 ## Lifecycle
 
-[FILLED IN BY TASK 8]
+A flag's life has four stages. eng-flags handles stages 1 and 2; the developer drives stages 3 and 4 with eng-flags' help.
+
+1. **Create** (this skill) — atomic transaction creates the flag in all configured PostHog environments and writes registry entries to all touched repos. Default value is set per the semantics chosen.
+2. **Roll out** — the developer (or PM) flips the flag in the PostHog UI per-cohort, per-percentage, or globally. eng-flags is not involved.
+3. **Promote / kill** — once the rollout decision is made, the flag's outcome is locked in code. For an adoption gate, the new behavior becomes the default and the flag is removed. For a kill switch, the safety hatch is retired. Either way, the registry entry is deleted and code that read the flag is simplified.
+4. **Archive** — the PostHog flag is archived (not deleted; preserves analytics). eng-flags does not automate archival; this is intentional (spec non-goal #4). The retro question on close-out (criterion 6) surfaces flags ready for archival.
 
 ## Repo Discovery
 
-[FILLED IN BY TASK 8]
+Before creating a flag, eng-flags confirms each touched repo has flag infrastructure. The check is a single signal: does the registry file exist at the path configured in `casaflow.config.md`?
+
+### The check
+
+For each repo in `flag.touched_repos`:
+
+1. Look up the path from the `Feature Flags > registry-paths` block in `casaflow.config.md`.
+2. If the repo is not in `registry-paths`, the infra check fails: "no registry path configured for this repo."
+3. If the path is configured but the file is missing in the local worktree, distinguish two cases:
+   - **Repo not cloned.** The configured path's parent directory does not exist. Surface: "clone <repo> first, then re-run." Do not treat as missing infra.
+   - **Repo cloned, file missing.** The repo is checked out but the registry file is absent. Surface as missing infra and offer the two paths below.
+
+### Missing-infra fallback
+
+When infra is missing for a touched repo, eng-flags does not silently skip it. Two options are offered to the developer:
+
+- **(A) Port the pattern from CasaPerks-Web-React inline.** eng-flags scaffolds the registry file shape based on the canonical CAS-577 layout, commits it as a separate prep commit, and includes it in this flag's setup. This is appropriate when the repo will host multiple flags going forward.
+- **(B) File an infrastructure ticket and exclude this repo from the flag's scope.** eng-flags drafts a Jira ticket (against the appropriate project) and updates `flag.touched_repos` in the spec to remove the excluded repo. The flag still gets created in the remaining repos.
+
+`FEATURE_FLAGS.md` is **not** part of the infra check. It is documentation, not a gate. If a repo has a registry but no `FEATURE_FLAGS.md`, eng-flags proceeds normally.
 
 ## Creation Flow
 
