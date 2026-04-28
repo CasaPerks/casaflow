@@ -82,6 +82,50 @@ git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
 
 Read `main-branch` from `casaflow.config.md` (default: `main`).
 
+### Step 1.5: Detect feature flag changes
+
+If the diff against the base branch touches any path listed in `casaflow.config.md > Feature Flags > registry-paths`, the PR was modified or added a feature flag. The PR description must include a `## Flags` section.
+
+```bash
+# For each registry path, check if it was modified in the branch diff
+for path in $(yq '.feature-flags.registry-paths.[]' scaffold/casaflow.config.md 2>/dev/null); do
+  git diff {main-branch}...HEAD --name-only | grep -q "$path" && touched=1
+done
+```
+
+If touched, extract the flag metadata from the registry entry's JSDoc:
+- Flag key
+- Default value
+- Semantics (kill-switch from `*-enabled`, adoption from `*-rollout`)
+- `@expected_sunset`
+- `@owner`
+
+### Flags section template
+
+Inject this section into the PR body, immediately after the Summary:
+
+```markdown
+## Flags
+
+| Field | Value |
+|---|---|
+| **Key** | `redemption-flow-rollout` |
+| **Default** | `false` |
+| **Semantics** | adoption gate |
+| **Owner** | growth-team |
+| **Expected sunset** | 2026-07-01 |
+| **PostHog** | https://app.posthog.com/.../feature_flags/123 |
+
+Reviewers: confirm the flag exists in both dev and prod PostHog with matching defaults before approving.
+```
+
+If a flag was modified (existing entry edited) rather than added, change "Default" to show before/after values and add a row noting "Modified in this PR."
+
+### Block conditions
+
+- Registry path appears in diff but the corresponding registry entry has no `@owner` or `@expected_sunset` JSDoc → block PR creation. Surface: "registry entry for `<key>` is missing required JSDoc fields."
+- The flag key in the registry entry does not match the canonical regex → block. Refer to `eng-flags` validation rules.
+
 ### Step 2: Detect ticket reference
 
 Check the branch name for a ticket reference. Read `casaflow.config.md` for:
