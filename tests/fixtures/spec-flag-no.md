@@ -3,7 +3,7 @@ ticket: FIXTURE-002
 work_type: feature
 date: 2026-04-28
 flag:
-  decision: no
+  decision: "no"
   reason: Internal config refactor — no user-facing surface, no behavior change visible to end users.
 ---
 

@@ -3,7 +3,7 @@ ticket: FIXTURE-001
 work_type: feature
 date: 2026-04-28
 flag:
-  decision: yes
+  decision: "yes"
   semantics: adoption
   expected_sunset: 2026-09-01
   touched_repos:

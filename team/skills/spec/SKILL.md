@@ -199,7 +199,7 @@ Every spec records an explicit decision about feature flags. This is captured in
 ```yaml
 ---
 flag:
-  decision: yes | no | already-flagged
+  decision: "yes" | "no" | "already-flagged"
   semantics: kill-switch | adoption       # required if decision == yes
   expected_sunset: YYYY-MM-DD             # required if decision == yes
   touched_repos:                          # required if decision == yes
@@ -288,7 +288,7 @@ ticket_url: <url>                       # if a ticket exists
 work_type: feature | improvement | bug | task
 date: YYYY-MM-DD
 flag:
-  decision: yes | no | already-flagged
+  decision: "yes" | "no" | "already-flagged"
   # If decision == yes, also include:
   semantics: kill-switch | adoption
   expected_sunset: YYYY-MM-DD
