@@ -84,13 +84,16 @@ Read `main-branch` from `casaflow.config.md` (default: `main`).
 
 ### Step 1.5: Detect feature flag changes
 
-If the diff against the base branch touches any path listed in `casaflow.config.md > Feature Flags > registry-paths`, the PR was modified or added a feature flag. The PR description must include a `## Flags` section.
+If the diff against the base branch touches any file matching the CAS-577 registry convention (`feature-flags.{ts,tsx,js,jsx,py,rb,go}`), the PR was modified or added a feature flag. The PR description must include a `## Flags` section.
 
 ```bash
-# For each registry path, check if it was modified in the branch diff
-for path in $(yq '.feature-flags.registry-paths.[]' scaffold/casaflow.config.md 2>/dev/null); do
-  git diff {main-branch}...HEAD --name-only | grep -q "$path" && touched=1
-done
+# Detect any registry file modified in the branch diff. CAS-577's convention
+# names the registry "feature-flags.{ts,tsx,js,jsx,py,rb,go}" — this matches
+# any repo following the convention without requiring a YAML parser dependency.
+if git diff {main-branch}...HEAD --name-only \
+    | grep -qE '(^|/)feature-flags\.(ts|tsx|js|jsx|py|rb|go)$'; then
+  touched=1
+fi
 ```
 
 If touched, extract the flag metadata from the registry entry's JSDoc:

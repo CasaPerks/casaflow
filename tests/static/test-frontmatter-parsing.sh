@@ -20,9 +20,9 @@ done
 grep -q "flag:" "$repo_root/team/skills/spec/SKILL.md" || { echo "spec: missing flag schema"; fail=1; }
 
 # pr-create — diff-based detection, not frontmatter. Must reference the
-# registry-paths config and the diff scan.
+# CAS-577 registry convention regex and the diff scan.
 prcreate="$repo_root/core/skills/pr-create/SKILL.md"
-grep -qi "registry-paths" "$prcreate" || { echo "pr-create: missing registry-paths reference (diff-based detection)"; fail=1; }
+grep -qi "feature-flags" "$prcreate" || { echo "pr-create: missing feature-flags convention reference (diff-based detection)"; fail=1; }
 grep -qi "git diff" "$prcreate" || { echo "pr-create: missing git diff reference (diff-based detection)"; fail=1; }
 
 exit "$fail"
