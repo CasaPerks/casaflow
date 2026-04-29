@@ -77,6 +77,39 @@ Skip any step = lying, not verifying
 
 ---
 
+## Feature Flag Verification
+
+If `spec.md` frontmatter has `flag.decision: yes`, verify is incomplete until the developer collects three pieces of evidence — one per state. Each must be a distinct artifact (URL, screenshot, log line). Pasting the same evidence three times does not count.
+
+### Required evidence
+
+1. **Flag ON — feature works.** Screenshot, video, or test output showing the gated behavior in its enabled state.
+2. **Flag OFF — feature is hidden or disabled.** Screenshot or test output showing the previous behavior is preserved when the flag is off.
+3. **`$feature_flag_called` event observed.** A direct link to the PostHog event timeline showing the event firing for the flag key, ideally with a timestamp matching the dev's manual test.
+
+### How to record evidence
+
+In the verify output, record each piece of evidence with:
+- Label (ON / OFF / event)
+- URL or path
+- A one-line description distinguishing it from the others
+
+Example:
+
+```
+flag-ON:    https://example.com/screenshots/redemption-on.png — confirms new redemption modal renders
+flag-OFF:   https://example.com/screenshots/redemption-off.png — confirms legacy CTA is shown
+event:      https://app.posthog.com/events?key=redemption-flow-rollout — event fired at 2026-04-28T15:22Z
+```
+
+### Block conditions
+
+- Any of the three slots empty → block.
+- Two or three slots have identical URLs → block. Re-prompt for distinct evidence.
+- The PostHog event link does not contain the flag key in its query → block; the dev probably linked the wrong event.
+
+---
+
 ## Common Failures
 
 | Claim | Requires | Not Sufficient |

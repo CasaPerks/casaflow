@@ -32,6 +32,7 @@
     "./core/skills/ticket",
     "./core/skills/extend",
     "./packs/engineering/skills/eng-copywriting",
+    "./packs/engineering/skills/eng-flags",
     "./packs/engineering/skills/eng-logging",
     "./packs/engineering/skills/eng-testing",
     "./packs/jira/skills/jira-sync"

@@ -240,6 +240,7 @@ load and follow that skill's SKILL.md verbatim.
 | `/casaflow:extend` | `core/skills/extend/SKILL.md` | Framework extension — scaffolds new skills, specialists, packs. |
 | `/casaflow:postmortem` | `core/skills/postmortem/SKILL.md` | Post-merge retrospective with specialist/logic reviewer diagnosis. |
 | `/casaflow:eng-copywriting` | `packs/engineering/skills/eng-copywriting/SKILL.md` | Sentence case standards. |
+| `/casaflow:eng-flags` | `packs/engineering/skills/eng-flags/SKILL.md` | Atomic flag setup: bulk consent → PostHog MCP per environment (retry-once → manual fallback on persistent failure) → registry writes per touched repo. Repo-discovery fallback blocks any repo without registry infra. Embeds CAS-577 naming + JSDoc conventions. No auto-rollback of partial creations. |
 | `/casaflow:eng-logging` | `packs/engineering/skills/eng-logging/SKILL.md` | Log level guidance. |
 | `/casaflow:eng-testing` | `packs/engineering/skills/eng-testing/SKILL.md` | Test strategy. |
 

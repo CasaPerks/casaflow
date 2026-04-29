@@ -134,3 +134,37 @@ co-author: true
 auto-prompt: true      # Prompt for retro after finish/merge
 retro-dir: retros/
 ```
+
+## Feature Flags
+
+```yaml
+# Per-repo paths to the feature flag registry. eng-flags writes registry
+# entries to these paths and uses them for the repo-discovery infra check.
+# Add an entry per repo that participates in flag-gating.
+registry-paths:
+  CasaPerks-Web-React: src/services/posthog/feature-flags.ts
+  # Casaperks-Backend: <fill in once known>
+  # WorksPerks-Web-React: <fill in once known>
+
+# PostHog environments where flags must exist with matching key + default.
+# eng-flags creates the flag in each listed environment as one transaction.
+posthog-environments:
+  - dev
+  - production
+
+# MCP server name for PostHog flag operations. Used by eng-flags to invoke
+# create-feature-flag and equivalent tools.
+posthog-mcp-namespace: posthog
+```
+
+## Repos
+
+```yaml
+# Repos eng-flags will prompt for when a feature spans multiple surfaces.
+# A flag with shared key gets registry entries written into each touched repo.
+in-scope-for-flags:
+  - CasaPerks-Web-React
+  # - Casaperks-Backend
+  # - WorksPerks-Web-React
+  # Mobile clients are aspirational — see CAS-713 spec OQ #5.
+```

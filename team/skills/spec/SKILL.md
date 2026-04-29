@@ -190,7 +190,35 @@ What data flows through this feature? Draw it in words or pseudocode.
 If the developer can't answer, they don't understand the feature yet. Do not
 proceed to `/build` until this is answered.
 
-### 6. Open questions
+### 6. Feature Flag Decision
+
+Every spec records an explicit decision about feature flags. This is captured in two places: as YAML frontmatter at the top of `spec.md` (so downstream skills can parse it) AND as a human-readable section in the body.
+
+**The frontmatter contract** — written at the top of `spec.md` immediately after the title line:
+
+```yaml
+---
+flag:
+  decision: "yes" | "no" | "already-flagged"
+  semantics: kill-switch | adoption       # required if decision == yes
+  expected_sunset: YYYY-MM-DD             # required if decision == yes
+  touched_repos:                          # required if decision == yes
+    - CasaPerks-Web-React
+  reason: <one-line>                      # required if decision == no
+---
+```
+
+**The body section** — restates the decision in prose for human readers and captures any rationale that doesn't fit in the frontmatter.
+
+**Claude's job by branch:**
+
+- **User-facing UI features** → require `decision: yes` or `already-flagged`. Run the eng-flags concerns guidance (key naming, semantics choice, sunset date — see `packs/engineering/skills/eng-flags/SKILL.md`).
+- **Backend-only / internal config / docs-only** → `decision: no` is acceptable, but require a `reason` of at least 20 characters explaining why no flag is needed.
+- **Already-flagged** (the feature lives behind an existing flag being expanded) → record the existing flag key in the body section and skip eng-flags invocation in the build.
+
+**Red flag:** A `decision: no` with a one-character reason or whitespace-only reason. Reject and re-prompt.
+
+### 7. Open questions
 What does the developer not know yet? What assumptions are they making?
 
 **Claude's job**: Surface assumptions the developer hasn't made explicit.
@@ -254,6 +282,21 @@ pipeline (discover → brainstorm → plan → execute → review → ship → l
 ## Spec file format
 
 ```markdown
+---
+ticket: <TICKET-ID>                    # if a ticket exists
+ticket_url: <url>                       # if a ticket exists
+work_type: feature | improvement | bug | task
+date: YYYY-MM-DD
+flag:
+  decision: "yes" | "no" | "already-flagged"
+  # If decision == yes, also include:
+  semantics: kill-switch | adoption
+  expected_sunset: YYYY-MM-DD
+  touched_repos: [CasaPerks-Web-React, ...]
+  # If decision == no, also include:
+  reason: <one-line, ≥ 20 chars>
+---
+
 # Spec: [Feature Name]
 
 Date: YYYY-MM-DD
@@ -271,16 +314,17 @@ Date: YYYY-MM-DD
 - [What this explicitly does not do]
 
 ## Test Spec
-
 ### Criterion 1: [criterion text]
 - Happy path: [what success looks like in a test]
 - Failure path: [what failure looks like; what the system should do]
 - False positive check: [one way this test could pass when it shouldn't]
-
 ...
 
 ## Architecture Sketch
 [Files that change, data flow, pseudocode]
+
+## Feature Flag Decision
+[Restate the frontmatter decision in prose; include rationale.]
 
 ## Open Questions
 - [Assumption or unknown]

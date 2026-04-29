@@ -99,6 +99,39 @@ Tasks should be scoped so an engineer can complete one in a focused burst withou
 
 ---
 
+## Feature Flag Tasks
+
+Before writing tasks, read the YAML frontmatter at the top of `spec.md`. If `flag.decision` is `yes`, the plan must include flag-related tasks. If `flag.decision` is `no` or `already-flagged`, no flag tasks are emitted.
+
+When `flag.decision: yes`:
+
+1. **Emit the eng-flags task as Task #1** (the first task before any code-writing task that references the registry):
+
+   ````markdown
+   ### Task 1: Create the feature flag
+
+   **Files:**
+   - Modify: paths under each repo's configured `registry-paths` in casaflow.config.md
+
+   - [ ] **Step 1: Run /casaflow:eng-flags**
+
+   `eng-flags` runs the full creation flow: bulk consent prompt covering all touched repos and PostHog environments, MCP creation per environment with retry-once and manual fallback, registry writes per touched repo. See `packs/engineering/skills/eng-flags/SKILL.md`.
+
+   Verification: registry entry exists in each touched repo with the canonical key + JSDoc; PostHog flag exists in every environment in `posthog-environments`.
+
+   - [ ] **Step 2: Commit**
+   
+   eng-flags commits the registry writes itself with a `feat(scope): add <flag-key> feature flag` message. No manual commit step needed.
+   ````
+
+2. **Subsequent tasks reference the flag** by key. Code that gates behavior on the flag should be written after Task 1, not before.
+
+3. **Do not emit separate per-repo registry tasks.** eng-flags handles all registry writes atomically (spec criterion 9, design A6). Splitting them into separate tasks reintroduces the half-done state risk.
+
+If `casaflow.config.md > Repos > in-scope-for-flags` is empty when `flag.decision: yes`, plan generation must fail with a clear message: "no repos configured for flag scope; populate `in-scope-for-flags` before re-running plan."
+
+---
+
 ## Task Structure
 
 Every task follows this template:
