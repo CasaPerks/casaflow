@@ -204,6 +204,142 @@ If the project uses a worktree management command (check `casaflow.config.md` or
 
 ---
 
+### Step 6: Generate the shipped artifact (Options 1 and 2 only)
+
+**Skip this step for Option 3 (keep as-is) and Option 4 (discard).**
+
+For work that has actually shipped (merged locally or opened as PR), produce
+a `shipped.md` artifact that captures what was built vs what was planned.
+This is the document the developer will react to during the retro.
+
+#### Determine the casavault feature folder
+
+Read `vault-path` and `project-name` from `casaflow.config.md`. The feature
+folder follows the same pattern as `spec.md`:
+
+```
+<vault-path>/<project-name>/<feature-slug>/
+```
+
+The spec for this work should already be at:
+
+```
+<vault-path>/<project-name>/<feature-slug>/spec.md
+```
+
+If `spec.md` does not exist in the expected location, skip the shipped
+artifact step — there's nothing to diff against. Report:
+
+> "No spec.md found at <expected-path>. Skipping shipped artifact. Run
+> `/casaflow:retro` directly when you're ready."
+
+#### Generate shipped.md by diffing spec vs reality
+
+Compose `shipped.md` in the feature folder. The file is generated at finish
+time by diffing the spec against what actually shipped.
+
+Source the diff from:
+
+- **`spec.md`** in the casavault — the original intent
+- **`git log` and `git diff <base-branch>..HEAD`** — what changed in code
+- **PR description** (if Option 2) — for any decision summaries the developer wrote
+- **Recent conversation history** — for divergences that surfaced during the build (e.g., scope changes, AC adjustments, postponements)
+
+Write `shipped.md` with this structure:
+
+```markdown
+---
+ticket: <from spec frontmatter>
+ticket_url: <from spec frontmatter>
+work_type: <from spec frontmatter>
+spec_date: <from spec>
+shipped_date: <today>
+pr_url: <if Option 2>
+spawned_tickets: [<any new tickets created during the build>]
+---
+
+# Shipped: <Feature Name>
+
+Date shipped: <today> (<N days after spec>)
+
+## One-line set-out
+<First sentence of the spec's Feature Summary, restated as imperative>
+
+## One-line shipped
+<One sentence describing what actually shipped, with changed words highlighted via prose>
+
+## Divergences from spec
+### 1. <Label of divergence>
+**When:** <Day N · date>
+**Why:** <Rationale>
+**Spec section affected:** <Acceptance Criteria #N | Non-Goals | Architecture Sketch | ...>
+
+[Repeat for each divergence detected]
+
+## Acceptance criteria — final
+1. **KEPT:** / **CHANGED:** / **EXPANDED:** / **DROPPED → <ticket-id>:** / **NEW:** <criterion text>
+[Repeat for each AC, with status prefix]
+
+## Architecture — files actually touched
+| Status | File | Notes |
+|--------|------|-------|
+| NEW / EDIT | <path> | <notes; if file wasn't in spec architecture, mark as "Unplanned"> |
+
+Planned: <N> files. Touched: <M> files.
+
+## Tickets spawned
+- **<TICKET-ID>** — <title> (<reason>)
+[Repeat for each follow-up ticket created during the build]
+
+## Tests
+- <N> unit tests
+- <N> integration tests
+- <N> e2e tests
+- Mutation tested at <%>
+
+## Open questions emerging from build
+- <Question that surfaced during build and didn't have a follow-up ticket>
+```
+
+**Detecting divergences.** Walk the spec systematically:
+
+1. **AC by AC:** Compare each acceptance criterion in `spec.md` to the final
+   state. Did the threshold change? Did a channel get added? Did one get
+   dropped to a follow-up? Mark each as KEPT, CHANGED, EXPANDED, DROPPED,
+   or NEW.
+2. **Files:** Compare the spec's Architecture Sketch file list to the
+   actual touched files (`git diff --name-only <base-branch>..HEAD`).
+   Files in the spec but not touched: postponed. Files touched but not in
+   the spec: unplanned additions.
+3. **Open questions:** For each open question in the spec, did it get
+   resolved? If yes, how? If no, was a follow-up ticket created?
+4. **Non-goals:** Did any non-goal end up in scope? That's a divergence.
+5. **Feature flag:** Did the flag setup match the spec, or did it change
+   (e.g., one flag became two)?
+
+Be honest about divergences. They're not failures — they're the record of
+real-world build decisions. The retro needs to see them clearly to learn
+from them.
+
+If you can identify the date a divergence happened (from commit history or
+conversation context), include it. If you can't, omit the "When" line.
+
+#### Visualize the shipped artifact
+
+After writing `shipped.md`, invoke the visualize skill to produce
+`shipped.html`:
+
+```
+/casaflow:visualize <path-to-shipped.md>
+```
+
+The visualize skill renders `shipped.html` next to `shipped.md` and opens
+it in the developer's browser. It's a set-out-vs-shipped artifact with the
+divergence log laid out for easy scanning, no comprehension gate (the doc
+is a record, not a quiz).
+
+---
+
 ## Quick Reference
 
 | Option | Merge | Push | Keep Worktree | Cleanup Branch |
@@ -262,8 +398,15 @@ If the project uses a worktree management command (check `casaflow.config.md` or
 
 ## Post-Completion
 
-After the chosen option is executed and cleanup is done, suggest:
+After the chosen option is executed, cleanup is done, and (for Options 1 and 2) the shipped artifact is generated, suggest:
 
-> "Work complete. If this was a feature or complex improvement, consider running `/postmortem` to capture lessons learned."
+> "Work complete. `shipped.html` is open in your browser — it captures what
+> we built vs what we planned. When you're ready, run `/casaflow:retro` to
+> pick up from there. The retro won't start blank; it'll use the divergences
+> as a starting point."
 
-Do not auto-invoke the postmortem -- just suggest it.
+For Options 3 and 4, just suggest:
+
+> "Work complete. If this was a feature or complex improvement, consider running `/casaflow:postmortem` to capture lessons learned."
+
+Do not auto-invoke retro or postmortem -- just suggest.
