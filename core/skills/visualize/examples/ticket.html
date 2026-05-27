@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket — CAS-1284 — Reward Expiry Warnings</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elev: #161b22;
+      --bg-elev-2: #1c232d;
+      --border: #2a323d;
+      --border-strong: #3b4654;
+      --text: #e6edf3;
+      --text-dim: #8d96a0;
+      --text-faint: #5b6370;
+      --accent: #5eead4;
+      --accent-dim: #14b8a6;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --success: #4ade80;
+      --info: #93c5fd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    code, .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    code {
+      background: var(--bg-elev);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      border: 1px solid var(--border);
+    }
+
+    /* TOP BAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .brand {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .topbar-title { font-weight: 600; font-size: 14px; }
+    .topbar-ticket {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .topbar-ticket:hover {
+      color: var(--accent);
+      border-color: var(--accent-dim);
+    }
+    .topbar-ticket-arrow {
+      opacity: 0.5;
+      margin-left: 4px;
+      transition: opacity 0.15s;
+    }
+    .topbar-ticket:hover .topbar-ticket-arrow { opacity: 1; }
+    .hero-link {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted transparent;
+      transition: border-color 0.15s;
+    }
+    .hero-link:hover { border-bottom-color: var(--accent); }
+    .readiness {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .readiness-label {
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+    .readiness-bar {
+      width: 90px; height: 6px;
+      background: var(--bg-elev);
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .readiness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger), var(--warn) 50%, var(--success));
+      width: 10%;
+      transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    .readiness-pct {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text);
+      min-width: 30px;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 56px 32px 120px;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(140deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+    .hero-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    /* METADATA STRIP */
+    .meta-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .meta-pill strong {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    /* PREDICTION CARD */
+    .prediction-card {
+      margin-top: 6px;
+      padding: 22px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      transition: opacity 0.3s, transform 0.3s, max-height 0.5s;
+    }
+    .prediction-card.hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      overflow: hidden;
+    }
+    .prediction-label {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .prediction-q {
+      font-size: 16px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .prediction-hint {
+      font-size: 13px;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+    }
+    .prediction-input {
+      width: 100%;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 11px 13px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 60px;
+      transition: border-color 0.2s;
+    }
+    .prediction-input:focus { outline: none; border-color: var(--accent); }
+    .reveal-btn {
+      margin-top: 14px;
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: transform 0.15s, background 0.2s;
+    }
+    .reveal-btn:hover { background: #7df3dc; transform: translateY(-1px); }
+    .reveal-btn:active { transform: translateY(0); }
+
+    /* ALIGNMENT COMPARE */
+    .alignment {
+      margin-top: 6px;
+      display: none;
+      animation: slidein 0.4s ease;
+    }
+    .alignment.show { display: block; }
+    @keyframes slidein {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .alignment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .alignment-grid { grid-template-columns: 1fr; }
+    }
+    .read-card {
+      padding: 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .read-card.yours { border-left: 3px solid var(--info); }
+    .read-card.claudes { border-left: 3px solid var(--accent); }
+    .read-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .read-card.yours .read-label { color: var(--info); }
+    .read-card.claudes .read-label { color: var(--accent); }
+    .read-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .compare-note {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(147, 197, 253, 0.05);
+      border: 1px solid rgba(147, 197, 253, 0.2);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .compare-note strong { color: var(--info); }
+
+    /* GAPS PANEL — the headline value */
+    .gaps-panel {
+      background: rgba(251, 191, 36, 0.05);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 14px;
+      padding: 26px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .gaps-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .gaps-title {
+      color: var(--warn);
+      font-weight: 700;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .gaps-count {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--warn);
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .gaps-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+    }
+    .gap {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .gap:last-child { margin-bottom: 0; }
+    .gap-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--warn);
+      font-weight: 700;
+      flex-shrink: 0;
+      width: 24px;
+      padding-top: 1px;
+    }
+    .gap-body strong {
+      color: var(--text);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .gap-body { color: var(--text-dim); }
+
+    /* SECTIONS (pulls) */
+    .section {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .section.opened { border-color: var(--border-strong); }
+    .section.opened .section-header { border-bottom: 1px solid var(--border); }
+    .section-header {
+      padding: 16px 22px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: var(--bg-elev-2); }
+    .section-title {
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+    .section-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-pull {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: ui-monospace, monospace;
+    }
+    .section-chevron {
+      color: var(--text-dim);
+      font-size: 11px;
+      transition: transform 0.25s ease;
+      width: 14px; text-align: center;
+    }
+    .section.opened .section-chevron { transform: rotate(90deg); color: var(--accent); }
+    .section.opened .section-num { color: var(--accent); }
+    .section-body {
+      padding: 0 22px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .section.opened .section-body {
+      padding: 20px 22px 22px;
+      max-height: 3000px;
+    }
+
+    /* AC LIST */
+    .ac-item {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .ac-item:last-child { margin-bottom: 0; }
+    .ac-text {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .ac-note {
+      font-size: 12px;
+      color: var(--warn);
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .ac-note-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .ac-note-text { color: var(--text-dim); }
+
+    /* ORIGINAL DESCRIPTION */
+    .description {
+      background: var(--bg);
+      border-left: 3px solid var(--text-faint);
+      padding: 16px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      white-space: pre-line;
+    }
+
+    /* CONTEXT */
+    .context-row {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 13px;
+    }
+    .context-row:last-child { border-bottom: 0; }
+    .context-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      min-width: 110px;
+      padding-top: 3px;
+    }
+    .context-value { color: var(--text-dim); flex: 1; }
+    .context-value strong { color: var(--text); font-weight: 500; }
+
+    /* HANDOFF CARD */
+    .handoff {
+      margin-top: 28px;
+      padding: 24px 26px;
+      background: linear-gradient(140deg, var(--bg-elev), var(--bg-elev-2));
+      border: 1px solid var(--accent-dim);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .handoff-text { flex: 1; }
+    .handoff-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .handoff-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .handoff-cmd {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      padding: 8px 14px;
+      border-radius: 6px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 48px;
+      padding: 28px 0 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .footer code { font-size: 11px; }
+
+    /* PRE-REVEAL LOCK */
+    .pre-reveal .section,
+    .pre-reveal .gaps-panel,
+    .pre-reveal .handoff {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: blur(0.5px);
+      transition: opacity 0.5s, filter 0.5s;
+    }
+  </style>
+</head>
+<body class="pre-reveal">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand">CasaFlow</div>
+    <div class="topbar-title">Ticket brief</div>
+    <a class="topbar-ticket" href="https://casaperks.atlassian.net/browse/CAS-1284" target="_blank" rel="noopener">CAS-1284<span class="topbar-ticket-arrow">&#x2197;</span></a>
+  </div>
+  <div class="readiness">
+    <span class="readiness-label">Briefed</span>
+    <div class="readiness-bar"><div class="readiness-fill" id="readiness-fill"></div></div>
+    <span class="readiness-pct" id="readiness-pct">10%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Ticket brief · pulled 2026-05-27 · <a class="hero-link" href="https://casaperks.atlassian.net/browse/CAS-1284" target="_blank" rel="noopener">view on Jira &#x2197;</a></div>
+    <div class="hero-title">Reward expiry warnings</div>
+
+    <div class="meta-strip">
+      <span class="meta-pill"><strong>Type</strong> Story</span>
+      <span class="meta-pill"><strong>Priority</strong> Medium</span>
+      <span class="meta-pill"><strong>Reporter</strong> Sara Kim · Product</span>
+      <span class="meta-pill"><strong>Status</strong> To Do</span>
+      <span class="meta-pill"><strong>Age</strong> 5 days</span>
+    </div>
+
+    <div class="prediction-card" id="prediction-card">
+      <div class="prediction-label">Before the spec interview</div>
+      <div class="prediction-q">In one sentence, what is this ticket actually asking for?</div>
+      <div class="prediction-hint">Your read first, then Claude's. If they don't line up, it's the most valuable thing you'll catch today.</div>
+      <textarea class="prediction-input" id="prediction-input" placeholder="One sentence. Your interpretation of the ask."></textarea>
+      <button class="reveal-btn" id="reveal-btn">Compare reads</button>
+    </div>
+
+    <div class="alignment" id="alignment">
+      <div class="alignment-grid">
+        <div class="read-card yours">
+          <div class="read-label">Your read</div>
+          <div class="read-text" id="user-read"></div>
+        </div>
+        <div class="read-card claudes">
+          <div class="read-label">Claude's read</div>
+          <div class="read-text">Notify users when their CasaPerks rewards are about to expire so they can use them before they're gone.</div>
+        </div>
+      </div>
+      <div class="compare-note">
+        <strong>Compare them.</strong> If your read is materially different from Claude's, re-read the ticket description below before starting the spec interview. The most expensive bugs come from building the wrong thing — not from building the right thing wrong.
+      </div>
+    </div>
+  </div>
+
+  <!-- GAPS PANEL (always visible after reveal) -->
+  <div class="gaps-panel">
+    <div class="gaps-header">
+      <div class="gaps-title">Gaps to fill during spec</div>
+      <div class="gaps-count">8 unresolved</div>
+    </div>
+    <div class="gaps-subtitle">
+      Each item is a decision the ticket doesn't make. Claude will push on every one during the spec interview — having a draft answer ready makes that conversation much shorter.
+    </div>
+
+    <div class="gap">
+      <div class="gap-num">01</div>
+      <div class="gap-body"><strong>AC #1 has no threshold.</strong> "Expiring" within how many days? 3? 7? 14? Pick a number.</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">02</div>
+      <div class="gap-body"><strong>AC #2 doesn't specify channel.</strong> Push, email, in-app banner, or all three? Description hints at push but doesn't commit.</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">03</div>
+      <div class="gap-body"><strong>AC #3 is undefined.</strong> "Not too aggressive" has no concrete bound. One push? One per week? Quiet hours?</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">04</div>
+      <div class="gap-body"><strong>Multiple expiring rewards.</strong> Description flags this as a concern but doesn't resolve it — batch into one notification, or send N separate ones?</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">05</div>
+      <div class="gap-body"><strong>Timezone is deferred to "eng."</strong> Description says "I'll let eng figure that out." This is a product decision dressed as an engineering decision. Push back during the spec.</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">06</div>
+      <div class="gap-body"><strong>Expired rewards aren't covered.</strong> Ticket only addresses the warning. What happens after expiry — disappear, move to a section, stay with a label?</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">07</div>
+      <div class="gap-body"><strong>No design reference.</strong> No Figma link or design system pattern for the warning UI. Confirm before implementation.</div>
+    </div>
+    <div class="gap">
+      <div class="gap-num">08</div>
+      <div class="gap-body"><strong>No success metric.</strong> "Fewer support tickets" — by what percentage? Ask Sara before spec, not after ship.</div>
+    </div>
+  </div>
+
+  <!-- 01 STATED AC -->
+  <div class="section" data-section="ac">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <span>Acceptance criteria as written</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">3 criteria · all vague</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="ac-item">
+        <div class="ac-text">1. Users see warnings for expiring rewards.</div>
+        <div class="ac-note">
+          <span class="ac-note-tag">VAGUE</span>
+          <span class="ac-note-text">"Warnings" undefined (banner? toast? push?) and "expiring" undefined (when?). Both need a concrete answer in the spec.</span>
+        </div>
+      </div>
+      <div class="ac-item">
+        <div class="ac-text">2. Notifications work.</div>
+        <div class="ac-note">
+          <span class="ac-note-tag">UNTESTABLE</span>
+          <span class="ac-note-text">"Work" isn't a measurable outcome. Spec should restate as e.g. "push delivered within X minutes of cron run."</span>
+        </div>
+      </div>
+      <div class="ac-item">
+        <div class="ac-text">3. Don't be too aggressive about it.</div>
+        <div class="ac-note">
+          <span class="ac-note-tag">VAGUE</span>
+          <span class="ac-note-text">No bound. Needs a concrete cap (e.g. one push per reward per week, quiet hours 9pm–8am local).</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 ORIGINAL DESCRIPTION -->
+  <div class="section" data-section="description">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <span>Original description</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">verbatim from Jira</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="description">Users are complaining that their CasaPerks rewards expire without warning. Support is getting 5-10 tickets per week about this, mostly "I had points/perks I didn't know about and now they're gone."
+
+We should let users know before rewards expire so they can actually use them. Banner in the app or notification or something — push would be ideal, maybe email too. We should think about how to handle multiple rewards expiring at once so we're not blasting people.
+
+The timezone thing might be an issue but I'll let eng figure that out.
+
+AC:
+- Users see warnings for expiring rewards
+- Notifications work
+- Don't be too aggressive about it</div>
+    </div>
+  </div>
+
+  <!-- 03 CONTEXT -->
+  <div class="section" data-section="context">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <span>Context</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">reporter · comments · links</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="context-row">
+        <div class="context-label">Reporter</div>
+        <div class="context-value"><strong>Sara Kim</strong> · Product. Mentioned this in stakeholder review; retention is the driver. Worth checking whether retention has a metric attached.</div>
+      </div>
+      <div class="context-row">
+        <div class="context-label">Linked tickets</div>
+        <div class="context-value">None.</div>
+      </div>
+      <div class="context-row">
+        <div class="context-label">Mentioned but unlinked</div>
+        <div class="context-value">"5-10 support tickets per week." Worth asking support for 2-3 representative ones to ground the spec in real complaints.</div>
+      </div>
+      <div class="context-row">
+        <div class="context-label">Comments</div>
+        <div class="context-value"><strong>2026-05-23 · Sara Kim:</strong> "Let's get a quick spec on this before next sprint planning."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HANDOFF -->
+  <div class="handoff">
+    <div class="handoff-text">
+      <div class="handoff-title">Ready to spec?</div>
+      <div class="handoff-sub">Return to your terminal — Claude is waiting to start the interview with the gaps above as the structural questions.</div>
+    </div>
+    <div class="handoff-cmd">/casaflow:spec CAS-1284</div>
+  </div>
+
+  <div class="footer">
+    Generated by <code>/casaflow:visualize</code> from <code>ticket.md</code>.<br/>
+    Pulled from Jira at 2026-05-27 14:32. Re-run <code>/casaflow:spec CAS-1284</code> to refresh.
+  </div>
+</div>
+
+<script>
+  const revealBtn = document.getElementById('reveal-btn');
+  const predictionInput = document.getElementById('prediction-input');
+  const predictionCard = document.getElementById('prediction-card');
+  const alignment = document.getElementById('alignment');
+  const userRead = document.getElementById('user-read');
+
+  let readiness = 10;
+  const opened = new Set();
+
+  function setReadiness(val) {
+    readiness = Math.min(100, Math.max(0, val));
+    document.getElementById('readiness-fill').style.width = readiness + '%';
+    document.getElementById('readiness-pct').textContent = readiness + '%';
+  }
+
+  revealBtn.addEventListener('click', () => {
+    const guess = predictionInput.value.trim();
+    if (!guess) {
+      predictionInput.focus();
+      predictionInput.style.borderColor = 'var(--warn)';
+      setTimeout(() => predictionInput.style.borderColor = '', 1500);
+      return;
+    }
+    userRead.textContent = guess;
+    predictionCard.classList.add('hidden');
+    setTimeout(() => {
+      alignment.classList.add('show');
+      document.body.classList.remove('pre-reveal');
+    }, 250);
+    setReadiness(readiness + 25);
+  });
+
+  document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      if (document.body.classList.contains('pre-reveal')) return;
+      const section = header.parentElement;
+      const key = section.dataset.section;
+      section.classList.toggle('opened');
+      if (section.classList.contains('opened') && !opened.has(key)) {
+        opened.add(key);
+        setReadiness(readiness + 20);
+      }
+    });
+  });
+
+  setReadiness(10);
+</script>
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spec — Reward Expiry Warnings</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elev: #161b22;
+      --bg-elev-2: #1c232d;
+      --border: #2a323d;
+      --border-strong: #3b4654;
+      --text: #e6edf3;
+      --text-dim: #8d96a0;
+      --text-faint: #5b6370;
+      --accent: #5eead4;
+      --accent-dim: #14b8a6;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    code, .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    code {
+      background: var(--bg-elev);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      border: 1px solid var(--border);
+    }
+
+    /* TOP BAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .brand {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .topbar-title { font-weight: 600; font-size: 14px; }
+    .topbar-ticket {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .readiness {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .readiness-label {
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+    .readiness-bar {
+      width: 90px; height: 6px;
+      background: var(--bg-elev);
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .readiness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger), var(--warn) 50%, var(--success));
+      width: 10%;
+      transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    .readiness-pct {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text);
+      min-width: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 32px 160px;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(140deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+    .hero-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+    .hero-summary {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+    .hero-summary.show {
+      max-height: 400px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+
+    /* PREDICTION CARD */
+    .prediction-card {
+      margin-top: 26px;
+      padding: 22px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .prediction-card.hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      overflow: hidden;
+    }
+    .prediction-label {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .prediction-q {
+      font-size: 16px;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+    .prediction-hint {
+      font-size: 13px;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+    }
+    .prediction-input {
+      width: 100%;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 11px 13px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 64px;
+      transition: border-color 0.2s;
+    }
+    .prediction-input:focus { outline: none; border-color: var(--accent); }
+    .reveal-btn {
+      margin-top: 14px;
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: transform 0.15s, background 0.2s;
+    }
+    .reveal-btn:hover { background: #7df3dc; transform: translateY(-1px); }
+    .reveal-btn:active { transform: translateY(0); }
+
+    .prediction-revealed {
+      margin-top: 18px;
+      padding: 18px;
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      display: none;
+      animation: slidein 0.4s ease;
+    }
+    .prediction-revealed.show { display: block; }
+    @keyframes slidein {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pred-row {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .pred-row:last-child { margin-bottom: 0; }
+    .pred-row strong {
+      color: var(--accent);
+      font-weight: 600;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .pred-row span { color: var(--text-dim); }
+
+    /* SECTIONS */
+    .section {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .section.opened { border-color: var(--border-strong); }
+    .section.opened .section-header { border-bottom: 1px solid var(--border); }
+    .section-header {
+      padding: 18px 24px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: var(--bg-elev-2); }
+    .section-title {
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+    .section-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-pull {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: ui-monospace, monospace;
+    }
+    .section-chevron {
+      color: var(--text-dim);
+      font-size: 11px;
+      transition: transform 0.25s ease;
+      width: 14px; text-align: center;
+    }
+    .section.opened .section-chevron { transform: rotate(90deg); color: var(--accent); }
+    .section.opened .section-num { color: var(--accent); }
+    .section-body {
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .section.opened .section-body {
+      padding: 22px 24px 26px;
+      max-height: 5000px;
+    }
+
+    /* CRITERIA */
+    .criterion {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .criterion:last-child { margin-bottom: 0; }
+    .criterion-num {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* NON-GOALS */
+    .nongoal {
+      padding: 12px 16px;
+      background: rgba(248, 113, 113, 0.05);
+      border-left: 3px solid var(--danger);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .nongoal:last-child { margin-bottom: 0; }
+    .nongoal-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--danger);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+
+    /* TEST GRID */
+    .test-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .test-cell {
+      background: var(--bg);
+      padding: 13px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .test-header-cell {
+      background: var(--bg-elev-2);
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 11px 14px;
+    }
+    .test-header-happy { color: var(--success); }
+    .test-header-fail { color: var(--warn); }
+    .test-header-fp { color: var(--danger); }
+    .test-criterion-cell {
+      background: var(--bg-elev);
+      font-weight: 500;
+    }
+    .test-criterion-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    /* ARCHITECTURE */
+    .filetree {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .file-row {
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+    }
+    .file-row + .file-row { border-top: 1px dashed var(--border); }
+    .file-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      min-width: 46px;
+      text-align: center;
+    }
+    .file-new { background: rgba(74, 222, 128, 0.12); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .file-edit { background: rgba(251, 191, 36, 0.12); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .file-path { color: var(--text); }
+    .file-desc {
+      color: var(--text-faint);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      margin-left: auto;
+      font-style: italic;
+    }
+    .arch-prose {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    /* FLAG */
+    .flag-block {
+      padding: 18px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 18px;
+    }
+    .flag-field-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      letter-spacing: 0.1em;
+      margin-bottom: 5px;
+    }
+    .flag-field-value { font-size: 14px; font-weight: 500; }
+    .flag-yes {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    /* OPEN QUESTIONS */
+    .questions {
+      background: rgba(251, 191, 36, 0.04);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .questions-title {
+      color: var(--warn);
+      font-weight: 700;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
+    }
+    .question {
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .question:last-child { margin-bottom: 0; }
+    .question-label {
+      color: var(--warn);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 56px;
+      padding: 32px 0 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .footer code { font-size: 11px; }
+
+    /* Reveal animation */
+    .section { opacity: 1; }
+    .pre-reveal .section { opacity: 0.35; pointer-events: none; transition: opacity 0.5s; }
+  </style>
+</head>
+<body class="pre-reveal">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand">CasaFlow</div>
+    <div class="topbar-title">Reward Expiry Warnings</div>
+    <div class="topbar-ticket">CAS-1284</div>
+  </div>
+  <div class="readiness">
+    <span class="readiness-label">3am readiness</span>
+    <div class="readiness-bar"><div class="readiness-fill" id="readiness-fill"></div></div>
+    <span class="readiness-pct" id="readiness-pct">10%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Feature spec · 2026-05-27</div>
+    <div class="hero-title">Warn users about rewards expiring within 7 days.</div>
+    <div class="hero-summary" id="hero-summary">
+      Currently rewards silently expire — users open the app, find a perk gone, and email support. This change surfaces upcoming expiry in the rewards list and (for users with push enabled) sends a 3-day-out notification. Expired rewards move into a collapsed "Expired" section instead of being hidden.
+    </div>
+
+    <div class="prediction-card" id="prediction-card">
+      <div class="prediction-label">Before you read further</div>
+      <div class="prediction-q">What do you think the trickiest part of this feature will be?</div>
+      <div class="prediction-hint">One line is fine. You don't have to be right — guessing is the point.</div>
+      <textarea class="prediction-input" id="prediction-input" placeholder="e.g. timezones, batching pushes, race with the cron…"></textarea>
+      <button class="reveal-btn" id="reveal-btn">Reveal spec</button>
+    </div>
+
+    <div class="prediction-revealed" id="prediction-revealed">
+      <div class="pred-row">
+        <strong>Your guess</strong>
+        <span id="user-guess"></span>
+      </div>
+      <div class="pred-row">
+        <strong>Author's call</strong>
+        <span>Timezone handling for "within 7 days" — see open question #1. We hadn't decided this when the spec was written, so it's still unresolved.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01 CRITERIA -->
+  <div class="section" data-section="criteria">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <span>Acceptance criteria</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">4 criteria</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="criterion">
+        <div class="criterion-num">CRIT-1</div>
+        Given a reward expiring within 7 days, when the user opens the rewards list, then a warning banner appears anchored to that reward.
+      </div>
+      <div class="criterion">
+        <div class="criterion-num">CRIT-2</div>
+        Given a user with push notifications enabled and a reward expiring in exactly 3 days, when the daily expiry cron runs, then a push notification is queued via the existing notification service.
+      </div>
+      <div class="criterion">
+        <div class="criterion-num">CRIT-3</div>
+        Given a reward past its expiry date, when the rewards list loads, then the reward appears under a collapsed "Expired" section rather than the main list.
+      </div>
+      <div class="criterion">
+        <div class="criterion-num">CRIT-4</div>
+        Given the <code>reward-expiry-warnings</code> flag is off, when any of the above runs, then behavior matches current production exactly.
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 NON-GOALS -->
+  <div class="section" data-section="nongoals">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <span>Non-goals</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">3 items</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="nongoal">
+        <span class="nongoal-tag">NOT</span>
+        <span>Email expiry warnings. Push only for this iteration.</span>
+      </div>
+      <div class="nongoal">
+        <span class="nongoal-tag">NOT</span>
+        <span>User-configurable warning thresholds (e.g. "warn me 14 days out").</span>
+      </div>
+      <div class="nongoal">
+        <span class="nongoal-tag">NOT</span>
+        <span>Reactivating expired rewards. Expired stays expired.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 TEST SPEC -->
+  <div class="section" data-section="tests">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <span>Test spec</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">happy · failure · false-positive</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="test-grid">
+        <div class="test-cell test-header-cell">Criterion</div>
+        <div class="test-cell test-header-cell test-header-happy">Happy path</div>
+        <div class="test-cell test-header-cell test-header-fail">Failure path</div>
+        <div class="test-cell test-header-cell test-header-fp">False positive</div>
+
+        <div class="test-cell test-criterion-cell">
+          <div class="test-criterion-label">CRIT-1</div>
+          Banner appears
+        </div>
+        <div class="test-cell">Reward expiring in 6 days → banner renders with "Expires in 6 days".</div>
+        <div class="test-cell">Reward already expired → banner does NOT render (it's in the Expired section).</div>
+        <div class="test-cell">Mock the date to make every reward "expiring soon" — banner should NOT render on rewards 8+ days out.</div>
+
+        <div class="test-cell test-criterion-cell">
+          <div class="test-criterion-label">CRIT-2</div>
+          Push notif
+        </div>
+        <div class="test-cell">User with push enabled, reward expiring exactly 3 days out → one push queued.</div>
+        <div class="test-cell">User with push disabled → no push queued, no error.</div>
+        <div class="test-cell">Cron ran twice in one day — second run should not double-send.</div>
+
+        <div class="test-cell test-criterion-cell">
+          <div class="test-criterion-label">CRIT-3</div>
+          Expired section
+        </div>
+        <div class="test-cell">Past-expiry reward → renders under "Expired", section collapsed by default.</div>
+        <div class="test-cell">No expired rewards → "Expired" section does not render at all.</div>
+        <div class="test-cell">Reward expiring today at 23:59 — should still be active, not in Expired.</div>
+
+        <div class="test-cell test-criterion-cell">
+          <div class="test-criterion-label">CRIT-4</div>
+          Flag off
+        </div>
+        <div class="test-cell">Flag off → list renders identical to current production snapshot.</div>
+        <div class="test-cell">Flag flips off mid-session → next render reverts cleanly.</div>
+        <div class="test-cell">Flag check evaluates to "expired" (falsy) → must not pass as "on".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 ARCHITECTURE -->
+  <div class="section" data-section="architecture">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">04</span>
+        <span>Architecture sketch</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">2 repos · 4 files</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="filetree">
+        <div class="file-row">
+          <span class="file-tag file-new">NEW</span>
+          <span class="file-path">CasaPerks-Web-React/src/components/rewards/ExpiryBanner.tsx</span>
+          <span class="file-desc">renders the warning row</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-edit">EDIT</span>
+          <span class="file-path">CasaPerks-Web-React/src/components/rewards/RewardsList.tsx</span>
+          <span class="file-desc">splits into Active / Expired</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-new">NEW</span>
+          <span class="file-path">CasaPerks-API/jobs/reward-expiry-notifier.ts</span>
+          <span class="file-desc">daily cron, queues pushes</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-edit">EDIT</span>
+          <span class="file-path">CasaPerks-Shared/rewards.ts</span>
+          <span class="file-desc">adds isExpiringSoon()</span>
+        </div>
+      </div>
+      <div class="arch-prose">
+        <strong style="color: var(--text);">Data flow:</strong> cron reads <code>rewards</code> table → filters where <code>expires_at</code> is exactly 3 days out → batches by user → calls existing notification service. Frontend reads same <code>expires_at</code>, evaluates against client clock, renders banner.
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 FEATURE FLAG -->
+  <div class="section" data-section="flag">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">05</span>
+        <span>Feature flag</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">adoption · sunset 2026-09-30</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="flag-block">
+        <div>
+          <div class="flag-field-label">Decision</div>
+          <div class="flag-field-value flag-yes">YES</div>
+        </div>
+        <div>
+          <div class="flag-field-label">Semantics</div>
+          <div class="flag-field-value">adoption</div>
+        </div>
+        <div>
+          <div class="flag-field-label">Key</div>
+          <div class="flag-field-value mono" style="font-size: 12px;">reward-expiry-warnings</div>
+        </div>
+        <div>
+          <div class="flag-field-label">Sunset</div>
+          <div class="flag-field-value">2026-09-30</div>
+        </div>
+        <div>
+          <div class="flag-field-label">Touched repos</div>
+          <div class="flag-field-value">Web-React, API</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 OPEN QUESTIONS -->
+  <div class="section" data-section="questions">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">06</span>
+        <span>Open questions</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">3 unresolved · before /build</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="questions">
+        <div class="questions-title">Unresolved before build</div>
+        <div class="question">
+          <span class="question-label">1. Timezone.</span> Do we evaluate "within 7 days" in the user's local timezone or UTC? Affects users near the boundary at midnight.
+        </div>
+        <div class="question">
+          <span class="question-label">2. Batching.</span> If a user has 5 rewards all expiring within 3 days, do they get 5 pushes or one batched push?
+        </div>
+        <div class="question">
+          <span class="question-label">3. Banner component.</span> Does the design system already have a warning banner pattern we should reuse, or do we ship a new one?
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by <code>/casaflow:visualize</code> from <code>spec.md</code>.<br/>
+    The markdown file is the source of truth — this is a derived view.
+  </div>
+</div>
+
+<script>
+  const revealBtn = document.getElementById('reveal-btn');
+  const predictionInput = document.getElementById('prediction-input');
+  const predictionCard = document.getElementById('prediction-card');
+  const predictionRevealed = document.getElementById('prediction-revealed');
+  const userGuess = document.getElementById('user-guess');
+  const heroSummary = document.getElementById('hero-summary');
+
+  let readiness = 10;
+  const opened = new Set();
+
+  function setReadiness(val) {
+    readiness = Math.min(100, Math.max(0, val));
+    document.getElementById('readiness-fill').style.width = readiness + '%';
+    document.getElementById('readiness-pct').textContent = readiness + '%';
+  }
+
+  revealBtn.addEventListener('click', () => {
+    const guess = predictionInput.value.trim();
+    if (!guess) {
+      predictionInput.focus();
+      predictionInput.style.borderColor = 'var(--warn)';
+      setTimeout(() => predictionInput.style.borderColor = '', 1500);
+      return;
+    }
+    userGuess.textContent = guess;
+    predictionCard.classList.add('hidden');
+    setTimeout(() => {
+      predictionRevealed.classList.add('show');
+      heroSummary.classList.add('show');
+      document.body.classList.remove('pre-reveal');
+    }, 250);
+    setReadiness(readiness + 15);
+  });
+
+  document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      if (document.body.classList.contains('pre-reveal')) return;
+      const section = header.parentElement;
+      const key = section.dataset.section;
+      section.classList.toggle('opened');
+      if (section.classList.contains('opened') && !opened.has(key)) {
+        opened.add(key);
+        setReadiness(readiness + 12);
+      }
+    });
+  });
+
+  setReadiness(10);
+</script>
+</body>
+</html>
