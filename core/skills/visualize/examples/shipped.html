@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipped — Reward Expiry Warnings</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elev: #161b22;
+      --bg-elev-2: #1c232d;
+      --border: #2a323d;
+      --border-strong: #3b4654;
+      --text: #e6edf3;
+      --text-dim: #8d96a0;
+      --text-faint: #5b6370;
+      --accent: #5eead4;
+      --accent-dim: #14b8a6;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --success: #4ade80;
+      --info: #93c5fd;
+      --purple: #c4b5fd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+    code {
+      background: var(--bg-elev);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      border: 1px solid var(--border);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* TOP BAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .brand {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .topbar-title { font-weight: 600; font-size: 14px; }
+    .shipped-badge {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--success);
+      padding: 3px 8px;
+      background: rgba(74, 222, 128, 0.1);
+      border-radius: 4px;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    .topbar-ticket {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .topbar-ticket:hover { color: var(--accent); border-color: var(--accent-dim); text-decoration: none; }
+    .topbar-ticket-arrow { opacity: 0.5; margin-left: 4px; }
+    .topbar-ticket:hover .topbar-ticket-arrow { opacity: 1; }
+
+    .readiness { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-dim); }
+    .readiness-label {
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+    .readiness-bar {
+      width: 90px; height: 6px;
+      background: var(--bg-elev);
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .readiness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger), var(--warn) 50%, var(--success));
+      width: 10%;
+      transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    .readiness-pct {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text);
+      min-width: 30px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 56px 32px 120px;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(140deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--success), transparent);
+      opacity: 0.5;
+    }
+    .hero-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--success);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+    .hero-link {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted transparent;
+      transition: border-color 0.15s;
+    }
+    .hero-link:hover { border-bottom-color: var(--accent); text-decoration: none; }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    /* SET-OUT vs SHIPPED comparison */
+    .versus {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 720px) {
+      .versus { grid-template-columns: 1fr; }
+      .versus-arrow { display: none; }
+    }
+    .versus-card {
+      padding: 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .versus-setout { border-left: 3px solid var(--text-faint); }
+    .versus-shipped { border-left: 3px solid var(--success); }
+    .versus-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .versus-setout .versus-label { color: var(--text-faint); }
+    .versus-shipped .versus-label { color: var(--success); }
+    .versus-text { font-size: 14.5px; line-height: 1.55; color: var(--text); }
+    .versus-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+      font-family: ui-monospace, monospace;
+      font-size: 18px;
+    }
+
+    .delta-line {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 22px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .delta-pill {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--warn);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      font-weight: 600;
+    }
+
+
+    /* DIVERGENCE PANEL */
+    .divergences {
+      background: rgba(196, 181, 253, 0.04);
+      border: 1px solid rgba(196, 181, 253, 0.25);
+      border-radius: 14px;
+      padding: 26px;
+      margin-bottom: 24px;
+    }
+    .div-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .div-title {
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .div-count {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--purple);
+      background: rgba(196, 181, 253, 0.1);
+      border: 1px solid rgba(196, 181, 253, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .div-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+    }
+    .divergence {
+      padding: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .divergence:last-child { margin-bottom: 0; }
+    .div-row-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .div-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--purple);
+      font-weight: 700;
+      width: 24px;
+    }
+    .div-label {
+      font-weight: 600;
+      font-size: 14.5px;
+      flex: 1;
+    }
+    .div-when {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .div-why {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      padding-left: 36px;
+    }
+    .div-why strong { color: var(--text); font-weight: 500; }
+
+    /* SECTIONS (pulls) */
+    .section {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .section.opened { border-color: var(--border-strong); }
+    .section.opened .section-header { border-bottom: 1px solid var(--border); }
+    .section-header {
+      padding: 16px 22px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: var(--bg-elev-2); }
+    .section-title {
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+    .section-right { display: flex; align-items: center; gap: 14px; }
+    .section-pull {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: ui-monospace, monospace;
+    }
+    .section-chevron {
+      color: var(--text-dim);
+      font-size: 11px;
+      transition: transform 0.25s ease;
+      width: 14px; text-align: center;
+    }
+    .section.opened .section-chevron { transform: rotate(90deg); color: var(--accent); }
+    .section.opened .section-num { color: var(--accent); }
+    .section-body {
+      padding: 0 22px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .section.opened .section-body {
+      padding: 20px 22px 22px;
+      max-height: 4000px;
+    }
+
+    /* AC DIFF */
+    .ac-row {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .ac-row:last-child { margin-bottom: 0; }
+    .ac-status {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .ac-kept { background: rgba(141, 150, 160, 0.1); color: var(--text-dim); border: 1px solid var(--border); }
+    .ac-changed { background: rgba(251, 191, 36, 0.1); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .ac-expanded { background: rgba(94, 234, 212, 0.1); color: var(--accent); border: 1px solid rgba(94, 234, 212, 0.3); }
+    .ac-dropped { background: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+    .ac-new { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .ac-detail-original {
+      font-size: 13px;
+      color: var(--text-faint);
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .ac-detail-final {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .ac-detail-final strong { color: var(--warn); font-weight: 600; }
+    .ac-detail-meta {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-faint);
+      font-family: ui-monospace, monospace;
+    }
+
+    /* ARCHITECTURE DIFF */
+    .arch-summary {
+      display: flex;
+      gap: 22px;
+      margin-bottom: 14px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .arch-stat-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+    .arch-stat-value { font-size: 18px; font-weight: 700; }
+    .arch-stat-delta { color: var(--warn); font-size: 13px; margin-left: 6px; font-family: ui-monospace, monospace; }
+
+    .file-row {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .file-row:last-child { margin-bottom: 0; }
+    .file-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      min-width: 92px;
+      text-align: center;
+    }
+    .file-asplanned { background: rgba(141, 150, 160, 0.1); color: var(--text-dim); border: 1px solid var(--border); }
+    .file-modified { background: rgba(251, 191, 36, 0.1); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .file-unplanned { background: rgba(74, 222, 128, 0.1); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .file-path { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-note {
+      color: var(--text-faint);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    /* SPAWNED TICKETS */
+    .ticket-row {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .ticket-row:last-child { margin-bottom: 0; }
+    .ticket-id {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--accent);
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border-radius: 4px;
+      border: 1px solid var(--accent-dim);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .ticket-id:hover { background: var(--bg-elev-2); text-decoration: none; }
+    .ticket-title { font-size: 14px; flex: 1; }
+    .ticket-reason {
+      font-size: 12px;
+      color: var(--text-faint);
+      font-family: ui-monospace, monospace;
+      flex-shrink: 0;
+    }
+
+    /* OPEN QUESTIONS — resolved vs emerged */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 720px) { .questions-grid { grid-template-columns: 1fr; } }
+    .questions-col {
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .questions-col.resolved { border-left: 3px solid var(--success); }
+    .questions-col.emerged { border-left: 3px solid var(--warn); }
+    .questions-col-title {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .questions-col.resolved .questions-col-title { color: var(--success); }
+    .questions-col.emerged .questions-col-title { color: var(--warn); }
+    .q-item {
+      font-size: 13px;
+      line-height: 1.55;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      color: var(--text-dim);
+    }
+    .q-item:last-child { border-bottom: 0; }
+    .q-item strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 3px; }
+
+    /* TESTS */
+    .test-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    .test-stat {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+    }
+    .test-stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .test-stat-label {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .test-stat.score .test-stat-value { color: var(--success); }
+
+    /* HANDOFF */
+    .handoff {
+      margin-top: 32px;
+      padding: 28px;
+      background: linear-gradient(140deg, var(--bg-elev), var(--bg-elev-2));
+      border: 1px solid var(--accent-dim);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .handoff::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.5;
+    }
+    .handoff-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .handoff-sub {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+    }
+    .handoff-cmd-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .handoff-cmd {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      padding: 9px 16px;
+      border-radius: 6px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .handoff-skip {
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 48px;
+      padding: 28px 0 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .footer code { font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand">CasaFlow</div>
+    <div class="topbar-title">Reward Expiry Warnings</div>
+    <span class="shipped-badge">Shipped</span>
+    <a class="topbar-ticket" href="https://casaperks.atlassian.net/browse/CAS-1284" target="_blank" rel="noopener">CAS-1284<span class="topbar-ticket-arrow">&#x2197;</span></a>
+  </div>
+  <div class="readiness">
+    <span class="readiness-label">Retro ready</span>
+    <div class="readiness-bar"><div class="readiness-fill" id="readiness-fill"></div></div>
+    <span class="readiness-pct" id="readiness-pct">10%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Shipped 2026-06-04 · 8 days from spec · <a class="hero-link" href="https://github.com/casaperks/CasaPerks-Web-React/pull/3127" target="_blank" rel="noopener">view PR &#x2197;</a></div>
+    <div class="hero-title">Reward expiry warnings</div>
+
+    <div class="versus">
+      <div class="versus-card versus-setout">
+        <div class="versus-label">What we set out to build</div>
+        <div class="versus-text">Warn users about rewards expiring within 7 days, via push, behind one flag.</div>
+      </div>
+      <div class="versus-arrow">&rarr;</div>
+      <div class="versus-card versus-shipped">
+        <div class="versus-label">What we actually shipped</div>
+        <div class="versus-text">Warn users about rewards expiring within <strong>14</strong> days, via push <strong>and email</strong>, behind <strong>two</strong> flags. Per-reward dismiss added. Expired-section postponed.</div>
+      </div>
+    </div>
+
+    <div class="delta-line">
+      <span class="delta-pill">8 divergences</span>
+      <span>logged during the build. Three follow-up tickets spawned. One AC dropped, one AC added.</span>
+    </div>
+  </div>
+
+  <!-- DIVERGENCES PANEL -->
+  <div class="divergences">
+    <div class="div-header">
+      <div class="div-title">Divergences from spec</div>
+      <div class="div-count">8 logged</div>
+    </div>
+    <div class="div-subtitle">
+      Claude maintained this log during the build. Each entry is something that changed from the original spec, when it changed, and why.
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">01</div>
+        <div class="div-label">Threshold extended: 7 days &rarr; 14 days</div>
+        <div class="div-when">Day 2 · May 29</div>
+      </div>
+      <div class="div-why">Sara (product) shared user research mid-sprint showing average engagement is bi-weekly, not weekly. A 7-day warning would miss users who only opened the app every 10 days. <strong>Extended to 14.</strong></div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">02</div>
+        <div class="div-label">Email added back into scope</div>
+        <div class="div-when">Day 3 · May 30</div>
+      </div>
+      <div class="div-why">iOS push delivery was unreliable in QA — about 30% of test pushes failed silently. <strong>Email added as fallback channel</strong> so iOS users still got notified. Spawned <a href="https://casaperks.atlassian.net/browse/CAS-1305" target="_blank">CAS-1305</a> to investigate the underlying push issue. Note: email was explicitly a non-goal in the original spec.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">03</div>
+        <div class="div-label">Flag count: 1 &rarr; 2</div>
+        <div class="div-when">Day 4 · May 31</div>
+      </div>
+      <div class="div-why">Split the in-app banner and the notifications into <strong>separate flags</strong> for safer rollout. Banner rollout can be aggressive; notification rollout needs to be careful (you can't undo a sent push). New flags: <code>reward-expiry-banner</code>, <code>reward-expiry-notifications</code>.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">04</div>
+        <div class="div-label">AC dropped: Expired section postponed</div>
+        <div class="div-when">Day 5 · Jun 01</div>
+      </div>
+      <div class="div-why">Implementing the "Expired" section required broader changes to RewardsList layout than estimated. To hit ship date, <strong>postponed to <a href="https://casaperks.atlassian.net/browse/CAS-1318" target="_blank">CAS-1318</a></strong>. The core warning-before-expiry piece ships now.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">05</div>
+        <div class="div-label">AC added: Per-reward dismiss</div>
+        <div class="div-when">Day 5 · Jun 01</div>
+      </div>
+      <div class="div-why">Sara asked for it after seeing the staging build. "If a user knows they're going to use it, the warning becomes noise." Added a <strong>dismiss button with per-reward state persistence</strong>.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">06</div>
+        <div class="div-label">Open question resolved: Banner component</div>
+        <div class="div-when">Day 1 · May 28</div>
+      </div>
+      <div class="div-why">Design system already had a <code>&lt;WarningBanner&gt;</code> component. <strong>Reused.</strong> Saved roughly half a day.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">07</div>
+        <div class="div-label">Open question partial: Timezone</div>
+        <div class="div-when">Day 4 · May 31</div>
+      </div>
+      <div class="div-why">Shipped using <strong>UTC for cron evaluation</strong>, with a one-line README note that this is a known approximation. Spawned <a href="https://casaperks.atlassian.net/browse/CAS-1312" target="_blank">CAS-1312</a> for proper local-timezone handling. Acceptable for v1 because the 14-day threshold makes boundary errors low-impact.</div>
+    </div>
+
+    <div class="divergence">
+      <div class="div-row-top">
+        <div class="div-num">08</div>
+        <div class="div-label">Open question resolved: Batching</div>
+        <div class="div-when">Day 3 · May 30</div>
+      </div>
+      <div class="div-why">Shipped with <strong>one daily digest push per user</strong>, listing all rewards expiring in the next 14 days. Decision made in PR review — multiple pushes felt spammy.</div>
+    </div>
+  </div>
+
+  <!-- 01 AC DIFF -->
+  <div class="section" data-section="ac">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <span>Acceptance criteria diff</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">2 kept · 1 dropped · 1 expanded · 1 new</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="ac-row">
+        <div class="ac-status ac-changed">Changed</div>
+        <div>
+          <div class="ac-detail-original">Reward expiring within 7 days &rarr; banner appears</div>
+          <div class="ac-detail-final">Reward expiring within <strong>14</strong> days &rarr; banner appears</div>
+          <div class="ac-detail-meta">Original CRIT-1 · changed Day 2</div>
+        </div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-status ac-expanded">Expanded</div>
+        <div>
+          <div class="ac-detail-original">Push notification 3 days before expiry</div>
+          <div class="ac-detail-final"><strong>Push or email</strong> notification 3 days before expiry, per user preference</div>
+          <div class="ac-detail-meta">Original CRIT-2 · expanded Day 3</div>
+        </div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-status ac-dropped">Dropped</div>
+        <div>
+          <div class="ac-detail-original">Expired rewards appear under "Expired" section</div>
+          <div class="ac-detail-final">Postponed to <a href="https://casaperks.atlassian.net/browse/CAS-1318" target="_blank">CAS-1318</a></div>
+          <div class="ac-detail-meta">Original CRIT-3 · dropped Day 5</div>
+        </div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-status ac-kept">Kept</div>
+        <div>
+          <div class="ac-detail-final">Both flags off &rarr; behavior matches current production</div>
+          <div class="ac-detail-meta">Original CRIT-4 · unchanged (now applies to both flags)</div>
+        </div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-status ac-new">New</div>
+        <div>
+          <div class="ac-detail-final">User dismisses an expiry warning for a specific reward &rarr; warning does not reappear for that reward</div>
+          <div class="ac-detail-meta">Added Day 5 · CRIT-5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 ARCHITECTURE DIFF -->
+  <div class="section" data-section="arch">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <span>Architecture diff</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">7 files touched · 3 unplanned</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="arch-summary">
+        <div>
+          <div class="arch-stat-label">Planned</div>
+          <div class="arch-stat-value">4</div>
+        </div>
+        <div>
+          <div class="arch-stat-label">Touched</div>
+          <div class="arch-stat-value">7 <span class="arch-stat-delta">+3</span></div>
+        </div>
+        <div>
+          <div class="arch-stat-label">Unplanned</div>
+          <div class="arch-stat-value" style="color: var(--success);">3</div>
+        </div>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-asplanned">As planned</span>
+        <span class="file-path">CasaPerks-Web-React/src/components/rewards/ExpiryBanner.tsx</span>
+        <span class="file-note">wraps existing &lt;WarningBanner&gt;</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-modified">Modified</span>
+        <span class="file-path">CasaPerks-Web-React/src/components/rewards/RewardsList.tsx</span>
+        <span class="file-note">minus the Expired section split</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-unplanned">Unplanned</span>
+        <span class="file-path">CasaPerks-Web-React/src/components/rewards/RewardCard.tsx</span>
+        <span class="file-note">added dismiss button</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-unplanned">Unplanned</span>
+        <span class="file-path">CasaPerks-Web-React/src/state/dismissed-rewards.ts</span>
+        <span class="file-note">dismiss state persistence</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-asplanned">As planned</span>
+        <span class="file-path">CasaPerks-API/jobs/reward-expiry-notifier.ts</span>
+        <span class="file-note">push channel</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-unplanned">Unplanned</span>
+        <span class="file-path">CasaPerks-API/jobs/reward-expiry-emailer.ts</span>
+        <span class="file-note">email fallback channel</span>
+      </div>
+      <div class="file-row">
+        <span class="file-tag file-asplanned">As planned</span>
+        <span class="file-path">CasaPerks-Shared/rewards.ts</span>
+        <span class="file-note">isExpiringSoon() helper</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 SPAWNED TICKETS -->
+  <div class="section" data-section="spawned">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <span>Tickets spawned</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">3 follow-ups · in backlog</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="ticket-row">
+        <a class="ticket-id" href="https://casaperks.atlassian.net/browse/CAS-1305" target="_blank">CAS-1305</a>
+        <span class="ticket-title">iOS push reliability investigation</span>
+        <span class="ticket-reason">scope · split from build</span>
+      </div>
+      <div class="ticket-row">
+        <a class="ticket-id" href="https://casaperks.atlassian.net/browse/CAS-1312" target="_blank">CAS-1312</a>
+        <span class="ticket-title">Timezone-aware expiry evaluation</span>
+        <span class="ticket-reason">open question · partial resolution</span>
+      </div>
+      <div class="ticket-row">
+        <a class="ticket-id" href="https://casaperks.atlassian.net/browse/CAS-1318" target="_blank">CAS-1318</a>
+        <span class="ticket-title">Expired rewards section</span>
+        <span class="ticket-reason">AC postponed · scope cut</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 OPEN QUESTIONS -->
+  <div class="section" data-section="questions">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">04</span>
+        <span>Open questions</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">3 resolved · 3 emerged</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="questions-grid">
+        <div class="questions-col resolved">
+          <div class="questions-col-title">Resolved during build</div>
+          <div class="q-item">
+            <strong>Banner component</strong>
+            Reused design system &lt;WarningBanner&gt;.
+          </div>
+          <div class="q-item">
+            <strong>Batching</strong>
+            One daily digest push per user.
+          </div>
+          <div class="q-item">
+            <strong>Timezone (partial)</strong>
+            UTC for v1; CAS-1312 follow-up.
+          </div>
+        </div>
+        <div class="questions-col emerged">
+          <div class="questions-col-title">Emerged from build</div>
+          <div class="q-item">
+            <strong>Email default</strong>
+            On by default for new users, or opt-in?
+          </div>
+          <div class="q-item">
+            <strong>Success metric</strong>
+            How do we measure whether warnings actually reduced support tickets? Original ticket asked for "fewer" — no number.
+          </div>
+          <div class="q-item">
+            <strong>Cross-device dismiss</strong>
+            Dismiss state is currently per-device. Should it sync?
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 TESTS -->
+  <div class="section" data-section="tests">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">05</span>
+        <span>Tests</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">20 tests · 87% mutation score</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="test-stats">
+        <div class="test-stat">
+          <div class="test-stat-value">14</div>
+          <div class="test-stat-label">Unit</div>
+        </div>
+        <div class="test-stat">
+          <div class="test-stat-value">4</div>
+          <div class="test-stat-label">Integration</div>
+        </div>
+        <div class="test-stat">
+          <div class="test-stat-value">2</div>
+          <div class="test-stat-label">E2E</div>
+        </div>
+        <div class="test-stat score">
+          <div class="test-stat-value">87%</div>
+          <div class="test-stat-label">Mutation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HANDOFF -->
+  <div class="handoff">
+    <div class="handoff-title">Ready for the retro?</div>
+    <div class="handoff-sub">You've reviewed what shipped vs what was planned. The retro picks up from here &mdash; bring the divergences with you.</div>
+
+    <div class="handoff-cmd-row">
+      <span class="handoff-cmd">/casaflow:retro</span>
+      <span class="handoff-skip">or skip for now &mdash; this file stays in your casavault.</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by <code>/casaflow:visualize</code> from <code>shipped.md</code>.<br/>
+    The markdown journal was maintained during the build. This is the polished view for retro.
+  </div>
+</div>
+
+<script>
+  let readiness = 20;
+  const opened = new Set();
+
+  function setReadiness(val) {
+    readiness = Math.min(100, Math.max(0, val));
+    document.getElementById('readiness-fill').style.width = readiness + '%';
+    document.getElementById('readiness-pct').textContent = readiness + '%';
+  }
+
+  document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const section = header.parentElement;
+      const key = section.dataset.section;
+      section.classList.toggle('opened');
+      if (section.classList.contains('opened') && !opened.has(key)) {
+        opened.add(key);
+        setReadiness(readiness + 16);
+      }
+    });
+  });
+
+  setReadiness(20);
+</script>
+</body>
+</html>

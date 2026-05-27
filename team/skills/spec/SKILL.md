@@ -85,24 +85,82 @@ Use the Atlassian MCP to fetch the ticket by the provided ID. Extract:
 
 If the developer retries, repeat 0d. If they skip, proceed to Section 1.
 
-### 0e. Display and confirm
+### 0e. Generate the ticket brief
 
-Present the fetched ticket context:
+Instead of dumping the ticket inline in terminal (a wall of text that
+trains developers to skim past the most important details), produce a
+structured brief that surfaces gaps Claude detected and gives the dev a
+human-readable view to open.
 
-> "Here's what I pulled from **[TICKET-ID]**:
->
-> **Type:** [issue type]
-> **Summary:** [summary]
-> **Description:** [description, truncated if very long]
-> **Acceptance Criteria:** [if present, otherwise "none listed"]
->
-> Does this look right? (yes / try a different ticket / skip)"
+Write a `ticket.md` file to the feature folder in the casavault. The
+feature folder is derived from the ticket summary: lowercase, hyphens.
+Save to:
+
+```
+~/Documents/<project-name>/<feature-slug>/ticket.md
+```
+
+The `ticket.md` schema:
+
+```yaml
+---
+ticket: <TICKET-ID>
+ticket_url: <url>
+fetched: <ISO timestamp>
+issue_type: <Story | Task | etc.>
+reporter: <email>
+reporter_role: <e.g., Product>
+assignee: <email>
+priority: <Low | Medium | High | Critical>
+status: <To Do | In Progress | etc.>
+created: <YYYY-MM-DD>
+---
+```
+
+Followed by sections:
+
+- `## Claude's one-line read` — Claude's interpretation of what the
+  ticket is actually asking for, in one sentence
+- `## Original description` — verbatim quote of the ticket body
+- `## Stated acceptance criteria` — numbered list of the AC the ticket
+  declared
+- `## Gaps detected` — bulleted list of holes in the ticket the dev
+  will need to nail down during the spec interview (vague AC, missing
+  thresholds, deferred decisions, missing design references, missing
+  success metrics, etc.). Be specific and concrete — each gap should
+  be a decision someone needs to make. Cap at 8.
+- `## Context` — reporter, linked tickets, mentioned-but-unlinked
+  references, recent comments
+- `## Suggested next step` — `/casaflow:spec <TICKET-ID>` with a note
+  that the gaps above are the structural questions to expect
+
+### 0f. Visualize and open the brief
+
+Invoke the visualize skill to render `ticket.html` and open it in the
+developer's browser:
+
+```
+/casaflow:visualize <path-to-ticket.md>
+```
+
+The visualize skill produces `ticket.html` next to `ticket.md` and opens
+it. The dev reads the brief in browser-mode (different posture, different
+attention than terminal scrollback).
+
+Then **pause** and tell the developer:
+
+> "Pulled **[TICKET-ID]**. I've opened the brief in your browser — read
+> it, predict the ask in one line, and scan the gaps. Type `ready` when
+> you want to start the spec interview, or `try a different ticket` /
+> `skip` to change course."
+
+Wait for the developer's response. Do **not** proceed until they respond:
 
 - **try a different ticket** → return to 0c
 - **skip** → proceed to Section 1 without ticket context
-- **yes** → continue to 0f
+- **ready** → continue to 0g
 
-### 0f. Route by issue type
+### 0g. Route by issue type
 
 **If issue type is "Bug":**
 
@@ -268,11 +326,26 @@ This check is not optional. Claude does not skip it and does not move on if
 the answer is vague.
 
 After the comprehension check passes, invoke the `jira-sync` skill if
-configured. Then prompt the developer to start the full pipeline:
+configured.
 
-> "Spec saved. Run `/casaflow:kickoff` to start the development pipeline —
-> it will set up your ticket, branch, design, plan, and guide you through
-> the full build."
+Then invoke the visualize skill to produce `spec.html`:
+
+```
+/casaflow:visualize <path-to-spec.md>
+```
+
+The visualize skill renders `spec.html` next to `spec.md` and opens it in
+the developer's browser. The HTML view applies the prediction-before-reveal
+opener ("what'll be the trickiest part to build?") and lays out the test
+spec as a 3-column grid, the architecture as a file diff, and open questions
+as a prominent callout — all the things markdown can't do well.
+
+Then prompt the developer to start the full pipeline:
+
+> "Spec saved. Opened `spec.html` in your browser — give it a once-over,
+> then run `/casaflow:kickoff` to start the development pipeline. It will
+> set up your ticket, branch, design, plan, and guide you through the full
+> build."
 
 Do **not** hand off directly to `/build` — the developer needs the full
 pipeline (discover → brainstorm → plan → execute → review → ship → learn).
