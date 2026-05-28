@@ -192,6 +192,12 @@ The engineering detail. Include:
 Label the two parts explicitly (`# Part 1 -- Business Overview` / `# Part 2 -- Technical
 Design`) so the seam is obvious to a reader who only wants one half.
 
+**Formatting for portability:** write prose **soft-wrapped** -- one paragraph (or list item)
+per line, no hard line breaks mid-sentence or mid-paragraph. Hard-wrapping at a fixed column
+renders as ragged, broken lines when the doc is pasted into Obsidian, Google Docs, or Notion.
+Reserve line breaks for *between* paragraphs, list items, and table rows. (Note: skill files
+in this repo are hard-wrapped by convention -- do not copy that style into authored docs.)
+
 ### Spec Self-Review
 
 After writing the spec document, review it with fresh eyes:
