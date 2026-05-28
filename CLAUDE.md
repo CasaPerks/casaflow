@@ -66,7 +66,7 @@ These override or extend the Jig core for CasaPerks.
 |-------|---------|
 | `jira-sync` | 7-step spec-to-Jira sync; stage status updates; PR URL comments |
 
-### Core Skills (16)
+### Core Skills (17)
 
 | Skill | Purpose |
 |-------|---------|
@@ -85,6 +85,7 @@ These override or extend the Jig core for CasaPerks.
 | `verify` | Evidence before assertions — run it before claiming it works |
 | `tdd` | Red-green-refactor discipline |
 | `finish` | Branch completion — merge, PR, keep, or discard |
+| `qa` | Reviewer-triggered QA — assembles ticket+PR+spec+shipped, derives a check matrix from AC + diff, auto-runs Playwright with provisioned QA accounts, opt-in `qa.html` with per-check sign-off that exports findings back to post the review |
 | `extend` | Framework extension assistant — scaffolds new skills, specialists, packs |
 
 ### Core Agents (3)
@@ -239,6 +240,7 @@ load and follow that skill's SKILL.md verbatim.
 | `/casaflow:ticket` | `core/skills/ticket/SKILL.md` | Ticket creation/lookup. |
 | `/casaflow:extend` | `core/skills/extend/SKILL.md` | Framework extension — scaffolds new skills, specialists, packs. |
 | `/casaflow:postmortem` | `core/skills/postmortem/SKILL.md` | Post-merge retrospective with specialist/logic reviewer diagnosis. |
+| `/casaflow:qa` | `core/skills/qa/SKILL.md` | Reviewer-triggered QA. Resolve target (ticket/PR/branch) → assemble ticket+PR+spec.md+shipped.md → load `QA-Accounts-Registry.md` from casavault root (creds never leave the vault) → derive check matrix from AC + diff → auto-discover Playwright, generate quarantined specs, run with provisioned accounts → opt-in `qa.html` (NO prediction gate; per-check pass/fail/blocked sign-off) → reviewer exports `casaflow-qa-results` block back → post Jira comment + `gh pr review` (confirm first) → spawn bug tickets → offer to promote green non-flaky specs. |
 | `/casaflow:eng-copywriting` | `packs/engineering/skills/eng-copywriting/SKILL.md` | Sentence case standards. |
 | `/casaflow:eng-flags` | `packs/engineering/skills/eng-flags/SKILL.md` | Atomic flag setup: bulk consent → PostHog MCP per environment (retry-once → manual fallback on persistent failure) → registry writes per touched repo. Repo-discovery fallback blocks any repo without registry infra. Embeds CAS-577 naming + JSDoc conventions. No auto-rollback of partial creations. |
 | `/casaflow:eng-logging` | `packs/engineering/skills/eng-logging/SKILL.md` | Log level guidance. |

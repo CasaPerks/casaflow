@@ -3,7 +3,7 @@ name: visualize
 description: >
   Use when a CasaFlow stage produces a markdown artifact and the developer
   needs to comprehend it before continuing. Generates an interactive HTML
-  companion file from ticket.md, spec.md, or shipped.md and opens it in the
+  companion file from ticket.md, spec.md, shipped.md, or qa.md and opens it in the
   developer's browser. Markdown remains the source of truth; HTML is a
   derived, human-facing view designed for stage-appropriate comprehension.
 tier: workflow
@@ -60,11 +60,12 @@ This skill produces a single output file per input. Dispatch is by filename:
 | `ticket.md` | `ticket.html` | Pre-spec brief. Prediction = "what is this ticket actually asking for?" |
 | `spec.md` | `spec.html` | Spec read. Prediction = "what'll be tricky to build?" |
 | `shipped.md` | `shipped.html` | Ship artifact. Set-out-vs-shipped + divergence log. No gate. |
+| `qa.md` | `qa.html` | QA review (reviewer-triggered). Change summary + automated results + per-check manual sign-off. No gate; exports verdicts back to Claude. |
 
 If the input filename does not match a known template, abort with:
 
 > "No visualization template exists for `<filename>`. Supported inputs:
-> `ticket.md`, `spec.md`, `shipped.md`."
+> `ticket.md`, `spec.md`, `shipped.md`, `qa.md`."
 
 Future templates (`brainstorm.html`, `plan.html`, `retro.html`) will be added
 incrementally. Do not invent templates that don't have a corresponding
@@ -92,6 +93,7 @@ Each template has a reference example in this skill's directory:
 - `examples/ticket.html` — pre-spec brief structure
 - `examples/spec.html` — spec read structure
 - `examples/shipped.html` — ship artifact structure
+- `examples/qa.html` — QA review structure (no gate; sign-off + export)
 
 Each example also has a paired `.md` file that shows the expected input
 shape. Read both: the `.html` is the visual contract, the `.md` shows the
@@ -180,6 +182,42 @@ example.
 | Tests stats | `## Tests` |
 
 Handoff card hands off to `/casaflow:retro`.
+
+### For `qa.html` (from `qa.md`)
+
+**No prediction gate.** The audience is a *reviewer*, not the author —
+prediction-before-reveal doesn't fit. Page lands fully unlocked, like
+`shipped.html`. Remove any `pre-reveal` class and reveal logic.
+
+| HTML region | Source |
+|-------------|--------|
+| Topbar title + ticket pill + "QA" badge | Frontmatter `ticket`, `ticket_url` |
+| Hero tag + PR link + branch | Frontmatter `pr_url`, `branch` |
+| Hero title | `# QA: ...` heading |
+| Hero summary | `## What changed` |
+| Delta pills | Frontmatter `automated` + `manual` counts |
+| High-risk callout | The highest-`risk` / divergence-linked check from `## Check matrix` (skip if none flagged high) |
+| Automated check cards | `## Automated results` (one card per check: id, assertion, surface + source/account/risk tags, PASS/FAIL badge, duration, trace or endpoint, failure note) — these verdicts are **fixed**, not editable |
+| Manual frontend cards | `## Manual checks` frontend entries (id, assertion, tags, repro + expected, three verdict buttons, notes textarea) |
+| Manual API cards | `## Manual checks` backend/API entries (`data-api="true"`): method + URL, `Authorization: Bearer {{token}}` placeholder, **Copy as cURL** button, an Expected (readonly) and an Actual (editable) textarea, plus verdict buttons + notes. The reviewer pastes the real response into Actual; it rides along in the export as `actual`. **Never render a real token** — only the `{{token}}` placeholder |
+| Sticky sign-off bar | Live overall verdict (any fail→FAIL, else any blocked→BLOCKED, else PASS) + manual sign-off count + Export button |
+| Export modal | Serializes all verdicts to a fenced ```` ```casaflow-qa-results ```` JSON block + copy-to-clipboard |
+
+**The findings round-trip is the load-bearing mechanic — preserve it
+exactly.** The reviewer marks each manual check, clicks Export, and the page
+emits a `casaflow-qa-results` JSON block (type, ticket, pr_url, overall, per
+-check id/kind/surface/verdict/note/actual). The reviewer pastes it back into
+the CasaFlow chat; the `qa` skill (Step 5) parses it to post the review and
+set the result. Keep the `QA_META` / `AUTOMATED` constants at the top of the
+script populated from the source markdown so the export carries correct
+identifiers.
+
+**Security:** never render credentials, emails, passwords, or auth tokens.
+Refer to test accounts by their `role` label only (e.g., `casaperks-resident`),
+and show auth in API cards as the `{{token}}` placeholder.
+
+Handoff card explains the export → paste-back loop (it does not hand off to
+another pipeline command, since QA is reviewer-triggered).
 
 ---
 
