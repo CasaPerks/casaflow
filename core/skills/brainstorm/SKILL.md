@@ -56,7 +56,7 @@ Complete these steps in order:
 4. **Propose 2-3 approaches** -- with trade-offs and your recommendation
 5. **Present design** -- in sections scaled to complexity, get user approval after each section
 6. **Concerns Checklist** -- walk through configurable concerns from `casaflow.config.md`
-7. **Write design doc** -- save to `docs/plans/YYYY-MM-DD-<topic>-design.md`
+7. **Write design doc** (Part 1 plain-language business overview, then Part 2 technical design) -- save to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 8. **Spec self-review** -- scan for placeholders, contradictions, ambiguity, scope
 9. **User reviews written spec** -- ask user to review before proceeding
 10. **Transition to implementation** -- invoke `plan` to create implementation plan
@@ -156,7 +156,30 @@ See `framework/CONCERNS_CHECKLIST.md` for full documentation on checklist config
 
 Save to: `docs/plans/YYYY-MM-DD-<topic>-design.md`
 
-The design document should include:
+The document MUST lead with a plain-language business overview, then the technical design.
+This lets a non-engineer stakeholder review feature **intent** before any code is written --
+the cheapest possible moment to catch "we're building the wrong thing."
+
+#### Part 1 -- Business Overview (Plain Language)
+
+A stakeholder with no engineering background must be able to read this and confirm the intent.
+**Jargon-free**: no schema/collection/table/query/endpoint/code names, no implementation
+mechanics. Mirror the technical design point-for-point, but in customer/user/business terms.
+Include:
+
+- **One-sentence version** -- what we're building, in a breath
+- **What's painful today** -- the problem in the user's world
+- **Who it's for** -- the people affected (customers, internal teams, end users)
+- **What we're building** -- each capability described by behavior, not mechanism
+- **Decisions and what they mean for the business** -- a table: each key decision, its
+  real-world consequence, and why
+- **What's in vs deferred (this version)** -- scope in plain terms
+- **Questions for reviewers** -- open *product* questions framed for a non-technical reader
+  to react to (these are real decisions, not rhetorical)
+
+#### Part 2 -- Technical Design
+
+The engineering detail. Include:
 - Problem statement
 - Approved approach (with rationale)
 - Architecture and component breakdown
@@ -165,6 +188,9 @@ The design document should include:
 - Test strategy
 - Concerns checklist results
 - Any open questions or deferred decisions
+
+Label the two parts explicitly (`# Part 1 -- Business Overview` / `# Part 2 -- Technical
+Design`) so the seam is obvious to a reader who only wants one half.
 
 ### Spec Self-Review
 
