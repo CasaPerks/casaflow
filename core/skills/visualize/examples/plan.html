@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plan — Reward Expiry Warnings</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elev: #161b22;
+      --bg-elev-2: #1c232d;
+      --border: #2a323d;
+      --border-strong: #3b4654;
+      --text: #e6edf3;
+      --text-dim: #8d96a0;
+      --text-faint: #5b6370;
+      --accent: #5eead4;
+      --accent-dim: #14b8a6;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    code, .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    code {
+      background: var(--bg-elev);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      border: 1px solid var(--border);
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      margin: 8px 0;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 12.5px;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .brand {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .topbar-title { font-weight: 600; font-size: 14px; }
+    .topbar-ticket {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .readiness {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .readiness-label {
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+    .readiness-bar {
+      width: 90px; height: 6px;
+      background: var(--bg-elev);
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .readiness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger), var(--warn) 50%, var(--success));
+      width: 10%;
+      transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    .readiness-pct {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text);
+      min-width: 30px;
+    }
+
+    .container {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 56px 32px 160px;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(140deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+    .hero-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+    .hero-summary {
+      font-size: 15.5px;
+      color: var(--text-dim);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+    .hero-summary.show {
+      max-height: 600px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+    .stack-pills {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 16px;
+    }
+    .stack-pill {
+      font-family: ui-monospace, monospace;
+      font-size: 10.5px;
+      padding: 3px 9px;
+      background: var(--bg);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      letter-spacing: 0.03em;
+    }
+    .at-a-glance {
+      display: flex; gap: 22px; margin-top: 14px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+    .glance-num {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 18px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* PREDICTION CARD */
+    .prediction-card {
+      margin-top: 26px;
+      padding: 22px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .prediction-card.hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      overflow: hidden;
+    }
+    .prediction-label {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .prediction-q {
+      font-size: 16px;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+    .prediction-hint {
+      font-size: 13px;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+    }
+    .prediction-input {
+      width: 100%;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 11px 13px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 64px;
+      transition: border-color 0.2s;
+    }
+    .prediction-input:focus { outline: none; border-color: var(--accent); }
+    .reveal-btn {
+      margin-top: 14px;
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: transform 0.15s, background 0.2s;
+    }
+    .reveal-btn:hover { background: #7df3dc; transform: translateY(-1px); }
+    .reveal-btn:active { transform: translateY(0); }
+
+    .prediction-revealed {
+      margin-top: 18px;
+      padding: 18px;
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      display: none;
+      animation: slidein 0.4s ease;
+    }
+    .prediction-revealed.show { display: block; }
+    @keyframes slidein {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pred-row { font-size: 14px; margin-bottom: 10px; }
+    .pred-row:last-child { margin-bottom: 0; }
+    .pred-row strong {
+      color: var(--accent);
+      font-weight: 600;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .pred-row span { color: var(--text-dim); }
+
+    /* SECTION (file structure container) */
+    .section {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .section.opened { border-color: var(--border-strong); }
+    .section.opened .section-header { border-bottom: 1px solid var(--border); }
+    .section-header {
+      padding: 18px 24px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: var(--bg-elev-2); }
+    .section-title {
+      font-weight: 600;
+      font-size: 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .section-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+    .section-right { display: flex; align-items: center; gap: 14px; }
+    .section-pull {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: ui-monospace, monospace;
+    }
+    .section-chevron {
+      color: var(--text-dim);
+      font-size: 11px;
+      transition: transform 0.25s ease;
+      width: 14px; text-align: center;
+    }
+    .section.opened .section-chevron { transform: rotate(90deg); color: var(--accent); }
+    .section.opened .section-num { color: var(--accent); }
+    .section-body {
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .section.opened .section-body {
+      padding: 22px 24px 26px;
+      max-height: 12000px;
+    }
+
+    /* FILE STRUCTURE TABLE */
+    .filetree {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .file-row {
+      padding: 7px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+    }
+    .file-row + .file-row { border-top: 1px dashed var(--border); }
+    .file-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      min-width: 60px;
+      text-align: center;
+    }
+    .file-create { background: rgba(74, 222, 128, 0.12); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .file-modify { background: rgba(251, 191, 36, 0.12); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .file-test { background: rgba(94, 234, 212, 0.10); color: var(--accent); border: 1px solid rgba(94, 234, 212, 0.3); }
+    .file-path { color: var(--text); }
+    .file-desc {
+      color: var(--text-faint);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      margin-left: auto;
+      font-style: italic;
+    }
+
+    /* TASK CARDS */
+    .tasks-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+    .tasks-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .tasks-meta {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+    }
+    .task {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .task.opened { border-color: var(--border-strong); }
+    .task.opened .task-header { border-bottom: 1px solid var(--border); }
+    .task.flag-task { border-color: rgba(94, 234, 212, 0.35); }
+    .task-header {
+      padding: 14px 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+      gap: 16px;
+    }
+    .task-header:hover { background: var(--bg-elev-2); }
+    .task-left {
+      display: flex; align-items: center; gap: 14px;
+      min-width: 0; flex: 1;
+    }
+    .task-num {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .task.opened .task-num { color: var(--accent); }
+    .task.flag-task .task-num { color: var(--accent); }
+    .task-name {
+      font-weight: 600;
+      font-size: 14.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .task-pill {
+      font-family: ui-monospace, monospace;
+      font-size: 10.5px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      letter-spacing: 0.05em;
+      color: var(--text-faint);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+    .task-pill.dep { color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+    .task-pill.indep { color: var(--success); border-color: rgba(74, 222, 128, 0.3); }
+    .task-pill.flag { color: var(--accent); border-color: rgba(94, 234, 212, 0.35); }
+    .task-chevron {
+      color: var(--text-dim);
+      font-size: 11px;
+      transition: transform 0.25s ease;
+      width: 14px; text-align: center;
+    }
+    .task.opened .task-chevron { transform: rotate(90deg); color: var(--accent); }
+    .task-body {
+      padding: 0 20px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .task.opened .task-body {
+      padding: 20px;
+      max-height: 8000px;
+    }
+    .task-meta-row {
+      display: flex; flex-wrap: wrap; gap: 18px;
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .task-meta-label {
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+      margin-right: 8px;
+    }
+    .step {
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step-head {
+      display: flex; align-items: baseline; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .step-num {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .step-title { font-weight: 500; font-size: 14px; }
+    .step-detail {
+      color: var(--text-dim);
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    /* FOOTER / HANDOFF */
+    .handoff {
+      margin-top: 36px;
+      padding: 24px 28px;
+      background: var(--bg);
+      border: 1px solid var(--accent-dim);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .handoff-text {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .handoff-cmd {
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      color: var(--accent);
+      padding: 6px 12px;
+      background: var(--bg-elev);
+      border: 1px solid var(--accent-dim);
+      border-radius: 6px;
+    }
+
+    .footer {
+      margin-top: 56px;
+      padding: 32px 0 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .footer code { font-size: 11px; }
+
+    /* Reveal animation */
+    .section, .task, .tasks-section, .handoff { opacity: 1; }
+    .pre-reveal .section,
+    .pre-reveal .tasks-section,
+    .pre-reveal .handoff {
+      opacity: 0.35; pointer-events: none; transition: opacity 0.5s;
+    }
+  </style>
+</head>
+<body class="pre-reveal">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand">CasaFlow</div>
+    <div class="topbar-title">Plan · Reward Expiry Warnings</div>
+    <div class="topbar-ticket">CAS-1284</div>
+  </div>
+  <div class="readiness">
+    <span class="readiness-label">3am readiness</span>
+    <div class="readiness-bar"><div class="readiness-fill" id="readiness-fill"></div></div>
+    <span class="readiness-pct" id="readiness-pct">10%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Implementation plan · 2026-05-28</div>
+    <div class="hero-title">Ship reward expiry warnings in 6 TDD tasks across 2 repos.</div>
+    <div class="hero-summary" id="hero-summary">
+      Daily cron in CasaPerks-API reads the rewards table, batches users with rewards expiring in exactly 3 days, calls the existing notification service. The web client reads the same <code>expires_at</code> field and renders an <code>ExpiryBanner</code> on rewards within 7 days; expired rewards move to a collapsed "Expired" section.
+      <div class="stack-pills">
+        <span class="stack-pill">TypeScript</span>
+        <span class="stack-pill">React</span>
+        <span class="stack-pill">Node cron</span>
+        <span class="stack-pill">PostgreSQL</span>
+        <span class="stack-pill">notification-service</span>
+        <span class="stack-pill">PostHog flags</span>
+      </div>
+      <div class="at-a-glance">
+        <div><span class="glance-num">6</span>tasks</div>
+        <div><span class="glance-num">8</span>files</div>
+        <div><span class="glance-num">2</span>repos</div>
+        <div><span class="glance-num">1</span>flag</div>
+      </div>
+    </div>
+
+    <div class="prediction-card" id="prediction-card">
+      <div class="prediction-label">Before you read further</div>
+      <div class="prediction-q">Of these 6 tasks, which do you think will hit a wall first?</div>
+      <div class="prediction-hint">One line is fine. Guessing now means the wall is less of a surprise later.</div>
+      <textarea class="prediction-input" id="prediction-input" placeholder="e.g. cron double-send, RewardsList split, ExpiryBanner copy…"></textarea>
+      <button class="reveal-btn" id="reveal-btn">Reveal plan</button>
+    </div>
+
+    <div class="prediction-revealed" id="prediction-revealed">
+      <div class="pred-row">
+        <strong>Your guess</strong>
+        <span id="user-guess"></span>
+      </div>
+      <div class="pred-row">
+        <strong>Author's call</strong>
+        <span>Task 5 — the cron. It's the only task that involves a real clock, dedupe state across runs, and the notification service, and its open question (timezones) is still unresolved in the spec.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01 FILE STRUCTURE -->
+  <div class="section" data-section="files">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <span>File structure</span>
+      </div>
+      <div class="section-right">
+        <span class="section-pull">8 files · 2 repos</span>
+        <span class="section-chevron">&#9656;</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="filetree">
+        <div class="file-row">
+          <span class="file-tag file-modify">MODIFY</span>
+          <span class="file-path">CasaPerks-Shared/rewards.ts</span>
+          <span class="file-desc">add isExpiringSoon()</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-create">CREATE</span>
+          <span class="file-path">CasaPerks-Web-React/src/components/rewards/ExpiryBanner.tsx</span>
+          <span class="file-desc">renders warning row</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-modify">MODIFY</span>
+          <span class="file-path">CasaPerks-Web-React/src/components/rewards/RewardsList.tsx</span>
+          <span class="file-desc">splits Active / Expired</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-create">CREATE</span>
+          <span class="file-path">CasaPerks-API/jobs/reward-expiry-notifier.ts</span>
+          <span class="file-desc">daily cron</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-test">TEST</span>
+          <span class="file-path">CasaPerks-Shared/tests/rewards.test.ts</span>
+          <span class="file-desc">isExpiringSoon unit tests</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-test">TEST</span>
+          <span class="file-path">CasaPerks-Web-React/.../__tests__/ExpiryBanner.test.tsx</span>
+          <span class="file-desc">component tests</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-test">TEST</span>
+          <span class="file-path">CasaPerks-Web-React/.../__tests__/RewardsList.test.tsx</span>
+          <span class="file-desc">Active/Expired split tests</span>
+        </div>
+        <div class="file-row">
+          <span class="file-tag file-test">TEST</span>
+          <span class="file-path">CasaPerks-API/tests/jobs/reward-expiry-notifier.test.ts</span>
+          <span class="file-desc">cron tests with mocked clock</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 TASKS -->
+  <div class="tasks-section">
+    <div class="tasks-header">
+      <div class="tasks-title">Tasks</div>
+      <div class="tasks-meta">6 tasks · TDD · click to expand</div>
+    </div>
+
+    <div class="task flag-task" data-task="t1">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 1</span>
+          <span class="task-name">Create the feature flag</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill flag">flag · runs first</span>
+          <span class="task-pill indep">independent</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> registry paths per touched repo</span>
+          <span><span class="task-meta-label">Deps</span> none</span>
+          <span><span class="task-meta-label">Steps</span> 2</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Run /casaflow:eng-flags</span></div>
+          <div class="step-detail">
+            eng-flags runs the full creation flow: bulk consent prompt covering all touched repos and PostHog environments, MCP creation per environment with retry-once and manual fallback, registry writes per touched repo. Verification: registry entry exists in each touched repo with key <code>reward-expiry-warnings</code> and JSDoc; PostHog flag exists in every environment in <code>posthog-environments</code>.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Commit</span></div>
+          <div class="step-detail">eng-flags commits the registry writes itself with <code>feat(scope): add reward-expiry-warnings feature flag</code>. No manual commit step needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-task="t2">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 2</span>
+          <span class="task-name">Shared isExpiringSoon helper</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill indep">independent</span>
+          <span class="task-pill">5 steps</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> CasaPerks-Shared/rewards.ts · tests/rewards.test.ts</span>
+          <span><span class="task-meta-label">Deps</span> none</span>
+          <span><span class="task-meta-label">Steps</span> 5</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Write the failing test</span></div>
+          <div class="step-detail">Three cases: within window → true, outside window → false, already expired → false.</div>
+<pre><code>describe('isExpiringSoon', () =&gt; {
+  it('returns true when expires_at is within window', () =&gt; { /* … */ });
+  it('returns false when expires_at is outside window', () =&gt; { /* … */ });
+  it('returns false when reward is already expired', () =&gt; { /* … */ });
+});</code></pre>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Run test to verify it fails</span></div>
+          <div class="step-detail">Expected: FAIL with "isExpiringSoon is not a function".</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 3</span><span class="step-title">Write minimal implementation</span></div>
+          <div class="step-detail">Pure function: parse <code>expires_at</code>, return false if already past, else compare to <code>now + withinDays</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 4</span><span class="step-title">Run test to verify it passes</span></div>
+          <div class="step-detail">Expected: PASS — 3 tests.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 5</span><span class="step-title">Commit</span></div>
+          <div class="step-detail"><code>feat(shared): add isExpiringSoon helper (CAS-1284)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-task="t3">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 3</span>
+          <span class="task-name">ExpiryBanner component</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill dep">depends on T1 · T2</span>
+          <span class="task-pill">5 steps</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> ExpiryBanner.tsx · __tests__/ExpiryBanner.test.tsx</span>
+          <span><span class="task-meta-label">Deps</span> Task 1, Task 2</span>
+          <span><span class="task-meta-label">Steps</span> 5</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Write the failing component test</span></div>
+          <div class="step-detail">Renders "Expires in N days" for plural; "Expires in 1 day" for singular.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Run test, verify it fails (module not found)</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 3</span><span class="step-title">Implement the component</span></div>
+          <div class="step-detail">Single prop <code>daysRemaining</code>. <code>role="alert"</code> for accessibility.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 4</span><span class="step-title">Run test, verify it passes</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 5</span><span class="step-title">Commit</span></div>
+          <div class="step-detail"><code>feat(web): add ExpiryBanner component (CAS-1284)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-task="t4">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 4</span>
+          <span class="task-name">Split RewardsList into Active and Expired</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill dep">depends on T3</span>
+          <span class="task-pill">5 steps</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> RewardsList.tsx · __tests__/RewardsList.test.tsx</span>
+          <span><span class="task-meta-label">Deps</span> Task 3</span>
+          <span><span class="task-meta-label">Steps</span> 5</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Write the failing test</span></div>
+          <div class="step-detail">Mixed list of expired and active rewards → expired items live under a <code>region</code> labelled "Expired" with <code>data-collapsed="true"</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Run test, verify it fails</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 3</span><span class="step-title">Implement the split</span></div>
+          <div class="step-detail">Filter by <code>expires_at &gt; now</code> for active; render <code>ExpiryBanner</code> when <code>isExpiringSoon</code>. Flag-off path: render legacy list unchanged.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 4</span><span class="step-title">Run test, verify it passes</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 5</span><span class="step-title">Commit</span></div>
+          <div class="step-detail"><code>feat(web): split rewards list into Active and Expired sections (CAS-1284)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-task="t5">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 5</span>
+          <span class="task-name">Daily cron — reward expiry notifier</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill dep">depends on T1 · T2</span>
+          <span class="task-pill">5 steps</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> reward-expiry-notifier.ts · tests/jobs/reward-expiry-notifier.test.ts</span>
+          <span><span class="task-meta-label">Deps</span> Task 1, Task 2</span>
+          <span><span class="task-meta-label">Steps</span> 5</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Write the failing test</span></div>
+          <div class="step-detail">Two cases: queues a push for users with rewards expiring in exactly 3 days; does not double-send on a second run the same day (idempotency via <code>notifierLog</code>).</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Run test, verify it fails</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 3</span><span class="step-title">Implement the cron</span></div>
+          <div class="step-detail">Read flag → query rewards expiring on <code>now + 3d</code> → skip users in <code>notifierLog.todayUserIds(now)</code> → queue push → record. Pure logic; clock injected.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 4</span><span class="step-title">Run test, verify it passes</span></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 5</span><span class="step-title">Commit</span></div>
+          <div class="step-detail"><code>feat(api): add daily expiry-notifier cron (CAS-1284)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-task="t6">
+      <div class="task-header">
+        <div class="task-left">
+          <span class="task-num">TASK 6</span>
+          <span class="task-name">Wire cron into job scheduler</span>
+        </div>
+        <div class="task-right">
+          <span class="task-pill dep">depends on T5</span>
+          <span class="task-pill">3 steps</span>
+          <span class="task-chevron">&#9656;</span>
+        </div>
+      </div>
+      <div class="task-body">
+        <div class="task-meta-row">
+          <span><span class="task-meta-label">Files</span> CasaPerks-API/jobs/index.ts</span>
+          <span><span class="task-meta-label">Deps</span> Task 5</span>
+          <span><span class="task-meta-label">Steps</span> 3</span>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 1</span><span class="step-title">Register the job</span></div>
+          <div class="step-detail"><code>schedule.daily('reward-expiry-notifier', runExpiryNotifier);</code></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 2</span><span class="step-title">Verify registration</span></div>
+          <div class="step-detail">Run <code>pnpm --filter @casaperks/api jobs:list</code>; expected output includes <code>reward-expiry-notifier (daily)</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">STEP 3</span><span class="step-title">Commit</span></div>
+          <div class="step-detail"><code>feat(api): schedule reward-expiry-notifier daily (CAS-1284)</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HANDOFF -->
+  <div class="handoff">
+    <div class="handoff-text">
+      When you're ready, hand off to the executor. Team-dev runs independent tasks in parallel; sdd runs them serially with two-stage review per task.
+    </div>
+    <div class="handoff-cmd">/casaflow:build</div>
+  </div>
+
+  <div class="footer">
+    Generated by <code>/casaflow:visualize</code> from <code>plan.md</code>.<br/>
+    The markdown file is the source of truth — this is a derived view.
+  </div>
+</div>
+
+<script>
+  const revealBtn = document.getElementById('reveal-btn');
+  const predictionInput = document.getElementById('prediction-input');
+  const predictionCard = document.getElementById('prediction-card');
+  const predictionRevealed = document.getElementById('prediction-revealed');
+  const userGuess = document.getElementById('user-guess');
+  const heroSummary = document.getElementById('hero-summary');
+
+  let readiness = 10;
+  const opened = new Set();
+
+  function setReadiness(val) {
+    readiness = Math.min(100, Math.max(0, val));
+    document.getElementById('readiness-fill').style.width = readiness + '%';
+    document.getElementById('readiness-pct').textContent = readiness + '%';
+  }
+
+  revealBtn.addEventListener('click', () => {
+    const guess = predictionInput.value.trim();
+    if (!guess) {
+      predictionInput.focus();
+      predictionInput.style.borderColor = 'var(--warn)';
+      setTimeout(() => predictionInput.style.borderColor = '', 1500);
+      return;
+    }
+    userGuess.textContent = guess;
+    predictionCard.classList.add('hidden');
+    setTimeout(() => {
+      predictionRevealed.classList.add('show');
+      heroSummary.classList.add('show');
+      document.body.classList.remove('pre-reveal');
+    }, 250);
+    setReadiness(readiness + 15);
+  });
+
+  // Section (file structure) toggle
+  document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      if (document.body.classList.contains('pre-reveal')) return;
+      const section = header.parentElement;
+      const key = section.dataset.section;
+      section.classList.toggle('opened');
+      if (section.classList.contains('opened') && !opened.has(key)) {
+        opened.add(key);
+        setReadiness(readiness + 8);
+      }
+    });
+  });
+
+  // Task card toggle
+  document.querySelectorAll('.task-header').forEach(header => {
+    header.addEventListener('click', () => {
+      if (document.body.classList.contains('pre-reveal')) return;
+      const task = header.parentElement;
+      const key = task.dataset.task;
+      task.classList.toggle('opened');
+      if (task.classList.contains('opened') && !opened.has(key)) {
+        opened.add(key);
+        setReadiness(readiness + 10);
+      }
+    });
+  });
+
+  setReadiness(10);
+</script>
+</body>
+</html>
