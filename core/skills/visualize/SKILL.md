@@ -44,10 +44,36 @@ Invoked by:
 - Other skills via `/casaflow:visualize <path-to-md-file>`
 - Developer running `/casaflow:visualize <path>` directly to refresh a view
 
-Common automatic invocations across the pipeline:
-- `spec` Step 0 — visualizes `ticket.md` after fetching from Jira
-- `spec` Completion — visualizes `spec.md` after save
-- `finish` — visualizes `shipped.md` after generating it from the spec-vs-reality diff
+Common invocations across the pipeline:
+- `spec` Step 0 — `ticket.md` after fetching from Jira
+- `spec` Completion — `spec.md` after save
+- `plan` Completion — `plan.md` after save
+- `finish` — `shipped.md` after generating it from the spec-vs-reality diff
+
+### Opt-in contract for invoking skills (REQUIRED)
+
+Visualize is **opt-in every time**. Markdown is canonical; HTML is a
+derived view. Some devs work faster in terminal-only mode and find a
+browser tab break disruptive — others find the HTML view essential for
+absorbing dense stage docs. The right answer varies per dev and per
+moment, so it must be asked.
+
+Any skill that wants to invoke visualize MUST:
+
+1. Save the markdown first.
+2. Tell the dev where the markdown lives.
+3. Ask explicitly whether they want the HTML view rendered.
+4. Only invoke `/casaflow:visualize` on an affirmative response.
+5. If invoked, pause for a `ready` confirmation before continuing the
+   workflow, so the dev has time to read the browser view.
+
+Invokers must **not** auto-fire visualize, must **not** treat HTML as the
+default, and must **not** dump the full markdown contents to terminal as
+a substitute for the HTML view. The point of opt-in is that markdown
+saved + a one-line confirmation is the floor; HTML is the ceiling.
+
+This contract is enforced by reading the SKILL.md of each invoker. If you
+are extending visualize to a new stage, follow the same protocol.
 
 ---
 
@@ -59,15 +85,16 @@ This skill produces a single output file per input. Dispatch is by filename:
 |-------|--------|------------------|
 | `ticket.md` | `ticket.html` | Pre-spec brief. Prediction = "what is this ticket actually asking for?" |
 | `spec.md` | `spec.html` | Spec read. Prediction = "what'll be tricky to build?" |
+| `plan.md` | `plan.html` | Plan read. Prediction = "which task do you think will hit a wall first?" |
 | `shipped.md` | `shipped.html` | Ship artifact. Set-out-vs-shipped + divergence log. No gate. |
 | `qa.md` | `qa.html` | QA review (reviewer-triggered). Change summary + automated results + per-check manual sign-off. No gate; exports verdicts back to Claude. |
 
 If the input filename does not match a known template, abort with:
 
 > "No visualization template exists for `<filename>`. Supported inputs:
-> `ticket.md`, `spec.md`, `shipped.md`, `qa.md`."
+> `ticket.md`, `spec.md`, `plan.md`, `shipped.md`, `qa.md`."
 
-Future templates (`brainstorm.html`, `plan.html`, `retro.html`) will be added
+Future templates (`brainstorm.html`, `retro.html`) will be added
 incrementally. Do not invent templates that don't have a corresponding
 example file in `examples/`.
 
@@ -92,6 +119,7 @@ Each template has a reference example in this skill's directory:
 
 - `examples/ticket.html` — pre-spec brief structure
 - `examples/spec.html` — spec read structure
+- `examples/plan.html` — plan read structure
 - `examples/shipped.html` — ship artifact structure
 - `examples/qa.html` — QA review structure (no gate; sign-off + export)
 
@@ -160,6 +188,32 @@ feature will be?" After reveal, show one-line "author's call" — Claude
 infers this from the spec content. Typical heuristic: the open question
 with the most architectural implication, or the section the developer
 seemed most uncertain about.
+
+### For `plan.html` (from `plan.md`)
+
+| HTML region | Source |
+|-------------|--------|
+| Topbar title + ticket pill | `# <Feature Name> Implementation Plan` and frontmatter `ticket` (or referenced spec/PRD path if no frontmatter) |
+| Hero tag | `Plan · <date>` |
+| Hero title | Goal line (one-sentence imperative from `**Goal:**`) |
+| Hero summary (revealed after prediction) | Architecture line (`**Architecture:**`) + tech stack pills |
+| Tech stack pills | `**Tech Stack:**` (comma-split into pills) |
+| File structure rows | The `## File Structure` table (one row per file with action tag CREATE / MODIFY / TEST) |
+| Task cards | Each `### Task N: <name>` becomes a collapsible card with task number, title, file count, step count, dependency badge, and expandable steps |
+| Step rows inside a task | Each `- [ ] **Step N: ...**` becomes a numbered row; code blocks render as monospace blocks inside the step |
+| Feature flag callout | If a Task 1 of "Create the feature flag" exists, surface a callout pill on the task DAG noting "Flag task first" |
+| Footer handoff | `/casaflow:build` |
+
+The prediction prompt: "Which of these tasks do you think will hit a wall
+first?" After reveal, show one-line "author's call" — Claude infers this
+from the plan: the task with the most cross-file dependencies, or the
+task with the longest step list, or the task whose verification command
+looks most fragile. Use judgment.
+
+Dependency arrows on the task DAG are optional in v1 — a "Depends on Task
+N" badge inside each card is sufficient. If the plan has more than 12
+tasks, collapse all task cards by default; if 12 or fewer, leave the
+first three open.
 
 ### For `shipped.html` (from `shipped.md`)
 
@@ -294,7 +348,6 @@ Stop and surface explicitly:
 Templates not yet implemented:
 
 - `brainstorm.html` — alternatives as side-by-side comparison cards with decision rationale
-- `plan.html` — task DAG renderer with collapsible per-task cards
 - `retro.html` — captured reflections; opens after `/casaflow:retro`
 
 When adding a new template:

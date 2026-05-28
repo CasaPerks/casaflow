@@ -324,19 +324,33 @@ from them.
 If you can identify the date a divergence happened (from commit history or
 conversation context), include it. If you can't, omit the "When" line.
 
-#### Visualize the shipped artifact
+#### Offer the HTML view (opt-in)
 
-After writing `shipped.md`, invoke the visualize skill to produce
-`shipped.html`:
+After writing `shipped.md`, ask the developer whether they want the
+interactive HTML view. **Do not invoke visualize without explicit consent
+— `shipped.md` is the canonical record; the HTML is opt-in every time.**
 
-```
-/casaflow:visualize <path-to-shipped.md>
-```
+> "Wrote `shipped.md` to `<path-to-shipped.md>`. It diffs spec vs reality
+> across acceptance criteria, files touched, divergences, and spawned
+> tickets.
+>
+> Want me to render it as an HTML view in your browser? It's laid out as
+> set-out-vs-shipped with the divergence log easy to scan — useful as the
+> starting point for retro. Reply **html** to open it, or **continue** to
+> stay in the terminal."
 
-The visualize skill renders `shipped.html` next to `shipped.md` and opens
-it in the developer's browser. It's a set-out-vs-shipped artifact with the
-divergence log laid out for easy scanning, no comprehension gate (the doc
-is a record, not a quiz).
+Wait for the response:
+
+- **html** → invoke `/casaflow:visualize <path-to-shipped.md>`. After it
+  returns, set `shipped_view = html` for the post-completion message
+  below. Then prompt: "Opened `shipped.html` in your browser. Type
+  `ready` when you've reviewed it." Wait for `ready` before continuing.
+- **continue** → set `shipped_view = md` and continue immediately.
+
+The retro suggestion below is gated on this step completing — do not
+recommend `/casaflow:retro` until the dev has confirmed they've seen the
+shipped artifact (either via `ready` after the HTML render, or via
+`continue` opting to use the markdown directly).
 
 ---
 
@@ -398,15 +412,32 @@ is a record, not a quiz).
 
 ## Post-Completion
 
-After the chosen option is executed, cleanup is done, and (for Options 1 and 2) the shipped artifact is generated, suggest:
+After the chosen option is executed, cleanup is done, and (for Options 1
+and 2) the shipped artifact is generated **and the developer has confirmed
+they've seen it** (Step 6 — either via `ready` after the HTML render or
+via `continue` opting to use the markdown), suggest the retro.
 
-> "Work complete. `shipped.html` is open in your browser — it captures what
-> we built vs what we planned. When you're ready, run `/casaflow:retro` to
-> pick up from there. The retro won't start blank; it'll use the divergences
-> as a starting point."
+Retro is suggested **after** the shipped artifact moment — never before.
+The shipped doc is the retro's starting point; recommending retro before
+the dev has read it strips the prompt of its anchor.
 
-For Options 3 and 4, just suggest:
+**If `shipped_view = html`:**
 
-> "Work complete. If this was a feature or complex improvement, consider running `/casaflow:postmortem` to capture lessons learned."
+> "You've got `shipped.html` in front of you. When you want to capture
+> what we learned from this feature, run `/casaflow:retro` — it'll
+> pick up from the divergences and emergent open questions in the
+> shipped doc."
+
+**If `shipped_view = md`:**
+
+> "`shipped.md` is at `<path-to-shipped.md>`. When you want to capture
+> what we learned from this feature, run `/casaflow:retro` — it'll
+> pick up from the divergences and emergent open questions in the
+> shipped doc."
+
+**For Options 3 and 4 (keep or discard, no shipped artifact):**
+
+> "Work complete. If this was a feature or complex improvement, consider
+> running `/casaflow:postmortem` to capture lessons learned."
 
 Do not auto-invoke retro or postmortem -- just suggest.
