@@ -134,31 +134,36 @@ Followed by sections:
 - `## Suggested next step` — `/casaflow:spec <TICKET-ID>` with a note
   that the gaps above are the structural questions to expect
 
-### 0f. Visualize and open the brief
+### 0f. Offer the HTML brief (opt-in)
 
-Invoke the visualize skill to render `ticket.html` and open it in the
-developer's browser:
+`ticket.md` is saved. Ask the developer whether they want the interactive
+HTML view before continuing. **Do not invoke visualize without explicit
+consent — `ticket.md` is the canonical artifact; the HTML is opt-in every
+time.**
 
-```
-/casaflow:visualize <path-to-ticket.md>
-```
+> "Pulled **[TICKET-ID]**. Brief saved to `<path-to-ticket.md>`.
+>
+> Want me to render an interactive HTML view in your browser? It surfaces
+> the gaps as cards and runs a prediction-before-reveal opener — useful
+> if the ticket is dense or you want to think before reading. The
+> markdown stands on its own otherwise.
+>
+> Reply **html** to open the browser view, **continue** to start the spec
+> interview from the markdown only, **try a different ticket**, or
+> **skip** to proceed without ticket context."
 
-The visualize skill produces `ticket.html` next to `ticket.md` and opens
-it. The dev reads the brief in browser-mode (different posture, different
-attention than terminal scrollback).
+Wait for the developer's response:
 
-Then **pause** and tell the developer:
+- **html** → invoke `/casaflow:visualize <path-to-ticket.md>`. After the
+  skill returns, prompt: "Opened `ticket.html` in your browser. Read it
+  through, then type `ready` when you want to start the spec interview."
+  Wait for `ready`, then continue to 0g.
+- **continue** → continue to 0g immediately.
+- **try a different ticket** → return to 0c.
+- **skip** → proceed to Section 1 without ticket context.
 
-> "Pulled **[TICKET-ID]**. I've opened the brief in your browser — read
-> it, predict the ask in one line, and scan the gaps. Type `ready` when
-> you want to start the spec interview, or `try a different ticket` /
-> `skip` to change course."
-
-Wait for the developer's response. Do **not** proceed until they respond:
-
-- **try a different ticket** → return to 0c
-- **skip** → proceed to Section 1 without ticket context
-- **ready** → continue to 0g
+Do not visualize on any other response — re-prompt if the input is
+ambiguous.
 
 ### 0g. Route by issue type
 
@@ -316,35 +321,53 @@ Feature slug: lowercase, hyphens, derived from the feature name
 
 Create the feature directory if it does not exist.
 
-**Mandatory final comprehension check** before handing off:
+### Confirm the save — do not dump the spec to terminal
 
-> "Spec complete. Before we start building: can you describe in your own
-> words what happens when [most complex acceptance criterion]? I want to
-> make sure the spec reflects your mental model before we write any code."
+**Do not** echo the full spec back into the terminal. The dev wrote it
+section by section through the interview; replaying it as a wall of text
+trains them to skim and defeats the comprehension flow that follows. Send
+a single confirmation:
 
-This check is not optional. Claude does not skip it and does not move on if
-the answer is vague.
+> "Spec saved to `<path-to-spec.md>`."
+
+### Offer the HTML view (opt-in)
+
+Before the comprehension check, ask whether the dev wants the interactive
+HTML view. **Do not invoke visualize without explicit consent.**
+
+> "Want me to render this as an interactive HTML view in your browser? It
+> opens with a prediction-before-reveal step ("what'll be tricky to
+> build?") and lays out the test spec as a 3-column grid, the
+> architecture as a file diff, and open questions as a prominent
+> callout — things the markdown can't do well.
+>
+> Reply **html** to open the browser view, or **continue** to skip
+> straight to the comprehension check from the markdown."
+
+Wait for the response:
+
+- **html** → invoke `/casaflow:visualize <path-to-spec.md>`. After it
+  returns, prompt: "Opened `spec.html` in your browser. Read it through,
+  then type `ready` when you want the final comprehension check."
+  Wait for `ready` before continuing.
+- **continue** → proceed directly to the comprehension check.
+
+### Mandatory final comprehension check
+
+> "Before we start building: can you describe in your own words what
+> happens when [most complex acceptance criterion]? I want to make sure
+> the spec reflects your mental model before we write any code."
+
+This check is not optional. Claude does not skip it and does not move on
+if the answer is vague.
+
+### Handoff
 
 After the comprehension check passes, invoke the `jira-sync` skill if
-configured.
+configured, then prompt the developer to start the full pipeline:
 
-Then invoke the visualize skill to produce `spec.html`:
-
-```
-/casaflow:visualize <path-to-spec.md>
-```
-
-The visualize skill renders `spec.html` next to `spec.md` and opens it in
-the developer's browser. The HTML view applies the prediction-before-reveal
-opener ("what'll be the trickiest part to build?") and lays out the test
-spec as a 3-column grid, the architecture as a file diff, and open questions
-as a prominent callout — all the things markdown can't do well.
-
-Then prompt the developer to start the full pipeline:
-
-> "Spec saved. Opened `spec.html` in your browser — give it a once-over,
-> then run `/casaflow:kickoff` to start the development pipeline. It will
-> set up your ticket, branch, design, plan, and guide you through the full
+> "Run `/casaflow:kickoff` to start the development pipeline. It will set
+> up your ticket, branch, design, plan, and guide you through the full
 > build."
 
 Do **not** hand off directly to `/build` — the developer needs the full

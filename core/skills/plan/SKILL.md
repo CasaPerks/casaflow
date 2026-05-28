@@ -251,6 +251,37 @@ in this directory, the plan lives alongside it.
 **Fallback**: If no `vault-path` is configured, save to
 `docs/plans/YYYY-MM-DD-<feature-name>-plan.md` (legacy behavior).
 
+After saving, send a single confirmation. **Do not dump the full plan back
+into the terminal** — the dev wrote it through self-review and replaying
+it as a wall of text trains them to skim.
+
+> "Plan saved to `<path-to-plan.md>`."
+
+---
+
+## Offer the HTML view (opt-in)
+
+Before the execution handoff, ask whether the dev wants the interactive
+HTML view. **Do not invoke visualize without explicit consent — `plan.md`
+is the canonical artifact; the HTML is opt-in every time.**
+
+> "Want me to render this as an interactive HTML view in your browser? It
+> opens with a prediction-before-reveal step ("which task do you think
+> will hit a wall first?") and renders each task as a collapsible card
+> showing files, dependencies, and steps — useful for spotting risky
+> tasks before kicking off the build.
+>
+> Reply **html** to open the browser view, or **continue** to skip
+> straight to the execution handoff."
+
+Wait for the response:
+
+- **html** → invoke `/casaflow:visualize <path-to-plan.md>`. After it
+  returns, prompt: "Opened `plan.html` in your browser. Read it through,
+  then type `ready` when you want to pick an execution strategy."
+  Wait for `ready` before continuing to the execution handoff.
+- **continue** → proceed directly to the execution handoff.
+
 ---
 
 ## Execution Handoff
