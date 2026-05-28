@@ -9,7 +9,8 @@
       "name": "casaflow",
       "description": "Full lifecycle pipeline with spec gates, approval gates, and Jira integration",
       "source": "./",
-      "strict": true
+      "strict": true,
+      "version": "1.0.1"
     }
   ]
 }

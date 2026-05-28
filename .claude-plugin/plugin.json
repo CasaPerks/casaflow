@@ -1,6 +1,6 @@
 {
   "name": "casaflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CasaPerks AI engineering workflow — spec-first, comprehension-gated, Jira-native. Combines Jig's pipeline infrastructure with CasaPerks' education-first philosophy.",
   "author": {
     "name": "Zak DeBrine"
