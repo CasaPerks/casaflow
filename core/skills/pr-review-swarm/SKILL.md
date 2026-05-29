@@ -3,12 +3,14 @@ name: pr-review-swarm
 description: >
   Use when you've been added as a reviewer on a pull request and need to review
   it end-to-end — a reviewer-triggered PR review, not a review of your own
-  pre-PR diff. Pulls the PR branch down, checks the work against its Jira
-  ticket scope, checks coding-guideline adherence, dispatches the parallel
-  review swarm, and posts an approval or a request-changes review. When the
-  review is approve-worthy, it gates the approval on the qa skill: QA must
-  PASS before the PR is approved to merge. Every outward action (posting a
-  review, approving, merging) is confirmed with the reviewer first. Invoked by
+  pre-PR diff. Pulls the PR branch down, checks CI status, checks the work
+  against its Jira ticket scope, checks coding-guideline adherence, dispatches
+  the parallel review swarm (verifying each finding for correctness before
+  posting to a teammate's PR), and posts an approval or a request-changes
+  review. Approval is gated on mandatory QA whose form adapts to the PR type
+  (web e2e, mobile/backend/config) — QA must PASS first. Every outward action
+  (posting a review, pushing coverage, approving, merging) is confirmed with
+  the reviewer first. Invoked by
   /casaflow:pr-review-swarm <github PR url | PR # | branch>.
 tier: workflow
 alwaysApply: false
@@ -25,9 +27,12 @@ whether the **code holds up under the swarm** — then posts a verdict. An
 approve-worthy change doesn't get approved until it has also **passed QA**.
 
 The intent: by the time a PR merges, it has been reviewed thoroughly **and**
-the `qa` skill has built out e2e coverage for it — and that coverage is
-committed onto the PR (Step 5a), so the change merges *with* its regression
-tests, not without them.
+verified by QA. QA is mandatory on every PR, but its *form* adapts to the PR
+type — Playwright e2e for web, a manual AC checklist for mobile, the
+integration suite for backend, a targeted build-and-check for config/refactor.
+Where QA produces durable regression coverage (e.g. new e2e specs), getting
+that coverage onto the PR is offered as an opt-in (Step 5a) — not forced onto a
+teammate's branch.
 
 This is *not* `code-review` (which reviews *your own* `origin/main...HEAD`
 before you open a PR) and it is *not* `qa` alone (functional verification). It
@@ -36,13 +41,14 @@ this PR merge?*
 
 ```
 resolve + checkout PR
+   → CI status gate  (failing/pending required check → REQUEST_CHANGES / block)
    → scope check (vs Jira ticket / spec)
    → guidelines check
-   → review swarm  (review skill, tier: all)
+   → review swarm  (review skill, tier: all) → verify findings for correctness
    → VERDICT
         ├─ changes needed → post REQUEST_CHANGES (confirm) → STOP
-        └─ approve-worthy → run QA (qa skill)
-                               ├─ QA PASS  → post APPROVE (confirm) → offer merge (confirm)
+        └─ approve-worthy → run QA (form per PR type; mandatory)
+                               ├─ QA PASS  → offer to land coverage → post APPROVE (confirm) → offer merge (confirm)
                                └─ QA FAIL  → do NOT approve; report (confirm post)
 ```
 
@@ -62,17 +68,26 @@ platform equivalents.
 
 ## Non-negotiables
 
-1. **NEVER post a review, approve, or merge without explicit reviewer
-   confirmation.** Posting a review and merging are outward-facing and hard to
-   reverse. Always show the draft verdict and wait for a yes.
-2. **NEVER approve before QA passes.** A clean swarm is not approval. The only
-   path to APPROVE is: swarm clean + in scope + guidelines met **and** QA
-   result is PASS.
-3. **The swarm score is mechanical** — don't bump it because the change "looks
+1. **NEVER post a review, approve, push, or merge without explicit reviewer
+   confirmation.** These are outward-facing and hard to reverse — and this is
+   *someone else's* PR. Always show the draft and wait for a yes.
+2. **VERIFY every finding for correctness before posting it to a teammate's
+   PR.** A false-positive REQUEST_CHANGES on a colleague's work is the main
+   risk of automating this. Validate placement *and* that the issue is real —
+   re-derive it against the code, drop anything you can't stand behind. Lower
+   the volume, raise the confidence.
+3. **NEVER approve before QA passes.** A clean swarm is not approval. The only
+   path to APPROVE is: CI green + swarm clean + in scope + guidelines met
+   **and** QA result is PASS.
+4. **QA is mandatory but its form is per-PR-type** (Step 5). "No Playwright
+   harness" is **not** a reason to block — it routes to the right QA form for
+   that PR and can still reach PASS. Only "QA couldn't be performed at all" is a
+   genuine block.
+5. **The swarm score is mechanical** — don't bump it because the change "looks
    fine." Use the score the `review` skill produces.
-4. **Don't reverse-engineer scope from the diff.** Scope is judged against the
+6. **Don't reverse-engineer scope from the diff.** Scope is judged against the
    ticket's acceptance criteria and the spec, not invented from the code.
-5. **Run against the real checked-out branch**, not a guess of what it
+7. **Run against the real checked-out branch**, not a guess of what it
    contains. Pull it down first.
 
 ---
@@ -117,6 +132,24 @@ git diff origin/{baseRefName}...HEAD --name-only
 
 Use `origin/{baseRefName}...HEAD` (the PR's own base, which may not be
 `main-branch`) as the diff range throughout.
+
+### 0d. CI status — the cheapest gate, checked first
+
+CI status is a gate, independent of the swarm score. Check it before spending
+swarm and QA cycles on a red PR:
+
+```bash
+gh pr checks <number>          # required checks: pass / fail / pending
+```
+
+| CI state | Effect |
+|----------|--------|
+| A required check is **failing** | Automatic REQUEST_CHANGES — the code review can't override red CI. Surface it and (with confirmation) you can stop here rather than reviewing on top of a broken build. |
+| A required check is **still running** | **Block until green** — don't approve against pending checks. Tell the reviewer; offer to wait/re-check or to review now and hold the verdict. |
+| All required checks **green** (or none configured) | Proceed. |
+
+CI failure feeds the Step 4 verdict; it does not by itself skip the rest of the
+review (the swarm may still surface things worth flagging in the same pass).
 
 ---
 
@@ -173,25 +206,48 @@ git diff origin/{baseRefName}...HEAD
 git diff origin/{baseRefName}...HEAD --name-only
 ```
 
-Hand that diff to the `review` pipeline and take its **mechanical score and
-findings** verbatim — discover specialists, dispatch in parallel, collect,
-deep-review, score, report. Do not re-evaluate or soften the findings.
+Hand that diff to the `review` pipeline and take its **mechanical score**
+verbatim — discover specialists, dispatch in parallel, collect, deep-review,
+score, report. Don't *soften* the score because the change looks fine.
+
+### 3a. Verify findings for correctness before they leave the building
+
+The score is mechanical, but **what gets posted to a teammate's PR is not.**
+Before any finding becomes an inline comment on someone else's work, verify it
+is *real* — not just correctly placed on a diff line:
+
+- For each **blocking/major** finding, re-derive it against the actual code:
+  does the bug actually occur, given the surrounding context the specialist may
+  not have seen? Read the relevant file, not just the hunk.
+- **Drop findings you can't stand behind.** A false-positive REQUEST_CHANGES on
+  a colleague's PR is the costliest failure mode here — it erodes trust in the
+  whole automated review. When in doubt, downgrade to a question in the body
+  rather than a blocking inline comment.
+- This *reduces* what's posted; it never adds findings or raises the score.
+
+Carry the verified findings (not the raw swarm output) into the verdict.
 
 ---
 
 ## Step 4: Verdict
 
-Combine the three inputs into one decision. **REQUEST_CHANGES** if any of:
+Combine the inputs — CI, scope, guidelines, verified swarm findings — into one
+decision. **REQUEST_CHANGES** (or block) if any of:
 
-- The swarm reports any **blocking** finding (score ≤ 4), **or**
+- A required **CI check is failing** (Step 0d), **or**
+- A **verified** swarm finding is **blocking** (score ≤ 4) — verified per Step
+  3a, false positives already dropped, **or**
 - The change is **out of scope** (scope creep) or **incomplete** vs AC, **or**
 - There are **coding-guideline violations** that the team treats as required.
+
+If a required check is **still running**, hold — don't approve against pending
+CI (Step 0d).
 
 Otherwise the change is **approve-worthy** — but it is **not approved yet**. It
 proceeds to QA (Step 5) before any approval.
 
-Major/minor swarm findings that aren't blocking are reviewer's judgment: note
-them in the review body; they don't by themselves force REQUEST_CHANGES.
+Major/minor verified findings that aren't blocking are reviewer's judgment:
+note them in the review body; they don't by themselves force REQUEST_CHANGES.
 
 ### 4a. Post a REQUEST_CHANGES review (if changes needed)
 
@@ -215,65 +271,96 @@ If approve-worthy, continue to Step 5 — **do not post anything yet.**
 
 ---
 
-## Step 5: QA gate (approve-worthy changes only)
+## Step 5: QA gate — mandatory, form adapts to the PR type
 
-**REQUIRED**: Use the `qa` skill to verify the feature actually works before
-approving. Invoke it on the same target:
+**QA is mandatory on every PR.** But "QA" is not a synonym for "Playwright."
+A web-only QA gate dead-ends every non-web PR (iOS, backend, infra/config, pure
+refactors, docs) at `BLOCKED` — which would make mandatory QA *unachievable*
+for a large share of real PRs. So first **classify the PR**, then run the QA
+form that fits it. The bar is the same everywhere: *the acceptance criteria are
+demonstrably met with the current code.*
+
+| PR type (from changed paths + ticket) | QA form | PASS means |
+|----------------------------------------|---------|------------|
+| **Web / UI** | `qa` skill → Playwright e2e for the AC | e2e green |
+| **Mobile (iOS/Android)** | Defined **manual AC checklist** the reviewer runs | reviewer signs off every item |
+| **Backend / API** | The feature's existing/integration suite (+ a targeted call if needed) | suite green, AC exercised |
+| **Config / refactor / docs** | Relevant **build** + the targeted check that proves the change | build green + the specific behavior confirmed |
+
+**REQUIRED**: Use the `qa` skill to drive this — it already runs the feature's
+existing tests, generates/runs Playwright e2e where a web harness exists, and
+**routes to a runnable manual checklist where it doesn't**. Invoke it on the
+same target:
 
 ```
 /casaflow:qa <ticket-id | PR url>
 ```
 
-`qa` runs the feature's existing tests, generates/runs Playwright e2e for the
-AC, writes a pass/fail `qa.md`, and — if the ticket has subtasks — QAs them one
-at a time. Let it run its full loop, including its required `qa.html` prompt.
-Read the **`result`** from the resulting `qa.md` front matter.
+Let it run its full loop (including its required `qa.html` prompt) and, for a
+ticket with subtasks, one subtask at a time. Read the **`result`** from the
+resulting `qa.md` front matter.
 
 | QA `result` | Next |
 |-------------|------|
-| **PASS** | → Step 5a (land the e2e coverage on the PR) → Step 6 (approve) |
-| **FAIL** | Do **not** approve. Summarize the failing checks; with confirmation, post a REQUEST_CHANGES (or a comment) citing the QA failures and link `qa.md`. STOP. |
-| **BLOCKED** | Do **not** approve. Report what blocked QA (e.g. no test harness, login the repo can't provide) and hand back to the reviewer. STOP. |
+| **PASS** | → Step 5a (offer to land any generated coverage) → Step 6 (approve) |
+| **FAIL** | Do **not** approve. Summarize the failing checks; with confirmation, post REQUEST_CHANGES (or a comment) citing the QA failures and link `qa.md`. STOP. |
+| **BLOCKED** | **Only** when QA *could not be performed at all* — no way to exercise the AC by any form (automated or manual). Report why and hand back. **"No Playwright harness" is NOT blocked** — that routes to the manual / suite / build form above and can still reach PASS. |
 
-If QA produced manual checks the reviewer hasn't signed off, surface them — a
-PASS that still has unresolved manual checks is not a clean pass; ask the
-reviewer before treating it as PASS.
+A PASS whose evidence is a manual checklist is still a PASS — record the
+checklist and the reviewer's sign-off in `qa.md`. But if QA produced manual
+checks the reviewer hasn't signed off yet, surface them; an unsigned manual
+check is not a clean pass — ask before treating it as PASS.
 
-### 5a. Land the e2e coverage on the PR (the point of the gate)
+### 5a. Offer to land the generated coverage (opt-in, never the default)
 
-The goal isn't just "QA passed once" — it's that **the PR merges carrying the
-regression coverage QA built.** `qa` saves its generated Playwright specs by
-default; because Step 0b checked the branch out, those new spec files are now
-in the PR's working tree.
+When QA generated durable coverage (new e2e specs/fixtures, now in the working
+tree from Step 0b), it's valuable for that coverage to travel with the change.
+But **pushing onto the author's branch is a judgment call, not a default** —
+it reassigns authorship on someone else's PR, and it simply doesn't work in
+common cases. So decide based on the PR, and confirm before doing anything.
 
-1. `git status` to find the e2e specs `qa` generated (and any fixtures it added).
-2. If there are new/changed specs, **commit and push them onto the PR branch**
-   (with confirmation — this writes to someone else's PR):
+First detect whether pushing is even possible:
 
-   ```bash
-   git add <generated e2e spec paths>
-   git commit -m "test(e2e): add QA regression coverage for <ticket>"
-   git push origin HEAD
-   ```
-   Follow the repo's commit convention (`casaflow.config.md`). Now the e2e
-   coverage is part of what merges, not a throwaway local artifact.
-3. If `qa` routed everything to **manual** (no harness, or login it can't
-   provide), there's nothing to commit — note in the approval that coverage is
-   manual-only so the gap is visible.
+```bash
+gh pr view <number> --json isCrossRepository,maintainerCanModify,headRepositoryOwner
+gh pr checks <number>     # branch-protection / required-status context
+```
+
+| Situation | What to offer |
+|-----------|---------------|
+| **Fork PR** (`isCrossRepository: true`) without `maintainerCanModify` | You **cannot** push to the author's branch. Offer a **follow-up PR** with the coverage, or attach the specs to the review for the author to commit. |
+| **Branch protection** blocks direct pushes | Don't fight it. Offer the follow-up-PR path. |
+| **Same-repo branch, pushable** | Offer to commit + push onto the PR branch **(opt-in)** *or* open a follow-up PR — let the reviewer choose. |
+
+If the reviewer opts to push to the branch:
+
+```bash
+git add <generated coverage paths>
+git commit -m "test: add QA coverage for <ticket>"   # repo's commit convention
+git push origin HEAD
+```
+
+If QA produced no durable artifact (manual checklist, or backend suite that
+already lived in the repo), there's nothing to land — note in the approval how
+the AC was verified so the coverage shape is visible. Either way, **do not block
+approval on where the coverage lives** — a PASS is a PASS; coverage delivery is
+a separate, opt-in step.
 
 ---
 
 ## Step 6: Approve to merge (QA passed)
 
-Only reachable when the swarm was clean, the work was in scope and on-guideline,
-**and** QA result is PASS.
+Only reachable when CI was green, the verified swarm findings were clean, the
+work was in scope and on-guideline, **and** QA result is PASS.
 
 1. Draft the APPROVE review body:
-   - Swarm score and that it was clean / non-blocking.
+   - CI: required checks green.
+   - Swarm score and that the verified findings were clean / non-blocking.
    - Scope: confirmed against `<ticket>` AC.
-   - QA: PASS — link `qa.md` (and `qa.html` if generated), note automated vs
-     manual counts, and that the generated e2e specs were committed to the
-     branch (from Step 5a) so the PR merges with regression coverage.
+   - QA: PASS — which **form** of QA was run (e2e / manual checklist / suite /
+     build-and-check), link `qa.md` (and `qa.html` if generated), and where the
+     coverage landed (committed to branch, follow-up PR, or manual sign-off
+     recorded) per Step 5a.
 2. **Show the reviewer and confirm.** On a yes:
 
    ```bash
@@ -297,11 +384,19 @@ Only reachable when the swarm was clean, the work was in scope and on-guideline,
 
 - Does not review your *own* pre-PR diff — that's the `code-review` agent /
   `review` skill on your branch.
-- Does not approve on a clean code review alone — approval is QA-gated.
-- Does not post any review, approval, or merge without explicit reviewer
+- Does not approve on a clean code review alone — approval is QA-gated, and CI
+  must be green.
+- Does not post any review, approval, push, or merge without explicit reviewer
   confirmation.
+- Does not post **unverified** findings — each blocking/major finding is
+  re-derived against the code (Step 3a); false positives are dropped, not
+  shipped to a teammate's PR.
 - Does not re-score or soften swarm findings — the `review` score is
   authoritative.
+- Does not **block a non-web PR for lacking a Playwright harness** — QA's form
+  adapts to the PR type; only "couldn't QA at all" is BLOCKED.
+- Does not **push coverage onto the author's branch by default** — that's
+  opt-in, and forks / protected branches get a follow-up PR instead.
 - Does not reverse-engineer scope or acceptance criteria from the diff — it
   judges against the ticket/spec, and asks when unclear.
 - Does not build a test harness for QA or mint credentials — `qa` routes those
@@ -317,9 +412,17 @@ Only reachable when the swarm was clean, the work was in scope and on-guideline,
   invent scope.
 - **Working tree is dirty** before `gh pr checkout` — stop; don't stash the
   reviewer's work.
+- **About to post a finding you haven't verified** — re-derive it first; a
+  false-positive REQUEST_CHANGES on a teammate's PR is the costliest miss here.
+- **About to mark a non-web PR BLOCKED for "no Playwright"** — wrong call; pick
+  the QA form for that PR type. BLOCKED is only "couldn't QA at all."
+- **CI is red or still running** — don't approve over it; failing = changes
+  requested, pending = hold.
 - **Tempted to approve before QA** — never. QA PASS is the only gate to APPROVE.
-- **About to post REQUEST_CHANGES / APPROVE / merge without a yes** — stop and
-  confirm first.
+- **About to push coverage to a fork or protected branch** — you can't / shouldn't;
+  open a follow-up PR instead.
+- **About to post REQUEST_CHANGES / APPROVE / push / merge without a yes** —
+  stop and confirm first.
 - **QA came back FAIL/BLOCKED but the code looked clean** — that's exactly the
   case this skill exists to catch. Do not approve.
 - **Diff base isn't the PR's actual base** — use `origin/{baseRefName}`, not
