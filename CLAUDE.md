@@ -66,7 +66,7 @@ These override or extend the Jig core for CasaPerks.
 |-------|---------|
 | `jira-sync` | 7-step spec-to-Jira sync; stage status updates; PR URL comments |
 
-### Core Skills (17)
+### Core Skills (18)
 
 | Skill | Purpose |
 |-------|---------|
@@ -86,6 +86,7 @@ These override or extend the Jig core for CasaPerks.
 | `tdd` | Red-green-refactor discipline |
 | `finish` | Branch completion — merge, PR, keep, or discard |
 | `qa` | Reviewer-triggered functional QA — verifies a code-reviewed, merged change works as expected. QAs subtasks one at a time, runs the feature's existing tests, generates/runs Playwright e2e for the AC, writes pass/fail `qa.md`, offers opt-in `qa.html`, lists manual checks. Tests against the AC; does not back-engineer the feature |
+| `pr-review-swarm` | Reviewer-triggered end-to-end PR review. Pulls the PR branch, checks work against Jira ticket scope, checks coding-guideline adherence, dispatches the `review` swarm, posts approve/request-changes. Approve-worthy changes are QA-gated: the `qa` skill must PASS (building out e2e coverage) before approval. Confirms every outward action (post/approve/merge). Invoked by `/casaflow:pr-review-swarm <PR url \| # \| branch>` |
 | `extend` | Framework extension assistant — scaffolds new skills, specialists, packs |
 
 ### Core Agents (3)
@@ -241,6 +242,7 @@ load and follow that skill's SKILL.md verbatim.
 | `/casaflow:extend` | `core/skills/extend/SKILL.md` | Framework extension — scaffolds new skills, specialists, packs. |
 | `/casaflow:postmortem` | `core/skills/postmortem/SKILL.md` | Post-merge retrospective with specialist/logic reviewer diagnosis. |
 | `/casaflow:qa` | `core/skills/qa/SKILL.md` | Reviewer-triggered functional QA: does the feature work as expected with the current code (already code-reviewed + merged to dev)? NOT a second code review, and does NOT back-engineer the feature from the diff. Resolve target (ticket/PR/branch) → if the ticket has subtasks, QA them one at a time → read AC (+ spec.md if present) → run the feature's existing tests → discover Playwright, run existing e2e or generate happy-path specs for the AC (reuse repo auth fixture; route to manual if none) → write pass/fail `qa.md` → required opt-in `qa.html` prompt → list manual checks. Does not derive backend check matrices, mint per-role auth, promote regression branches/PRs, spawn bug tickets, or auto-post reviews. |
+| `/casaflow:pr-review-swarm` | `core/skills/pr-review-swarm/SKILL.md` | Reviewer-triggered end-to-end PR review (you've been added as reviewer). Resolve PR (url/#/branch) → `gh pr checkout` the branch → scope check vs Jira ticket/spec AC → coding-guideline check (target repo CLAUDE.md + eng standards) → dispatch `review` swarm `tier: all` (score taken verbatim) → VERDICT. Changes needed → post REQUEST_CHANGES via `pr-review` agent (confirm) → STOP. Approve-worthy → run `qa` skill; only on QA PASS post APPROVE (confirm) then offer merge (confirm). NEVER posts/approves/merges without confirmation; NEVER approves before QA passes. |
 | `/casaflow:eng-copywriting` | `packs/engineering/skills/eng-copywriting/SKILL.md` | Sentence case standards. |
 | `/casaflow:eng-flags` | `packs/engineering/skills/eng-flags/SKILL.md` | Atomic flag setup: bulk consent → PostHog MCP per environment (retry-once → manual fallback on persistent failure) → registry writes per touched repo. Repo-discovery fallback blocks any repo without registry infra. Embeds CAS-577 naming + JSDoc conventions. No auto-rollback of partial creations. |
 | `/casaflow:eng-logging` | `packs/engineering/skills/eng-logging/SKILL.md` | Log level guidance. |
