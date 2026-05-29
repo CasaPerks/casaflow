@@ -7,7 +7,9 @@ description: >
   a check matrix from acceptance criteria AND the diff, auto-discovers the
   Playwright runtime to generate and run e2e for everything testable using
   provisioned QA accounts, and produces an opt-in qa.html the reviewer signs
-  off check-by-check. Invoked by /casaflow:qa <CAS-NNNN | PR url | branch>.
+  off check-by-check. Green specs are saved to a dedicated regression
+  branch/PR by default, growing a permanent regression suite over time.
+  Invoked by /casaflow:qa <CAS-NNNN | PR url | branch>.
 tier: workflow
 alwaysApply: false
 ---
@@ -34,8 +36,10 @@ The four CasaPerks pillars, applied to review:
 - **Comprehension** — the reviewer must understand the change to sign off.
 - **Upskilling** — a junior doing QA sees *how* checks are derived from AC +
   diff, and where regression risk actually hides.
-- **Robustness** — checks come from the diff (not just the AC), and green
-  generated specs can be promoted into the permanent regression suite.
+- **Robustness** — checks come from the diff (not just the AC), and every QA
+  pass grows a permanent regression suite: green specs are saved to a
+  dedicated test branch + PR by default, so coverage compounds over time
+  instead of evaporating at the end of the session.
 
 ---
 
@@ -191,9 +195,11 @@ per role needed.
 in `qa.md`, not in `qa.html`, not in a log or comment. Treat it like the
 passwords in Step 1.
 
-### 3c. Generate (quarantined)
+### 3c. Generate (staged in quarantine)
 Write generated specs to a quarantine dir inside the discovered e2e folder,
-e.g. `e2e/__casaflow_qa__/<feature-slug>/`. They are **not** committed yet.
+e.g. `e2e/__casaflow_qa__/<feature-slug>/`. Quarantine is a **staging area
+for the run**, not a graveyard — green specs are promoted to the permanent
+suite by default in Step 5. Nothing is committed during the run itself.
 One file per automatable check, named `QA-<n>.spec.ts` (match the repo's
 extension), assertion text as the test title.
 
@@ -224,14 +230,21 @@ A spec that fails twice on retry is `flaky` — record it, don't promote it.
 
 ---
 
-## Step 4: Produce qa.md and offer the HTML view
+## Step 4: Produce qa.md and ask about the HTML view
 
 Write `qa.md` to the feature folder (`~/Documents/<project-name>/<feature-slug>/qa.md`)
 using the format below. This is the canonical QA artifact.
 
-Then offer the interactive view — **opt-in every time**, per the visualize
-contract. Do not auto-fire it, do not dump the matrix as a terminal wall of
-text as a substitute.
+**Then you MUST ask whether the reviewer wants `qa.html` — this is a required
+prompt, not a judgment call.** The HTML is the tester's comprehension artifact:
+it lays out the change, the automated results, and a per-check sign-off control,
+giving them a far better understanding of the QA than the raw markdown. Never
+decide on the reviewer's behalf, never silently skip it, and never proceed to
+Step 5 (sign-off) without having presented the choice and received an answer.
+
+Keep it **opt-in every time**, per the visualize contract — ask, then wait. Do
+not auto-fire the HTML either, and do not dump the matrix as a terminal wall of
+text as a substitute for asking.
 
 > "QA matrix built and automated checks have run. Results saved to
 > `<path-to-qa.md>` — N automated (X passed, Y failed), M manual checks for
@@ -282,11 +295,29 @@ When you receive the block (pasted, or collected in terminal under
 5. **Spawn bug tickets** for each `fail` — reuse the spawned-tickets concept
    from `shipped.md`: create a Jira issue per failure, link it to the
    original ticket, and list the new IDs in `qa.md`.
-6. **Offer to promote** green, non-flaky generated specs into the permanent
-   e2e suite (move out of the quarantine dir, into the discovered e2e folder,
-   for the reviewer to commit). This is how every QA pass grows the
-   regression net instead of evaporating. Flaky or failing specs are never
-   promoted.
+6. **Promote green specs into the regression library (default).** Saving the
+   specs is the *default action*, not an opt-in afterthought — this is how
+   every QA pass grows the regression net instead of evaporating at the end
+   of the session. For green, non-flaky specs:
+   a. Move them out of the quarantine dir into the discovered e2e folder
+      (alongside the repo's existing e2e, matching its layout).
+   b. Cut a **dedicated branch off the base branch** (default `main`, or the
+      PR's `baseRefName`):
+      `{username}/jig-{ticket-number}-qa-regression-{feature-slug}`.
+      Keep this separate from the change under review so the regression specs
+      merge on their own cadence and the change PR stays focused on the change.
+   c. Commit the promoted specs with a conventional commit, e.g.
+      `test(e2e): add regression specs from QA of <CAS-NNNN>`.
+   d. Open a **standalone PR** against the base branch. Body links the original
+      ticket + change PR and lists the promoted checks (id + assertion).
+   e. **Confirm once before pushing.** Show the reviewer the branch name, the
+      specs being promoted, and the commit/PR plan; the default is to proceed,
+      but the reviewer can decline (repo rule: never push without explicit
+      approval). On decline, leave the promoted specs staged locally and note
+      it in `qa.md`.
+   Flaky or failing specs are **never** promoted — they stay in quarantine,
+   are flagged in `qa.md`, and are kept out of the suite so the regression net
+   stays trustworthy. Record the regression PR URL in `qa.md`.
 
 ---
 
@@ -306,6 +337,7 @@ result: pending | PASS | FAIL | BLOCKED
 automated: { total: N, passed: X, failed: Y, flaky: Z }
 manual: { total: M, pass: , fail: , blocked: }
 spawned_tickets: []        # bug tickets opened from failures
+regression_pr:             # PR opened to add promoted green specs to the suite
 ---
 
 # QA: <Feature Name>
@@ -332,7 +364,10 @@ Verdict (and, for API checks, the pasted `actual` response) filled at sign-off.
 Overall result + per-check verdicts + reviewer notes (filled in Step 5).
 
 ## Promoted specs
-Generated specs promoted into the permanent suite (filled in Step 5).
+Green, non-flaky specs promoted into the permanent suite by default, with the
+dedicated regression branch name and PR URL (filled in Step 5). Flaky/failing
+specs held back in quarantine are listed here too, each with the reason it was
+excluded.
 ```
 
 ---
@@ -340,9 +375,13 @@ Generated specs promoted into the permanent suite (filled in Step 5).
 ## What this skill does NOT do
 
 - Does not write credentials anywhere outside the casavault registry.
-- Does not commit generated specs automatically — promotion is opt-in and
-  leaves the actual `git commit` to the reviewer (repo rule: never commit
-  without explicit approval).
+- Does not push the regression branch or open its PR without one explicit
+  confirmation — promotion is the default action, but the push itself is
+  confirmed once (repo rule: never push without explicit approval).
+- Does not promote flaky or failing specs — only green, non-flaky specs enter
+  the regression library; the rest stay in quarantine.
+- Does not add the regression specs to the change PR under review — they go on
+  their own dedicated branch + PR.
 - Does not post a PR approval/request-changes without reviewer confirmation.
 - Does not modify the source markdown artifacts (`spec.md`, `shipped.md`).
 - Does not run if it cannot resolve the target to at least a PR or a diff —
@@ -365,6 +404,9 @@ Stop and surface explicitly:
 - **Generated spec is flaky** (passes then fails on retry) — record as flaky,
   exclude from promotion, flag it for the reviewer.
 - **PR review post would change PR state** — confirm with the reviewer first.
+- **About to skip the `qa.html` prompt** — never proceed to sign-off without
+  asking the reviewer whether they want the HTML artifact; the choice is
+  theirs, not yours to make for them.
 
 ---
 
