@@ -85,7 +85,7 @@ These override or extend the Jig core for CasaPerks.
 | `verify` | Evidence before assertions — run it before claiming it works |
 | `tdd` | Red-green-refactor discipline |
 | `finish` | Branch completion — merge, PR, keep, or discard |
-| `qa` | Reviewer-triggered QA — assembles ticket+PR+spec+shipped, derives a check matrix from AC + diff, auto-runs Playwright with provisioned QA accounts, opt-in `qa.html` with per-check sign-off that exports findings back to post the review |
+| `qa` | Reviewer-triggered functional QA — verifies a code-reviewed, merged change works as expected. QAs subtasks one at a time, runs the feature's existing tests, generates/runs Playwright e2e for the AC, writes pass/fail `qa.md`, offers opt-in `qa.html`, lists manual checks. Tests against the AC; does not back-engineer the feature |
 | `extend` | Framework extension assistant — scaffolds new skills, specialists, packs |
 
 ### Core Agents (3)
@@ -240,7 +240,7 @@ load and follow that skill's SKILL.md verbatim.
 | `/casaflow:ticket` | `core/skills/ticket/SKILL.md` | Ticket creation/lookup. |
 | `/casaflow:extend` | `core/skills/extend/SKILL.md` | Framework extension — scaffolds new skills, specialists, packs. |
 | `/casaflow:postmortem` | `core/skills/postmortem/SKILL.md` | Post-merge retrospective with specialist/logic reviewer diagnosis. |
-| `/casaflow:qa` | `core/skills/qa/SKILL.md` | Reviewer-triggered QA. Resolve target (ticket/PR/branch) → assemble ticket+PR+spec.md+shipped.md → load `QA-Accounts-Registry.md` from casavault root (creds never leave the vault) → derive check matrix from AC + diff → auto-discover Playwright, generate quarantined specs, run with provisioned accounts → opt-in `qa.html` (NO prediction gate; per-check pass/fail/blocked sign-off) → reviewer exports `casaflow-qa-results` block back → post Jira comment + `gh pr review` (confirm first) → spawn bug tickets → promote green non-flaky specs to a dedicated regression branch + PR by default (one confirm before push). |
+| `/casaflow:qa` | `core/skills/qa/SKILL.md` | Reviewer-triggered functional QA: does the feature work as expected with the current code (already code-reviewed + merged to dev)? NOT a second code review, and does NOT back-engineer the feature from the diff. Resolve target (ticket/PR/branch) → if the ticket has subtasks, QA them one at a time → read AC (+ spec.md if present) → run the feature's existing tests → discover Playwright, run existing e2e or generate happy-path specs for the AC (reuse repo auth fixture; route to manual if none) → write pass/fail `qa.md` → required opt-in `qa.html` prompt → list manual checks. Does not derive backend check matrices, mint per-role auth, promote regression branches/PRs, spawn bug tickets, or auto-post reviews. |
 | `/casaflow:eng-copywriting` | `packs/engineering/skills/eng-copywriting/SKILL.md` | Sentence case standards. |
 | `/casaflow:eng-flags` | `packs/engineering/skills/eng-flags/SKILL.md` | Atomic flag setup: bulk consent → PostHog MCP per environment (retry-once → manual fallback on persistent failure) → registry writes per touched repo. Repo-discovery fallback blocks any repo without registry infra. Embeds CAS-577 naming + JSDoc conventions. No auto-rollback of partial creations. |
 | `/casaflow:eng-logging` | `packs/engineering/skills/eng-logging/SKILL.md` | Log level guidance. |

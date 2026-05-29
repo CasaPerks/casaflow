@@ -250,10 +250,10 @@ prediction-before-reveal doesn't fit. Page lands fully unlocked, like
 | Hero title | `# QA: ...` heading |
 | Hero summary | `## What changed` |
 | Delta pills | Frontmatter `automated` + `manual` counts |
-| High-risk callout | The highest-`risk` / divergence-linked check from `## Check matrix` (skip if none flagged high) |
-| Automated check cards | `## Automated results` (one card per check: id, assertion, surface + source/account/risk tags, PASS/FAIL badge, duration, trace or endpoint, failure note) — these verdicts are **fixed**, not editable |
-| Manual frontend cards | `## Manual checks` frontend entries (id, assertion, tags, repro + expected, three verdict buttons, notes textarea) |
-| Manual API cards | `## Manual checks` backend/API entries (`data-api="true"`): method + URL, `Authorization: Bearer {{token}}` placeholder, **Copy as cURL** button, an Expected (readonly) and an Actual (editable) textarea, plus verdict buttons + notes. The reviewer pastes the real response into Actual; it rides along in the export as `actual`. **Never render a real token** — only the `{{token}}` placeholder |
+| Feature-tests row | `## Feature tests` (the command run + result) |
+| Automated check cards | `## Automated e2e` (one card per check: assertion, PASS/FAIL/flaky badge, trace/screenshot path, spec path, failure note) — these verdicts are **fixed**, not editable |
+| Manual check cards | `## Manual checks` entries. Each card renders the **assertion**, the **numbered steps** (as an ordered list — preserve order), a **Tools to use** line, and the **Expected** result, followed by three verdict buttons (pass/fail/blocked) + a notes textarea. The step-by-step recipe is the point — render it in full, don't truncate it. |
+| API/data sub-step | If a manual check's steps include a runnable request, render a **Copy as cURL** button for that step and an editable **Actual** field so the reviewer can paste the real response (rides along in the export as `actual`). **Never render a real token** — only a `{{token}}` placeholder |
 | Sticky sign-off bar | Live overall verdict (any fail→FAIL, else any blocked→BLOCKED, else PASS) + manual sign-off count + Export button |
 | Export modal | Serializes all verdicts to a fenced ```` ```casaflow-qa-results ```` JSON block + copy-to-clipboard |
 
@@ -261,8 +261,8 @@ prediction-before-reveal doesn't fit. Page lands fully unlocked, like
 exactly.** The reviewer marks each manual check, clicks Export, and the page
 emits a `casaflow-qa-results` JSON block (type, ticket, pr_url, overall, per
 -check id/kind/surface/verdict/note/actual). The reviewer pastes it back into
-the CasaFlow chat; the `qa` skill (Step 5) parses it to post the review and
-set the result. Keep the `QA_META` / `AUTOMATED` constants at the top of the
+the CasaFlow chat; the `qa` skill (Step 4) parses it to record the verdicts in
+`qa.md` and set the result. Keep the `QA_META` / `AUTOMATED` constants at the top of the
 script populated from the source markdown so the export carries correct
 identifiers.
 
