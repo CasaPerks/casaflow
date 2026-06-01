@@ -3,11 +3,15 @@ name: qa
 description: >
   Use when a reviewer picks up a shipped or in-review change to verify it
   before merge — a reviewer-triggered QA pass, not part of the main build
-  pipeline. Runs the feature's existing tests, generates Playwright e2e for
-  the acceptance criteria if none exist, runs them, and writes a pass/fail
-  qa.md. If the target ticket has subtasks, it QAs them one at a time rather
-  than the whole epic at once. Then it offers an opt-in qa.html and lists any
-  checks the reviewer must run manually. Invoked by
+  pipeline. Runs the feature's existing tests (discovering the stack's test
+  command, not just package.json); for web changes it generates/runs Playwright
+  e2e for the acceptance criteria, while non-web changes (mobile, backend,
+  config) route to the existing suite or an AC-derived manual checklist. Writes
+  a qa.md with result pending|PASS|FAIL|BLOCKED (pending = manual checks await
+  sign-off; BLOCKED only when the AC can't be exercised by any form). If the
+  target ticket has subtasks, it QAs them one at a time rather than the whole
+  epic at once. Then it offers an opt-in qa.html and lists any checks the
+  reviewer must run manually. Invoked by
   /casaflow:qa <CAS-NNNN | PR url | branch>.
 tier: workflow
 alwaysApply: false
@@ -110,20 +114,35 @@ than inferring it from the code.
 
 ## Step 1: Run the feature's existing tests
 
-Before generating anything, run the tests that already cover this change.
+Before generating anything, run the tests that already cover this change —
+whatever the repo's stack uses. **Discover the command; don't assume one.**
 
-```bash
-# discover the project's test command
-jq -r '.scripts | to_entries[] | select(.key|test("^test")) | .key' package.json
-```
+- **Node / web** — `test*` scripts in `package.json`
+- **iOS / mobile** — `xcodebuild test`, a Fastlane lane, or the repo's test script
+- **Python / Go / Ruby / etc.** — `pytest`, `go test`, `rake test`, a Makefile target
+
+If the convention isn't obvious, fall back to the command the repo's **CI**
+runs (`.github/workflows/*`, other CI config) — that's the source of truth for
+"how this repo tests itself."
 
 Run the relevant suite (scope to the feature's files/dir when you can, so the
 run is fast). Record pass/fail. If a feature test fails, that's a QA finding —
-capture it; don't try to fix it.
+capture it; don't try to fix it. If the stack genuinely has no runnable test
+suite, note it and rely on the e2e / manual forms below — don't invent one.
 
 ---
 
-## Step 2: Build Playwright tests if they don't exist, then run
+## Step 2: Web e2e via Playwright (web/UI changes)
+
+Generating Playwright specs for the AC's web flows is the high-value automation
+this skill does — lean into it for **web/UI** changes. For **non-web** changes
+there's no Playwright to generate; the automated coverage is the existing suite
+from Step 1, and the rest is manual (Step 4):
+- **mobile** → the device/UI checks become a manual AC checklist (Step 4)
+- **backend / API** → the integration suite from Step 1 (+ a targeted call if needed)
+- **config / refactor / docs** → the relevant build + the targeted check that proves it
+
+If this isn't a web change, skip to Step 3. Otherwise:
 
 ### 2a. Discover the Playwright runtime
 ```bash
@@ -181,10 +200,27 @@ Write `qa.md` to the feature folder
 (`~/Documents/<project-name>/<feature-slug>/qa.md`), using the format below.
 This is the canonical QA artifact — one per subtask when QAing subtasks.
 
-Compute the overall result:
-- any failed check → **FAIL**
-- nothing failed but something is blocked/manual-unverified → **BLOCKED**
-- all checks pass → **PASS**
+Compute the overall result — and **distinguish "not done yet" from "can't be
+done":**
+- any check failed (automated, or a signed-off manual check) → **FAIL**
+- checks ran/generated but one or more **manual checks still await reviewer
+  sign-off** → **pending** — QA is mid-flight, *not* blocked; it resolves to
+  PASS/FAIL once the reviewer signs off (Step 4)
+- all checks pass **and** every manual check is signed off → **PASS**
+- the AC **could not be exercised by any form** — no automated path *and* no
+  runnable manual check is possible → **BLOCKED**
+
+**`BLOCKED` is narrow and rare.** "No Playwright harness," "needs a login,"
+"this is a mobile / backend / config change" are **not** blocked — they route
+to the existing suite (Step 1) or a manual checklist (Step 4) and still reach
+PASS. Reserve `BLOCKED` for "there is genuinely no way to exercise this AC."
+A change waiting on the reviewer to walk its manual checks is `pending`, never
+`BLOCKED`.
+
+The front matter must **reconcile** with this result: count checks still
+awaiting sign-off as `manual.unsigned`, so `result: pending` ⟺ `manual.unsigned
+> 0` with nothing failed. When sign-off completes, `unsigned` drops to 0 and the
+result settles to PASS or FAIL.
 
 ---
 
@@ -225,6 +261,12 @@ with "verify the feature works." For every manual check, write:
 Aim for steps a teammate could follow cold without asking you a question. These
 land in `qa.md` under `## Manual checks` and render as cards in `qa.html`.
 
+**Guard the manual path against rubber-stamping** — it's the easiest form to
+wave through, so keep it honest: every manual check must trace to a specific AC
+item (one check per AC item, not a free-form "looks good"), and the reviewer
+signs off **each item individually**, never the checklist as a whole. Any
+unsigned item keeps the result `pending`, not PASS.
+
 If QAing subtasks one at a time, after finishing one, offer to move to the next.
 
 ---
@@ -242,8 +284,14 @@ spec_path: <path or "none">
 reviewer: <email>
 qa_date: YYYY-MM-DD
 result: pending | PASS | FAIL | BLOCKED
+# pending  = manual checks await reviewer sign-off (mid-flight, not a failure)
+# PASS     = all checks pass AND every manual check signed off
+# FAIL     = a check failed
+# BLOCKED  = AC could not be exercised by ANY form (rare; not "no harness")
 automated: { total: N, passed: X, failed: Y, flaky: Z }
-manual: { total: M, pass: , fail: , blocked: }
+manual: { total: M, pass: , fail: , blocked: , unsigned: }
+# manual.unsigned = checks awaiting reviewer sign-off; result is `pending`
+# while unsigned > 0 (and nothing has failed)
 ---
 
 # QA: <Feature / Subtask Name>
@@ -298,7 +346,15 @@ Stop and surface explicitly:
 
 - **Target can't be resolved** to a ticket/PR — report what you found and ask.
 - **Ticket has subtasks** — list them and QA one at a time; don't bundle.
-- **No Playwright harness** — route e2e checks to manual, don't build one.
+- **No Playwright harness** — route e2e checks to manual, don't build one. This
+  is **not** `BLOCKED`.
+- **About to mark a change `BLOCKED` because it isn't web / has no Playwright** —
+  wrong. Route it to the existing suite or a manual checklist; `BLOCKED` is only
+  "no way to exercise the AC at all."
+- **About to mark manual-checks-awaiting-sign-off as `BLOCKED`** — that's
+  `pending`, not blocked; QA is mid-flight.
+- **Assuming `package.json` / Playwright is the stack** — discover the repo's
+  actual test command (iOS, Python, Go…), falling back to what CI runs.
 - **A flow needs login the repo can't auto-provide** — route to manual rather
   than building a login harness.
 - **A credential is about to leak** into a spec, log, or artifact — never; use
