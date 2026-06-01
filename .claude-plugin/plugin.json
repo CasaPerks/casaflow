@@ -33,6 +33,7 @@
     "./core/skills/extend",
     "./core/skills/visualize",
     "./core/skills/qa",
+    "./core/skills/pr-review-swarm",
     "./packs/engineering/skills/eng-copywriting",
     "./packs/engineering/skills/eng-flags",
     "./packs/engineering/skills/eng-logging",
