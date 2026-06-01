@@ -3,11 +3,15 @@ name: qa
 description: >
   Use when a reviewer picks up a shipped or in-review change to verify it
   before merge — a reviewer-triggered QA pass, not part of the main build
-  pipeline. Runs the feature's existing tests, generates Playwright e2e for
-  the acceptance criteria if none exist, runs them, and writes a pass/fail
-  qa.md. If the target ticket has subtasks, it QAs them one at a time rather
-  than the whole epic at once. Then it offers an opt-in qa.html and lists any
-  checks the reviewer must run manually. Invoked by
+  pipeline. Runs the feature's existing tests (discovering the stack's test
+  command, not just package.json); for web changes it generates/runs Playwright
+  e2e for the acceptance criteria, while non-web changes (mobile, backend,
+  config) route to the existing suite or an AC-derived manual checklist. Writes
+  a qa.md with result pending|PASS|FAIL|BLOCKED (pending = manual checks await
+  sign-off; BLOCKED only when the AC can't be exercised by any form). If the
+  target ticket has subtasks, it QAs them one at a time rather than the whole
+  epic at once. Then it offers an opt-in qa.html and lists any checks the
+  reviewer must run manually. Invoked by
   /casaflow:qa <CAS-NNNN | PR url | branch>.
 tier: workflow
 alwaysApply: false
@@ -213,6 +217,11 @@ PASS. Reserve `BLOCKED` for "there is genuinely no way to exercise this AC."
 A change waiting on the reviewer to walk its manual checks is `pending`, never
 `BLOCKED`.
 
+The front matter must **reconcile** with this result: count checks still
+awaiting sign-off as `manual.unsigned`, so `result: pending` ⟺ `manual.unsigned
+> 0` with nothing failed. When sign-off completes, `unsigned` drops to 0 and the
+result settles to PASS or FAIL.
+
 ---
 
 ## Step 4: Offer qa.html and list manual steps
@@ -280,7 +289,9 @@ result: pending | PASS | FAIL | BLOCKED
 # FAIL     = a check failed
 # BLOCKED  = AC could not be exercised by ANY form (rare; not "no harness")
 automated: { total: N, passed: X, failed: Y, flaky: Z }
-manual: { total: M, pass: , fail: , blocked: }
+manual: { total: M, pass: , fail: , blocked: , unsigned: }
+# manual.unsigned = checks awaiting reviewer sign-off; result is `pending`
+# while unsigned > 0 (and nothing has failed)
 ---
 
 # QA: <Feature / Subtask Name>
