@@ -283,7 +283,7 @@ demonstrably met with the current code.*
 | PR type (from changed paths + ticket) | QA form | PASS means |
 |----------------------------------------|---------|------------|
 | **Web / UI** | `qa` skill → Playwright e2e for the AC | e2e green |
-| **Mobile (iOS/Android)** | Defined **manual AC checklist** the reviewer runs | reviewer signs off every item |
+| **Mobile (iOS/Android)** | Manual checklist **derived item-by-item from the ticket AC** (one check per AC item, not free-form) | reviewer signs off **each item** individually |
 | **Backend / API** | The feature's existing/integration suite (+ a targeted call if needed) | suite green, AC exercised |
 | **Config / refactor / docs** | Relevant **build** + the targeted check that proves the change | build green + the specific behavior confirmed |
 
@@ -307,9 +307,13 @@ resulting `qa.md` front matter.
 | **BLOCKED** | **Only** when QA *could not be performed at all* — no way to exercise the AC by any form (automated or manual). Report why and hand back. **"No Playwright harness" is NOT blocked** — that routes to the manual / suite / build form above and can still reach PASS. |
 
 A PASS whose evidence is a manual checklist is still a PASS — record the
-checklist and the reviewer's sign-off in `qa.md`. But if QA produced manual
-checks the reviewer hasn't signed off yet, surface them; an unsigned manual
-check is not a clean pass — ask before treating it as PASS.
+checklist and the reviewer's sign-off in `qa.md`. **Guard the manual path
+against rubber-stamping**, since it's the easiest form to wave through: every
+checklist item must trace to a specific AC item (no free-form "looks good"),
+and the reviewer signs off **each item individually**, not the checklist as a
+whole. If QA produced manual checks the reviewer hasn't signed off yet, surface
+them; any unsigned item means it's not a clean pass — ask before treating it as
+PASS.
 
 ### 5a. Offer to land the generated coverage (opt-in, never the default)
 
