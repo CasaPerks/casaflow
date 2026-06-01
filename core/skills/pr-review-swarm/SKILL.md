@@ -302,6 +302,7 @@ resulting `qa.md` front matter.
 
 | QA `result` | Next |
 |-------------|------|
+| **pending** | QA is mid-flight — manual checks await sign-off (every non-web PR lands here first). Walk them with the reviewer (or via `qa.html`), each AC item signed off individually. **Do not approve while pending**; it resolves to PASS or FAIL. |
 | **PASS** | → Step 5a (offer to land any generated coverage) → Step 6 (approve) |
 | **FAIL** | Do **not** approve. Summarize the failing checks; with confirmation, post REQUEST_CHANGES (or a comment) citing the QA failures and link `qa.md`. STOP. |
 | **BLOCKED** | **Only** when QA *could not be performed at all* — no way to exercise the AC by any form (automated or manual). Report why and hand back. **"No Playwright harness" is NOT blocked** — that routes to the manual / suite / build form above and can still reach PASS. |
