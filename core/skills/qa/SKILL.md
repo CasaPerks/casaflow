@@ -14,7 +14,9 @@ description: >
   route to the existing suite or an AC-derived manual checklist. If the target
   ticket has subtasks, it QAs them one at a time rather than the whole epic at
   once. Then it offers an opt-in qa.html and lists any checks the reviewer must
-  run manually. Invoked by /casaflow:qa <CAS-NNNN | PR url | branch>.
+  run manually. On a PASS against a ticket, it offers (opt-in) to post the QA
+  summary as a ticket comment and transition the ticket to the team's
+  ready-for-release status. Invoked by /casaflow:qa <CAS-NNNN | PR url | branch>.
 tier: workflow
 alwaysApply: false
 ---
@@ -358,6 +360,43 @@ If QAing subtasks one at a time, after finishing one, offer to move to the next.
 
 ---
 
+## Step 5: On PASS — offer to update the ticket (opt-in)
+
+QA reports results; it does not silently act on them. But once a result settles
+to **PASS** and the target was a **ticket** (not a bare PR/branch), the natural
+next move is to record the outcome on the ticket and advance it. Offer both —
+never do either without an explicit yes.
+
+**Only when `result: PASS`.** Skip this step for `pending` (manual checks still
+await sign-off), `FAIL`, or `BLOCKED` — there's nothing to release yet. For a
+PR/branch target with no linked ticket, skip it too (no ticket to update).
+
+Ask once, clearly:
+
+> "CAS-NNNN passed QA. Want me to:
+> 1. **post the QA summary as a ticket comment**, and
+> 2. **move it to your 'ready for release' status**?
+> Reply **yes** (both), **comment only**, **move only**, or **no**."
+
+On an affirmative:
+- **Comment** — post a concise version of the `qa.md` result via the tracker's
+  comment API (Atlassian MCP `addCommentToJiraIssue`): the PASS verdict, the
+  feature-test result, the per-check table (assertion · result · evidence), and
+  any non-gating follow-ups. Refer to accounts by `role` label — **never** put a
+  credential in the comment.
+- **Transition** — discover the real transitions first
+  (`getTransitionsForJiraIssue`); don't assume an id or a status name. Match the
+  team's post-QA status ("Ready for Release", "Ready for QA sign-off", "Done" —
+  whatever the board actually uses) and **confirm the exact target** with the
+  reviewer before transitioning (`transitionJiraIssue`). If no obvious match
+  exists, list the available transitions and let the reviewer pick.
+
+Confirm each outward action before it happens, and report back with the ticket
+URL. This is the only point where QA writes to the tracker — and it is always
+reviewer-gated, never automatic.
+
+---
+
 ## qa.md file format
 
 ```markdown
@@ -418,7 +457,10 @@ Overall result + per-check verdicts + reviewer notes.
   contract** — path, auth, required params and where each is read from — is
   allowed and expected: that's how to *call* the endpoint, not what it should do.)
 - Does not promote specs to a regression branch/PR, spawn bug tickets, or post
-  Jira/PR reviews. QA reports results; acting on them is a separate step.
+  PR reviews. The one exception is the **opt-in PASS step (Step 5)**: it may post
+  a QA-summary ticket comment and transition the ticket to the team's
+  ready-for-release status — but only on an explicit reviewer yes, and only when
+  the result is PASS. It never writes to the tracker automatically.
 - Does not write credentials anywhere outside the casavault.
 - Does not invent a test harness when none exists — it routes those checks to
   manual.
@@ -468,6 +510,10 @@ Stop and surface explicitly:
 - **About to force a spec for an awkward check** — if a manual check is faster or
   tells you more, write the manual recipe instead of fighting a brittle test.
 - **About to skip the `qa.html` prompt** — never; the choice is the reviewer's.
+- **About to comment on or transition the ticket without an explicit yes** —
+  never. The PASS ticket update (Step 5) is opt-in and only fires on PASS; on
+  `pending`/`FAIL`/`BLOCKED` there's nothing to release. Confirm the exact
+  target status before transitioning; discover transitions, don't assume them.
 
 ---
 
