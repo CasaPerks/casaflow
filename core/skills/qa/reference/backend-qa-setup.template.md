@@ -2,7 +2,7 @@
 # Backend QA Environment — TEMPLATE
 #
 # Copy this file to your casavault ROOT (NOT a feature folder):
-#   ~/Documents/<project-name>/Backend-QA-on-dev-setup.md
+#   ~/Documents/<project-name>/Backend-QA-setup.md
 #
 # It captures, once, the two capabilities a backend live check needs (Step 2.5
 # of the /casaflow:qa skill): how to MINT A TOKEN and how to REACH THE DATA

@@ -243,16 +243,21 @@ makes the *next* backend QA a 2-minute job instead of a rediscovery. Credentials
 and connection strings live in the vault/env, never in `qa.md` or a committed file.
 
 ### 2.5d. Run the check — assert on the response first
-- Arrange the preconditions (seed fixtures, or use persistent QA fixtures).
+- Arrange the preconditions (seed fixtures, or use persistent QA fixtures). **A
+  read-only call has nothing to seed or clean** — it's just mint → call → assert;
+  the arrange and cleanup steps below apply only when the call mutates state.
 - Make the real call with the minted token.
 - **Assert on the structured response** — it's usually the whole assertion
   surface. Only drop to the data layer when the response doesn't cover the AC
   (e.g. "the record was persisted with X").
 - **Distinguish edge errors from app errors:** an HTML 4xx from a proxy /
   web-server (nginx, ALB) means the request **never reached the app** — a header,
-  auth, size, or agent-filter problem. A structured error (JSON, a framework
-  header like `X-Powered-By`, a correlation id) came from the app — diagnose at
-  the right layer instead of blaming the handler.
+  auth, size, or agent-filter problem. A structured error (JSON, a correlation-id
+  header, or a framework header like `X-Powered-By` if present) came from the app
+  — diagnose at the right layer instead of blaming the handler. The **correlation-id**
+  header is the most reliable "reached the app" signal; `X-Powered-By` is commonly
+  stripped (`helmet`, `app.disable('x-powered-by')`), so its *absence* does **not**
+  prove the edge ate the request.
 - **Clean up** any fixtures you seeded, then **re-verify the cleanup ran** — a
   piped/silent cleanup can no-op; don't leave seed data in a shared env.
 
@@ -297,6 +302,12 @@ The front matter must **reconcile** with this result: count checks still
 awaiting sign-off as `manual.unsigned`, so `result: pending` ⟺ `manual.unsigned
 > 0` with nothing failed. When sign-off completes, `unsigned` drops to 0 and the
 result settles to PASS or FAIL.
+
+A **named residual gap** (an unexercised end-to-end boundary the reviewer agrees
+to accept) reconciles the same way: it counts as a `manual.unsigned` item — so the
+result stays `pending` until the reviewer signs it off, after which the result may
+move to PASS with the gap recorded in the sign-off. It is never a silent caveat on
+an already-PASS result.
 
 ---
 
