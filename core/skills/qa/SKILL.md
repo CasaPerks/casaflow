@@ -8,11 +8,13 @@ description: >
   e2e for the acceptance criteria, while non-web changes (mobile, backend,
   config) route to the existing suite or an AC-derived manual checklist. Writes
   a qa.md with result pending|PASS|FAIL|BLOCKED (pending = manual checks await
-  sign-off; BLOCKED only when the AC can't be exercised by any form). If the
-  target ticket has subtasks, it QAs them one at a time rather than the whole
-  epic at once. Then it offers an opt-in qa.html and lists any checks the
-  reviewer must run manually. Invoked by
-  /casaflow:qa <CAS-NNNN | PR url | branch>.
+  sign-off; BLOCKED only when the AC can't be exercised by any form). Backend/API
+  changes get a real call against a test env when the existing suite mocks the
+  boundary the AC is about (Step 2.5); other non-web changes (mobile, config)
+  route to the existing suite or an AC-derived manual checklist. If the target
+  ticket has subtasks, it QAs them one at a time rather than the whole epic at
+  once. Then it offers an opt-in qa.html and lists any checks the reviewer must
+  run manually. Invoked by /casaflow:qa <CAS-NNNN | PR url | branch>.
 tier: workflow
 alwaysApply: false
 ---
@@ -139,10 +141,11 @@ this skill does — lean into it for **web/UI** changes. For **non-web** changes
 there's no Playwright to generate; the automated coverage is the existing suite
 from Step 1, and the rest is manual (Step 4):
 - **mobile** → the device/UI checks become a manual AC checklist (Step 4)
-- **backend / API** → the integration suite from Step 1 (+ a targeted call if needed)
+- **backend / API** → the existing suite from Step 1, **plus a live call (Step 2.5)
+  when the AC asserts behavior at a boundary that suite mocks**
 - **config / refactor / docs** → the relevant build + the targeted check that proves it
 
-If this isn't a web change, skip to Step 3. Otherwise:
+If this isn't a web change, skip to Step 2.5 (backend/API) or Step 3. Otherwise:
 
 ### 2a. Discover the Playwright runtime
 ```bash
@@ -194,6 +197,76 @@ spec that passes then fails on retry is `flaky` — record it as such.
 
 ---
 
+## Step 2.5: Backend / API live verification (backend changes)
+
+The backend analogue of the Playwright step. When the change is **backend / API**
+and an acceptance criterion asserts *end-to-end* behavior — a real call to a
+downstream provider (SMS/email/push), a status code on the wire, a row persisted —
+the Step-1 suite often **mocks exactly that boundary** (the DB, the provider
+client, the HTTP layer). A green mocked suite then proves the unit logic but
+**not** that the real route works. A single real call closes that gap.
+
+Like the Playwright step, this is scoped to what the AC needs — make the one call
+that proves the criterion, don't build a backend check matrix.
+
+### 2.5a. Is a live call warranted?
+Yes when **both**:
+- an AC asserts behavior at a boundary the Step-1 suite mocks (a provider call
+  fired/skipped, a persisted value, a real status code), **and**
+- that boundary is reachable in a test env (dev/staging) with credentials the
+  team provides.
+
+If the existing suite already hits the real boundary (integration tests against a
+test DB / provider sandbox), Step 1 covers it — don't re-run it by hand. If the AC
+is pure unit logic with no external boundary, Step 1 covers it too.
+
+### 2.5b. Learn the invocation contract (allowed — this is *how to call it*)
+Read the controller/route to get: the **path**, the **auth** it requires, and the
+**required params and where each is read from** (query vs header vs path vs body).
+This is the invocation contract, not the feature's behavior — reading it is
+expected and necessary. (A value sent in the wrong place — e.g. a header the
+handler actually reads off the query string — yields a misleading "not found.")
+
+### 2.5c. Discover the QA environment (auth + data access)
+Backend live calls need two capabilities. Find how *this project* provides each
+from its **backend-QA reference** (see `reference/`) — don't guess:
+- **Auth** — how to mint a bearer token for a given role. (Many backends validate
+  the **access** token, not the ID token — check which.)
+- **Data access** — how to arrange preconditions and inspect persisted state in
+  the test env. Often the API itself; sometimes a documented tunnel / VPN / bastion
+  to a network-isolated DB.
+
+If the project has **no backend-QA reference yet**, that's the signal to set one
+up once: copy `reference/backend-qa-setup.template.md` into the vault, work out
+the token-mint + data-access commands, and fill it. Capturing them once is what
+makes the *next* backend QA a 2-minute job instead of a rediscovery. Credentials
+and connection strings live in the vault/env, never in `qa.md` or a committed file.
+
+### 2.5d. Run the check — assert on the response first
+- Arrange the preconditions (seed fixtures, or use persistent QA fixtures). **A
+  read-only call has nothing to seed or clean** — it's just mint → call → assert;
+  the arrange and cleanup steps below apply only when the call mutates state.
+- Make the real call with the minted token.
+- **Assert on the structured response** — it's usually the whole assertion
+  surface. Only drop to the data layer when the response doesn't cover the AC
+  (e.g. "the record was persisted with X").
+- **Distinguish edge errors from app errors:** an HTML 4xx from a proxy /
+  web-server (nginx, ALB) means the request **never reached the app** — a header,
+  auth, size, or agent-filter problem. A structured error (JSON, a correlation-id
+  header, or a framework header like `X-Powered-By` if present) came from the app
+  — diagnose at the right layer instead of blaming the handler. The **correlation-id**
+  header is the most reliable "reached the app" signal; `X-Powered-By` is commonly
+  stripped (`helmet`, `app.disable('x-powered-by')`), so its *absence* does **not**
+  prove the edge ate the request.
+- **Clean up** any fixtures you seeded, then **re-verify the cleanup ran** — a
+  piped/silent cleanup can no-op; don't leave seed data in a shared env.
+
+Record each live check like an automated one: assertion · pass / fail · evidence
+(status + a response excerpt, or the persisted value). Never put credentials in
+`qa.md` — refer to the account by its `role` label.
+
+---
+
 ## Step 3: Write qa.md (the pass/fail doc)
 
 Write `qa.md` to the feature folder
@@ -217,10 +290,24 @@ PASS. Reserve `BLOCKED` for "there is genuinely no way to exercise this AC."
 A change waiting on the reviewer to walk its manual checks is `pending`, never
 `BLOCKED`.
 
+**A mocked-suite pass is not a backend PASS on its own.** When an AC asserts
+end-to-end behavior at a boundary the Step-1 suite mocks (a real provider call, a
+persisted row, a status code), "all unit tests green" is *not* sufficient evidence
+— the tests never touched the boundary the ticket changed. Either complete the
+live call (Step 2.5), or record the unverified part as a **named residual gap the
+reviewer explicitly accepts**, written into the sign-off. Never fold an unexercised
+end-to-end AC silently into PASS.
+
 The front matter must **reconcile** with this result: count checks still
 awaiting sign-off as `manual.unsigned`, so `result: pending` ⟺ `manual.unsigned
 > 0` with nothing failed. When sign-off completes, `unsigned` drops to 0 and the
 result settles to PASS or FAIL.
+
+A **named residual gap** (an unexercised end-to-end boundary the reviewer agrees
+to accept) reconciles the same way: it counts as a `manual.unsigned` item — so the
+result stays `pending` until the reviewer signs it off, after which the result may
+move to PASS with the gap recorded in the sign-off. It is never a silent caveat on
+an already-PASS result.
 
 ---
 
@@ -326,8 +413,10 @@ Overall result + per-check verdicts + reviewer notes.
 
 - Does not reconcile spec/shipped divergences or reverse-engineer the feature
   from the diff — it tests against the acceptance criteria.
-- Does not derive backend check matrices or infer API request/response shapes
-  from the code.
+- Does not derive elaborate backend check matrices or guess the feature's
+  *behavior* from the diff. (Reading the controller/route for the **invocation
+  contract** — path, auth, required params and where each is read from — is
+  allowed and expected: that's how to *call* the endpoint, not what it should do.)
 - Does not promote specs to a regression branch/PR, spawn bug tickets, or post
   Jira/PR reviews. QA reports results; acting on them is a separate step.
 - Does not write credentials anywhere outside the casavault.
@@ -359,6 +448,21 @@ Stop and surface explicitly:
   than building a login harness.
 - **A credential is about to leak** into a spec, log, or artifact — never; use
   the existing env/fixture indirection.
+- **Mocked suite passed, but the AC is about the real boundary** — a green
+  unit/integration suite that mocks the provider/DB/HTTP does NOT verify the
+  route. Do the live call (Step 2.5) or record a named residual gap; don't call
+  it PASS.
+- **HTML 4xx/5xx from the server** — that's the proxy/edge (nginx, ALB), not your
+  app; the request never reached the handler. Look at headers / auth / size /
+  agent filters, not the controller.
+- **Captured token looks malformed or oversized** — an env-loader banner printed
+  to **stdout** (e.g. `dotenv` v17+) may be contaminating the captured value.
+  Capture it cleanly (quiet mode) before blaming auth.
+- **401/403 where you expected app logic** — wrong token type (ID vs **access**),
+  param sent in the wrong place (header vs query vs path), or an edge UA/agent
+  filter. Confirm you actually reached the app before debugging the feature.
+- **Seed data left in a shared env** — always clean up fixtures and **re-verify**
+  the cleanup ran (a silent/piped cleanup can no-op).
 - **You're tempted to investigate what the feature "must" do** — stop. Read the
   AC, or ask the reviewer. Don't back-engineer it.
 - **About to force a spec for an awkward check** — if a manual check is faster or
@@ -371,3 +475,6 @@ Stop and surface explicitly:
 
 - `reference/QA-Accounts-Registry.template.md` — optional test-account registry
   schema, if the team maintains shared QA logins in the vault.
+- `reference/backend-qa-setup.template.md` — backend-QA environment setup
+  (how to mint a token + reach the data layer in a test env, plus the gotchas).
+  Copied to the vault and filled in per project; read in Step 2.5c.
