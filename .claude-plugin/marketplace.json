@@ -10,7 +10,7 @@
       "description": "Full lifecycle pipeline with spec gates, approval gates, and Jira integration",
       "source": "./",
       "strict": true,
-      "version": "1.0.1"
+      "version": "1.0.2"
     }
   ]
 }

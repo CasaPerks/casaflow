@@ -195,6 +195,16 @@ it asked for and how this addresses it.}
 - **{Theme}**: {What changed}.
 - **{Theme}**: {What changed}.
 
+## Security impact
+
+{REQUIRED on every PR — SOC 2 change management. Derive from the diff, do not
+guess. If the change touches none of: authentication/authorization, data
+handling or schemas, permissions/roles, secrets/credentials, network/infra
+config, or dependencies — write exactly:
+`None — no security-relevant surface touched.`
+Otherwise, 1-3 sentences: what security-relevant surface changed and how the
+risk was addressed or tested.}
+
 ## Test plan
 
 - [ ] Automated tests (Unit/Integration) passed
@@ -221,6 +231,10 @@ gh pr create --title "type(scope): description" --body "$(cat <<'EOF'
 ## Changes
 
 ...
+
+## Security impact
+
+None — no security-relevant surface touched.
 
 ## Test plan
 
@@ -283,6 +297,7 @@ That tells the reviewer nothing. What actually changed? Which files? Why?
 | Listing every commit as a bullet | Group by theme -- reviewers do not need your git log |
 | "Updated files" with no context | Say *what* changed and *why* |
 | Empty test plan | Always include checkboxes -- even "No testing required" is a choice |
+| Missing or rubber-stamped Security impact | Derive it from the diff -- auth, data, permissions, secrets, network, deps. "None" is a claim reviewers will verify |
 | Title longer than 70 chars | Move details to the body |
 | Corporate tone in summary | Read it out loud. Would you say this to a teammate? |
 | Missing ticket reference | Check branch name for ticket pattern from `casaflow.config.md` |
